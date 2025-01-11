@@ -46,8 +46,8 @@ export default eventHandler(async event => {
           },
         ],
         mode: 'subscription',                         // Set the mode to 'subscription'
-        success_url: `http://localhost:3000/success`, // URL for successful subscription
-        cancel_url: `http://localhost:3000/cancelled`,// URL for cancelled subscription
+        success_url: `https://authoring-tool-v1.vercel.app/success`, // URL for successful subscription
+        cancel_url: `https://authoring-tool-v1.vercel.app/cancelled`,// URL for cancelled subscription
       });
 
       if (session.url) {

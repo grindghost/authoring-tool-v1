@@ -48,6 +48,11 @@ export default NuxtAuthHandler({
   ],
 
   callbacks: {
+
+    redirect: async ({ url, baseUrl }) => {
+      return baseUrl; // Ensures it redirects to the correct base URL
+    },
+
     // Adding subscription status to default useAuth data object.
     async session({ session }) {
       if (session.user?.email) {

@@ -53,8 +53,9 @@ export default NuxtAuthHandler({
 
       console.log('Redirecting to:', url);
       console.log('Base URL:', baseUrl);
+      console.log('Vercel base URL:', process.env.NEXTAUTH_URL);
 
-      return baseUrl; // Ensures it redirects to the correct base URL
+      return process.env.NEXTAUTH_URL; // Ensures it redirects to the correct base URL
     },
 
     // Adding subscription status to default useAuth data object.

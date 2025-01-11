@@ -50,6 +50,10 @@ export default NuxtAuthHandler({
   callbacks: {
 
     redirect: async ({ url, baseUrl }) => {
+
+      console.log('Redirecting to:', url);
+      console.log('Base URL:', baseUrl);
+
       return baseUrl; // Ensures it redirects to the correct base URL
     },
 

@@ -55,6 +55,7 @@ export default eventHandler(async (event) => {
 
       await updatePocketBaseAccount(subscription.customer, {
         is_subscribed: false,
+        plan: 'tier-free',
       });
 
       break;

@@ -1,14 +1,21 @@
 <script setup lang="ts">
-const { status, signIn } = useAuth()
 
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { FaBook } from "oh-vue-icons/icons";
+import { useProjects } from "~/stores/projects";
+
 addIcons(FaBook);
+
+const { status, signIn } = useAuth()
+const projectStore = useProjects();
 
 </script>
 
 <template>
   <div>
+    <!-- Global loading screen -->
+    <LoadingScreen :show="projectStore.isLoading" />
+    
     <div class="navbar bg-base-100 shadow fixed z-50">
       <div class="flex-1">
         <NuxtLink to="/" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
@@ -25,8 +32,10 @@ addIcons(FaBook);
     </div>
 
     </div>
+    
     <!-- Content -->
     <NuxtPage />
     <!-- Content -->
+  
   </div>
 </template>

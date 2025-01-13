@@ -1,5 +1,5 @@
 <template>
-    <section class="pt-40 bg-white">
+    <section class="pt-40 pb-20 bg-white">
         <div class="px-6 mx-auto max-w-7xl">
             <div class="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
                 <h1 class="mb-8 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-6xl">
@@ -27,7 +27,7 @@
                     </a>
                 </div>
             </div>
-            <div class="w-full mx-auto mt-20 mb-32 text-center md:w-10/12">
+            <div class="w-full mx-auto mt-20 text-center md:w-10/12">
                 <div class="relative z-0 w-full mt-8">
                     <div class="relative overflow-hidden shadow-2xl">
                         <div class="flex items-center flex-none px-4 bg-primary rounded-t-xl h-11">

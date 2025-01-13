@@ -2,16 +2,16 @@
     <transition name="fade">
       <div v-if="show" class="loading-overlay">
         <div class="spinner"></div>
-        <p>{{ authStore.statusMessage }}...</p>
+        <p>{{ projectStore.statusMessage }}...</p>
       </div>
     </transition>
   </template>
   
   <script setup>
   import { defineProps } from 'vue';
-  import { useAuthStore } from '~/stores/auth';
+  import { useProjects } from '~/stores/projects';
 
-  const authStore = useAuthStore();
+  const projectStore = useProjects();
   
   // Accept a `show` prop to control visibility
   defineProps({

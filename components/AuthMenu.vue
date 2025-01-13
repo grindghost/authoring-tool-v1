@@ -4,7 +4,14 @@ const { data, signOut } = useAuth()
 const { navigateToStripeDashboard } = useStripe()
 
 
+const navigateToProjectsDashboard = async() => {
+  navigateTo('/dashboard', {
+    external: true,
+  })
+}
+
 const solutions = [
+  { name: 'Dashboard', fn: navigateToProjectsDashboard },
   { name: 'Manage Billing', fn: navigateToStripeDashboard },
   { name: 'Sign Out', fn: signOut },
 ]

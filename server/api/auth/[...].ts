@@ -3,6 +3,10 @@ import { NuxtAuthHandler } from '#auth';
 import { PocketBaseAdapter } from '~/server/adapters/pocketbase';
 import { stripe } from '~/server/utils/stripe';
 
+import { useProjects } from '~/stores/projects';
+
+const projectsStore = useProjects()
+
 const runtimeConfig = useRuntimeConfig()
 
 export default NuxtAuthHandler({
@@ -63,6 +67,11 @@ export default NuxtAuthHandler({
 
       if (session.user?.email) {
         const accounts = await getAccountsByEmail(session.user.email)
+
+        // Verify that the projects are loaded when the user is authenticated
+        if (!projectsStore.projectsLoaded) {
+          const projects = await projectsStore.fetchProjects(accounts[0].userId)
+        }
 
         return {
           ...session,

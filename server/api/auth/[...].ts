@@ -42,24 +42,25 @@ export default NuxtAuthHandler({
     GithubProvider.default({
       clientId: runtimeConfig.GITHUB_CLIENT_ID,
       clientSecret: runtimeConfig.GITHUB_CLIENT_SECRET,
-      authorization: { params: { scope: 'read:user user:email' } },
+      authorization: { params: { scope: 'read:user user:email', prompt: "select_account" } },
       options: { timeout: 10000 }, // Increase timeout to 10 seconds
     }),
   ],
 
   callbacks: {
 
-    redirect: async ({ url, baseUrl }) => {
+    // redirect: async ({ url, baseUrl }) => {
 
-      console.log('Redirecting to:', url);
-      console.log('Base URL:', baseUrl);
-      console.log('Vercel base URL:', process.env.NEXTAUTH_URL);
+    //   console.log('Redirecting to:', url);
+    //   console.log('Base URL:', baseUrl);
+    //   console.log('Vercel base URL:', process.env.NEXTAUTH_URL);
 
-      return process.env.NEXTAUTH_URL; // Ensures it redirects to the correct base URL
-    },
+    //   return process.env.NEXTAUTH_URL; // Ensures it redirects to the correct base URL
+    // },
 
     // Adding subscription status to default useAuth data object.
     async session({ session }) {
+
       if (session.user?.email) {
         const accounts = await getAccountsByEmail(session.user.email)
 
@@ -69,6 +70,7 @@ export default NuxtAuthHandler({
             ...session.user,
             isSubscribed: accounts[0].is_subscribed,
             plan: accounts[0].plan,
+            userId: accounts[0].userId,
           },
         }
       }
@@ -79,6 +81,7 @@ export default NuxtAuthHandler({
           ...session.user,
           isSubscribed: undefined,
           plan: 'tier-free',
+          userId: undefined,
         },
       }
     },

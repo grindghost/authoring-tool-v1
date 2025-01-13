@@ -9,6 +9,7 @@ declare module 'next-auth' {
       /** The user's Stripe subscription status. */
       isSubscribed: boolean,
       plan: string,
+      userId: string,
     } & DefaultSession['user']
   }
 }

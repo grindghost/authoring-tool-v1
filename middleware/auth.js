@@ -1,8 +1,16 @@
 export default defineNuxtRouteMiddleware((to, from) => {
-    const { session } = useAuth();
-  
-    if (!session.value?.user && to.path !== '/login') {
-      return navigateTo('/login');
-    }
+  const { session, status } = useAuth(); // Use your custom useAuth composable
+
+  // Wait for session loading to complete
+  if (status.value === "loading") {
+    console.log("Session is loading...");
+    return; // Do nothing until the session is resolved
+  }
+
+  // Redirect if the user is unauthenticated
+  if (status.value === "unauthenticated" && to.path !== "/login") {
+    console.log("Redirecting to login...");
+    return navigateTo("/login");
+  }
   });
   

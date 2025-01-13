@@ -4,7 +4,7 @@ const { data, signOut } = useAuth()
 const { navigateToStripeDashboard } = useStripe()
 
 
-  const solutions = [
+const solutions = [
   { name: 'Manage Billing', fn: navigateToStripeDashboard },
   { name: 'Sign Out', fn: signOut },
 ]

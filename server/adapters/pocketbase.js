@@ -3,7 +3,6 @@ import PocketBase from 'pocketbase';
 const pb = new PocketBase('https://jdb.pockethost.io');
 // pb.authStore.save(process.env.POCKETBASE_API_KEY);
 
-
 const authenticateAdmin = async () => {
   if (!pb.authStore.isValid) {
     await pb.admins.authWithPassword(

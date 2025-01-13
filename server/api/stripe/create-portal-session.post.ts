@@ -2,7 +2,7 @@ import { stripe } from '~/server/utils/stripe';
 import { getServerSession } from '#auth';
 import PocketBase from 'pocketbase';
 
-const baseUrl = 'https://authoring-tool-v1.vercel.app';
+const baseUrl = process.env.NEXTAUTH_URL;
 const pb = new PocketBase('https://jdb.pockethost.io');
 
 export default eventHandler(async event => {

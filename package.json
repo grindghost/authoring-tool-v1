@@ -18,6 +18,7 @@
     "@sidebase/nuxt-auth": "^0.10.0-rc.2",
     "next-auth": "^4.21.1",
     "nuxt": "^3.14.1592",
+    "oh-vue-icons": "^1.0.0-rc3",
     "pocketbase": "^0.21.5",
     "stripe": "^17.4.0",
     "vue": "latest",

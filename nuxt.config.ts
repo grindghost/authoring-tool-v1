@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   },
   auth: {
     originEnvKey: 'AUTH_ORIGIN',
-    baseURL: 'https://authoring-tool-v1.vercel.app/api/auth',
+    baseURL: `${process.env.NEXTAUTH_URL}/api/auth`,
     provider: {
       type: 'authjs',
       defaultProvider: 'github',

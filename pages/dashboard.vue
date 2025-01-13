@@ -66,7 +66,7 @@ import { AuthHandler } from 'next-auth/core';
 
       Object.entries(groupedProjects.value).forEach(([author, projects]) => {
           const matchingProjects = projects.filter((project) => {
-          const name = project.expand?.author?.name.toLowerCase();
+          const name = project.profile?.name.toLowerCase();
           
           // Preformat the date into the string format used for display on the cards
           // const date = new Date(project.updated).toLocaleDateString('fr-FR');
@@ -74,7 +74,7 @@ import { AuthHandler } from 'next-auth/core';
           const options = { year: 'numeric', month: 'long', day: 'numeric' };
           const formattedDate = new Intl.DateTimeFormat('fr-FR', options).format(date);
 
-          const authorName = author.toLowerCase();
+          const authorName = project.expand?.author?.name.toLowerCase();
 
           if (filterKey.value === 'name') {
               return name.includes(filterText);
@@ -201,9 +201,14 @@ import { AuthHandler } from 'next-auth/core';
   <style scoped>
 
   
-  select {
-    /* border-right: 16px solid transparent; */
-  }
+select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right;
+    background-position-x: 90%;
+    -webkit-padding-end: 20px;
+}
   
   /* Existing styles */
   .overlay {

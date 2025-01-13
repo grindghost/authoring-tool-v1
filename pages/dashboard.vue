@@ -42,14 +42,10 @@ import { AuthHandler } from 'next-auth/core';
     }
     });
 
-    const authorsDict = {};
-
     // Group projects by author
     const groupedProjects = computed(() => {
     const groups = {};
     projectStore.projects.forEach((project) => {
-      console.log(project);
-        // const author = JSON.parse(project.profile.author)?.firstName + ' ' + JSON.parse(project.profile.author)?.lastName || 'Auteur inconnu';
 
         const authorName = project?.expand?.author?.name || 'Auteur inconnu';
 
@@ -70,7 +66,7 @@ import { AuthHandler } from 'next-auth/core';
 
       Object.entries(groupedProjects.value).forEach(([author, projects]) => {
           const matchingProjects = projects.filter((project) => {
-          const name = project.profile.name.toLowerCase();
+          const name = project.expand?.author?.name.toLowerCase();
           
           // Preformat the date into the string format used for display on the cards
           // const date = new Date(project.updated).toLocaleDateString('fr-FR');
@@ -163,7 +159,7 @@ import { AuthHandler } from 'next-auth/core';
       <!-- Projects Grouped by Author -->
       <div v-for="(projects, author, index) in filteredProjects" :key="author" class="space-y-4">
         <h2 class="text-xl font-medium">{{ author }}</h2>
-        <a class="text-gray-400 text-sm font-medium link" href="mailto:`${projects[index].expand?.author?.email}`">{{ projects[index].expand?.author?.email }}</a>
+        <a class="text-gray-400 text-sm font-medium link" href="#">{{ projects[index]?.expand?.author?.email }}</a>
 
         <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <ProjectCard

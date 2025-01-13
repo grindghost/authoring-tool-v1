@@ -41,7 +41,7 @@ return text.length > maxLength
 });
 
 const author = computed(() => { 
-  return props.project.expand.author.name || props.project.author.id ;
+  return props.project?.expand?.author?.name || props.project?.author?.id ;
 });
 
 const description = computed(() => { 

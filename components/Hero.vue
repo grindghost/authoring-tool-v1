@@ -2,15 +2,17 @@
     <section class="pt-40 pb-20 bg-white">
         <div class="px-6 mx-auto max-w-7xl">
             <div class="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
-                <h1 class="mb-8 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-6xl">
-                    <span>Start</span> 
-                    <span class="block w-full py-2 text-primary bg-clip-text leading-12 lg:inline">
-                        building a buzz
+                <h1 class="mb-8 text-5xl font-extrabold leading-none tracking-tight text-gray-900 md:text-6xl">
+                    <span>Supporter</span> 
+                    <span class="block w-full py-2 text-primary bg-clip-text leading-12">
+                        l'apprentissage
                     </span> 
-                    <span>around your product?</span>
+                    <span>une réflexion à la fois</span>
                 </h1>
                 <p class="px-0 mb-8 text-lg text-gray-600 md:text-xl lg:px-24">
-                    Start gaining the traction you've always wanted with our next-level templates and designs. Crafted to help you tell your story.
+                    Transformez vos PDF interactifs en journal de bord et créez un document précieux pour accompagner votre aventure éducative.
+
+                    <!-- Aidez vos apprenants à transformer leurs réflexions en un document enrichissant qui accompagne chaque étape de leur formation. -->
                 </p>
                 <div class="mb-4 space-x-0 md:space-x-2 md:mb-8">
                     <a href="#_" class="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg text-white bg-primary rounded-lg sm:w-auto sm:mb-0 hover:bg-secondary">
@@ -37,7 +39,7 @@
                                 <div class="w-3 h-3 border-2 border-white rounded-full"></div>
                             </div>
                         </div>
-                        <img src="https://cdn.devdojo.com/images/march2021/green-dashboard.jpg" alt="Dashboard preview" class="rounded-b-xl">
+                        <img src="assets/hero.png" alt="Dashboard preview" class="rounded-b-lg">
                     </div>
                 </div>
             </div>

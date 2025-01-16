@@ -3,11 +3,18 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 const { data, signOut } = useAuth()
 const { navigateToStripeDashboard } = useStripe()
 
+const router = useRouter()
+
+
+import { useProjects } from '~/stores/projects';
+const projectStore = useProjects();
 
 const navigateToProjectsDashboard = async() => {
-  navigateTo('/dashboard', {
-    external: true,
-  })
+  // The following cause a hard reload...
+  // navigateTo('/dashboard', {
+  //   external: true,
+  // })
+  router.push({ path: "/dashboard" })
 }
 
 const solutions = [

@@ -1,7 +1,4 @@
-import { defineStore, createPinia, setActivePinia ,acceptHMRUpdate } from 'pinia';
-
-const pinia = createPinia()
-export default { store: setActivePinia(pinia) }
+import { defineStore } from 'pinia';
 
 export const useProjects = defineStore('projects', {
   state: () => ({
@@ -21,49 +18,51 @@ export const useProjects = defineStore('projects', {
       this.isLoading = false;
     },
 
-    async fetchProjects(userId) {
 
-      this.startLoading();
+    async fetchProjects() {
 
-      // Reset projects loaded
-      this.projectsLoaded = false;
+        // Display loading
+        this.startLoading();
 
-      try {
-        if (userId) {
-          const response = await $fetch('/api/pb/projects', {
-            headers: { UserId: userId },
-          });
-          this.projects = response;
+        // Reset projects loaded
+        this.projectsLoaded = false;
 
-          console.log('Fetched projects:', this.projects);
+        try {
+            // Send the request without passing the userId explicitly
+            const response = await $fetch('/api/pb/projects', {
+                credentials: 'include',
+            });
+            
+            this.projects = response;
 
-          // Optional: persist in localStorage if necessary
-          // localStorage.setItem('projects', JSON.stringify(this.projects));
+            // Flag projects as loaded
+            this.projectsLoaded = true;
 
-          // Flag projects as loaded
-          this.projectsLoaded = true;
+            // Hide loading
+            this.stopLoading();
 
-          this.stopLoading();
-
+        } catch (error) {
+            console.error('Error fetching projects:', error);
+            throw error;
+        } finally {
+            
+            // Hide loading
+            this.stopLoading();
         }
-      } catch (error) {
-        console.error('Failed to fetch projects:', error);
-      } finally {
-        this.stopLoading();
-      }
     },
 
-
-    async deleteProject(userId, projectId) {
+    async deleteProject(projectId) {
+      
       this.startLoading();
+      
       this.statusMessage = 'Supression du projet';
+      
       try {
-        if (userId) {
-          const response = await fetch(`/api/pb/delete-project/${projectId}`, {
+        // Send the request without passing the userId explicitly
+        const response = await fetch(`/api/pb/delete-project/${projectId}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
-              UserId: userId,
             },
           });
 
@@ -74,7 +73,7 @@ export const useProjects = defineStore('projects', {
 
           // Remove deleted project from local state
           this.projects = this.projects.filter((project) => project.id !== projectId);
-        }
+        
       } catch (error) {
         console.error('Error deleting project:', error.message);
         throw error;
@@ -224,8 +223,3 @@ export const useProjects = defineStore('projects', {
 
   },
 });
-
-// make sure to pass the right store definition, `useProjects` in this case.
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useProjects, import.meta.hot))
-}

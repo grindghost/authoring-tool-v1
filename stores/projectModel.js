@@ -1,5 +1,5 @@
 // stores/projectModel.js
-import { defineStore, acceptHMRUpdate } from 'pinia';
+import { defineStore } from 'pinia';
 
 export const useProjectModelStore = defineStore('projectModel', {
   state: () => ({
@@ -190,7 +190,3 @@ export const useProjectModelStore = defineStore('projectModel', {
 
 });
 
-// make sure to pass the right store definition, `useAuth` in this case.
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useProjectModelStore, import.meta.hot))
-}

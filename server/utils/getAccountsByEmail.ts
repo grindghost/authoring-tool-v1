@@ -6,19 +6,19 @@ export const getAccountsByEmail = async (email) => {
 
   // Check if already authenticated
   if (!pb.authStore.isValid) {
-    console.log('🔑 Authenticating as admin...');
+    console.log('🔑 Server utils | getAccountsByEmail.js:', 'Authenticating as admin...');
     try {
       await pb.admins.authWithPassword(
         process.env.POCKETBASE_ADMIN_EMAIL,
         process.env.POCKETBASE_ADMIN_PASSWORD
       );
-      console.log('🔥 Authenticated as admin...');
+      console.log('🚀 Server utils | getAccountsByEmail.js:', 'Authenticated as admin...');
     } catch (error) {
       console.error('❌ Failed to authenticate as admin:', error);
       return [];
     }
   } else {
-    console.log('✅ Already authenticated as admin.');
+    console.log('✅ Server utils | getAccountsByEmail.js:', 'Already authenticated as admin.');
   }
 
   pb.autoCancellation(false);

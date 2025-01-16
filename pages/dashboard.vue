@@ -2,16 +2,18 @@
     import { ref, computed, watchEffect } from 'vue';
     import { useRouter } from 'vue-router';
     import { useProjects } from '~/stores/projects';
-    // import ProjectCreationOverlay from '~/components/ProjectCreationOverlay.vue';
     import { da } from 'date-fns/locale';
-import auth from '~/middleware/auth';
-import { AuthHandler } from 'next-auth/core';
+    
+    import auth from '~/middleware/auth';
+    import { AuthHandler } from 'next-auth/core';
+    import { set } from 'date-fns';
 
     const showProjectCreationOverlay = ref(false);
     const showDeleteProjectOverlay = ref(false);
     const selectedProjectId = ref(null);
 
-    const { status, data } = useAuth()
+    const { status, data } = useAuth();
+    import { useSession } from '@auth0/nextjs-auth0/client';
     const router = useRouter();
     const projectStore = useProjects();
 
@@ -23,23 +25,17 @@ import { AuthHandler } from 'next-auth/core';
         middleware: ["auth"],
     });
 
-
-    // Watch user state to fetch projects
-    //   watchEffect(() => {
-    //     if (isSignedIn.value && isLoaded.value) {
-    //       projectStore.user = user.value;
-    //       if (!projectStore.projectsLoaded) {
-    //         projectStore.fetchProjects(user.value);
-    //       }
-    //     }
-    //   });
-
     // Fetch projects on component mount, to make sure 
     // the informations on the card is up to date...
     onMounted(async() => {
-    if (status.value === 'authenticated') {
-        await projectStore.fetchProjects(data.value.user.userId);
-    }
+      if (status.value === 'authenticated') {
+        if (projectStore.projectsLoaded == false) { 
+          console.log('Initiating the projects fetch...');
+          // await projectStore.fetchProjects(data.value.user.userId);     
+          await projectStore.fetchProjects();   
+          console.log(projectStore.projects);   
+        }
+      }
     });
 
     // Group projects by author
@@ -48,13 +44,11 @@ import { AuthHandler } from 'next-auth/core';
     projectStore.projects.forEach((project) => {
 
         const authorName = project?.expand?.author?.name || 'Auteur inconnu';
-
+        
         if (!groups[authorName]) {
           groups[authorName] = [];
         }
         groups[authorName].push(project);
-
-
     });
     return groups;
     });
@@ -103,7 +97,7 @@ import { AuthHandler } from 'next-auth/core';
         showDeleteProjectOverlay.value = false;
         
         setTimeout(async () => {
-            await projectStore.deleteProject(data.value.user.userId, selectedProjectId.value);
+            await projectStore.deleteProject(selectedProjectId.value);
             selectedProjectId.value = null;
         }, 200);
     }
@@ -117,7 +111,8 @@ import { AuthHandler } from 'next-auth/core';
         showProjectCreationOverlay.value = false;
         
         setTimeout(async () => {
-            projectStore.fetchProjects(data.value.user.userId);
+            // projectStore.fetchProjects(data.value.user.userId);
+            await projectStore.fetchProjects();
         }, 200);  
     }
 
@@ -159,7 +154,6 @@ import { AuthHandler } from 'next-auth/core';
       <!-- Projects Grouped by Author -->
       <div v-for="(projects, author, index) in filteredProjects" :key="author" class="space-y-4">
         <h2 class="text-xl font-medium">{{ author }}</h2>
-        <a class="text-gray-400 text-sm font-medium link" href="#">{{ projects[index]?.expand?.author?.email }}</a>
 
         <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <ProjectCard

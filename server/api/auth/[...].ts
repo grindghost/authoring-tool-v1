@@ -3,9 +3,9 @@ import { NuxtAuthHandler } from '#auth';
 import { PocketBaseAdapter } from '~/server/adapters/pocketbase';
 import { stripe } from '~/server/utils/stripe';
 
-import { useProjects } from '~/stores/projects';
+// import { useProjects } from '~/stores/projects';
 
-const projectsStore = useProjects()
+// const projectsStore = useProjects()
 
 const runtimeConfig = useRuntimeConfig()
 
@@ -52,26 +52,11 @@ export default NuxtAuthHandler({
   ],
 
   callbacks: {
-
-    // redirect: async ({ url, baseUrl }) => {
-
-    //   console.log('Redirecting to:', url);
-    //   console.log('Base URL:', baseUrl);
-    //   console.log('Vercel base URL:', process.env.NEXTAUTH_URL);
-
-    //   return process.env.NEXTAUTH_URL; // Ensures it redirects to the correct base URL
-    // },
-
     // Adding subscription status to default useAuth data object.
     async session({ session }) {
 
       if (session.user?.email) {
         const accounts = await getAccountsByEmail(session.user.email)
-
-        // Verify that the projects are loaded when the user is authenticated
-        if (!projectsStore.projectsLoaded) {
-          const projects = await projectsStore.fetchProjects(accounts[0].userId)
-        }
 
         return {
           ...session,

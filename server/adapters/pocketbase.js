@@ -145,7 +145,7 @@ export const PocketBaseAdapter = () => ({
     }
   },
   async getSessionAndUser(sessionToken) {
-    console.log('😎 Getting session and user for sessionToken:', sessionToken);
+    console.log('😎 PB Adapter | getSessionAndUser: Getting session and user for sessionToken:', sessionToken);
     await authenticateAdmin();
     try {
       const sessions = await pb.collection('sessions').getList(1, 1, {

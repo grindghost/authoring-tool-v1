@@ -598,7 +598,8 @@ function handleUpdatePdfOverlay() {
 
 async function onProjectUpdated() {
     showProjectUpdateOverlay.value = false;
-    await projectStore.fetchProjects(data.value.user.userId);
+    // await projectStore.fetchProjects(data.value.user.userId);
+    await projectStore.fetchProjects();
     showAlert.value = false;
   }
 
@@ -670,7 +671,7 @@ async function deleteProject() {
   const projectId = route.params.id;
   const userId = data.value.user.userId;
 
-  await projectStore.deleteProject(userId, projectId);
+  await projectStore.deleteProject(projectId);
 
   // Hide the overlay
   showDeleteProjectOverlay.value = false;
@@ -754,27 +755,14 @@ function openEditor(fieldName) {
   showQuillOverlay.value = true;
 }
 
-// watchEffect(async() => {
-//     if (status.value === "authenticated") {
-//       if (projectStore.projectsLoaded == false) {
-//         await projectStore.fetchProjects(user.value);
-//         selectActivity(Object.entries(project.value?.activities)[0][0]);   
-//       }      
-//     }
-//   });
 
 // Vue Lifecycle Hooks
 onMounted(async () => {
-  // Assume that the user may have refreshed the page
-  // if (projectStore.projects.length === 0) {
-  //   console.log("Page refreshed, or accessing the page via previous...");
-  // } else {
-  //   projectStore.stopLoading();
-  // }
 
   if (status.value === "authenticated") {
       if (projectStore.projectsLoaded == false) {
-        await projectStore.fetchProjects(data.value.user.userId);
+        // await projectStore.fetchProjects(data.value.user.userId);
+        await projectStore.fetchProjects();
         selectActivity(Object.entries(project.value?.activities)[0][0]); 
         projectStore.stopLoading();  
       }      

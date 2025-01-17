@@ -22,7 +22,7 @@ const enabled = defineModel<boolean>({ default: false })
       />
     </Switch>
     <SwitchLabel as="span" class="ml-3 text-sm">
-      <span class="font-medium text-gray-900">Annual Billing</span>
+      <span class="font-medium text-gray-900">Facturation annuelle</span>
     </SwitchLabel>
   </SwitchGroup>
 </template>

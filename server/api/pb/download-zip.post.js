@@ -9,11 +9,6 @@ export default defineEventHandler(async (event) => {
   const { projectId, activities, lang } = await readBody(event);
 
   const zip = new JSZip();
-
-  // Read the SVG logo file from the public folder
-  //   const logoPath = join(process.cwd(), 'public/logo.svg');
-  //   const logoSVG = await readFile(logoPath, 'utf8');
-
   // Fetch the SVG logo file as a static asset
   const logoUrl = `${process.env.NEXTAUTH_URL}/logo.svg`; // Use baseURL for flexibility
   const response = await fetch(logoUrl);

@@ -18,7 +18,7 @@ const projectStore = useProjects();
     
     <div class="navbar bg-base-100 shadow fixed z-50">
       <div class="flex-1">
-        <NuxtLink to="/" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
+        <NuxtLink :to="status === 'authenticated' ? '/dashboard' : '/'" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
           <OhVueIcon name="fa-book" />
           <span>Mon journal de bord</span>
           <div class="badge badge-primary badge-outline">v1.1</div>  

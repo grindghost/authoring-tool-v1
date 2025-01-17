@@ -721,7 +721,7 @@ function saveProject() {
   const projectId = route.params.id;
   const updatedProject = project.value;
 
-  projectStore.saveProject(userId, projectId, updatedProject).then(() => {
+  projectStore.saveProject(projectId, updatedProject).then(() => {
     setTimeout(() => {
     showSaveOverlay.value = true; // Show the save confirmation overlay
     projectStore.stopLoading();

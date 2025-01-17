@@ -22,11 +22,14 @@ const handleBuyNow = async (lookupKey: string) => {
 
 const buttonText = computed(() => {
   if (data.value?.user?.isSubscribed) {
-    return 'Manage Subscription'
+    return 'Gérer mon abonnement'
+    // return 'Manage Subscription'
   } else if (status.value === 'authenticated') {
-    return 'Buy Now'
+    return 'Acheter maintenant'
+    // return 'Buy Now'
   } else {
-    return 'Sign In to Buy'
+    return 'Connectez-vous pour acheter'
+    // return 'Sign In to Buy'
   }
 })
 
@@ -35,16 +38,15 @@ const buttonText = computed(() => {
 <template>
   <section class="bg-gray-100 py-24 px-8">
     <div class="text-center mb-20">
-      <p class="font-medium text-primary mb-8">Pricing</p>
-      <h2 class="font-bold text-3xl lg:text-5xl tracking-tight">
-        Save hours of repetitive code and ship faster!
+      <p class="font-medium text-primary mb-8">Tarifs</p>
+      <h2 class="font-extrabold text-4xl lg:text-6xl tracking-tight mb-12 md:mb-12">
+        Facilitez la réflexion personnelle sur les apprentissages
       </h2>
 
       <p
         class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600"
       >
-        Distinctio et nulla eum soluta et neque labore quibusdam. Saepe et quasi
-        iusto modi velit ut non voluptas in. Explicabo id ut laborum.
+      Nos tarifs vous permettrons d'offrir un outil unique pour structurer les réflexions, consolider les idées et éclairer la progression éducative.
       </p>
 
       <!-- Yearly toggle -->
@@ -68,7 +70,7 @@ const buttonText = computed(() => {
           <span
             class="badge text-xs text-primary-content font-semibold border-0 bg-primary"
           >
-            POPULAR
+            POPULAIRE
           </span>
         </div>
 
@@ -93,7 +95,7 @@ const buttonText = computed(() => {
           <div class="flex items-baseline gap-2 text-primary">
             <p class="text-5xl font-extrabold">${{ tier.price }}</p>
             <span class="text-xs uppercase font-semibold text-base-content/60">
-              USD/month
+              CA/mois
             </span>
           </div>
 
@@ -123,12 +125,12 @@ const buttonText = computed(() => {
                 'w-full py-3 px-5 rounded-lg font-medium',
               ]"
             >
-              {{ buttonText}}
+              {{ buttonText }}
             </button>
             <p
               class="mt-2 text-sm text-center text-base-content/80 font-medium"
             >
-              Pay once. Access forever.
+              <!-- Pay once. Access forever. -->
             </p>
           </div>
         </div>

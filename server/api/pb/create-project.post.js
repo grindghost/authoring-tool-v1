@@ -5,16 +5,34 @@ import { PDFDocument } from 'pdf-lib';
 import fs from 'fs';
 import path from 'path';
 import { decryptContent, encryptContent } from '~/server/utils/auth';
-
+import { getServerSession } from '#auth';
 
 export default defineEventHandler(async (event) => {
-  const userId = getHeader(event, 'UserId');
-  console.log(`User ID: ${userId}`);
+
+  // Get the authenticated user's session
+  const authSession = await getServerSession(event);
+
+  if (!authSession) {
+    throw createError({
+      statusCode: 401,
+      message: 'Unauthorized',
+    });
+  }
+
+  // Check if the user is subscribed to a plan
+  if (!authSession.user.isSubscribed) {
+    throw createError({
+      statusCode: 403,
+      message: 'User is not subscribed to a plan',
+    });
+  }
+
+  // Access the current user's ID
+  const userId = authSession?.user?.userId;
   
+  // Get access to the passed PDF file
   const formData = await readMultipartFormData(event);
-
   const projectName = formData.find((field) => field.name === 'projectName').data.toString();
-
   const projectDescription = formData.find((field) => field.name === 'projectDescription').data.toString();
   const pdfFileField = formData.find((field) => field.name === 'pdfFile');
   const pdfFileBuffer = pdfFileField.data;
@@ -40,30 +58,52 @@ export default defineEventHandler(async (event) => {
     // Get the doc with PDFLib
     const pdfDoc = await PDFDocument.load(pdfFileBuffer);
 
-    // Prepare form data with PDF and cover image for Pocketbase
+     // Check if the PDF contains text fields, and extract them from the PDF
+    // const textFields = pdfDoc.getForm().getFields();
+    const textFields = pdfDoc.getForm().getFields().filter(field => {
+      const fieldType = field.constructor.name;
+      const fieldName = field.getName();
+    
+      // Keep only fields of type PDFTextField and exclude those with the name "store"
+      return fieldType === 'PDFTextField' && fieldName !== 'store';
+    });
+
+    // Throw an error if no valid text fields are found
+    if (textFields.length === 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'No valid text fields found in the PDF',
+      });
+    }
+
+    // Prepare a new form data with the PDF file and the cover image for Pocketbase
     const formDataToUpload = new FormData();
     const pdfFilename = `project_${Date.now()}.pdf`; // Desired filename for the PDF
     formDataToUpload.append('pdf', new Blob([pdfFileBuffer]), pdfFilename);
-    
     formDataToUpload.append('cover_image', new Blob([coverImageBuffer]), 'cover_image.png');
 
     // Create the record in the Files collection with the PDF and cover image
     const fileRecord = await pb.collection('Files').create(formDataToUpload);
 
     // Retrieve the record to get the filename and URL for each file
-    const record = await pb.collection('Files').getOne(fileRecord.id);
-    const pdfFileName = record.pdf; // Retrieve the filename stored in the record
-    const coverImageName = record.cover_image;
+    const pdfFileName = fileRecord.pdf; // Retrieve the filename stored in the record
+    const coverImageName = fileRecord.cover_image;
 
     // Generate the correct URLs
-    const pdfFileUrl = pb.files.getUrl(record, pdfFileName, { token: '' });
-    const coverImageUrl = pb.files.getUrl(record, coverImageName);
+    const pdfFileUrl = pb.files.getUrl(fileRecord, pdfFileName, { token: '' });
+    const coverImageUrl = pb.files.getUrl(fileRecord, coverImageName);
 
-    const textFields = pdfDoc.getForm().getFields();
+    // Create the activities from the text fields
     const activities = {};
 
     textFields.forEach((field, index) => {
       const fieldName = field.getName();
+      const fieldType = field.constructor.name;
+
+      // Make sure to skip non-text fields
+      if (fieldType !== 'PDFTextField') {
+        return; // Continue to the next iteration
+      }
     
       // Skip fields named "store"
       if (fieldName.toLowerCase() === "store") {
@@ -83,7 +123,6 @@ export default defineEventHandler(async (event) => {
       };
     });
     
-
     // Add an additional endpoint activity, duplicating the last activity
     if (textFields.length > 0) {
       const lastFieldName = textFields[textFields.length - 1].getName();

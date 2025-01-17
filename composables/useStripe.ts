@@ -30,8 +30,101 @@ export function useStripe() {
           console.error('Error creating portal session:', res.error)
         }
       }
-
-
+      const tiers = [
+        {
+          name: 'Solo',
+          id: 'tier-freelancer-monthly',
+          lookupKey: 'tier-freelancer-monthly',
+          price: 24,
+          description: 'Les essentiels pour offrir votre meilleur à vos apprenants.',
+          features: [
+            { name: '2 projets' },
+            { name: '50 réponses / projets' },
+            { name: 'Analytique de base' },
+            { name: 'Temps de réponse de support de 48 heures' },
+          ],
+          isFeatured: false,
+          type: 'monthly',
+        },
+        {
+          name: 'Innovateur',
+          id: 'tier-startup-monthly',
+          lookupKey: 'tier-startup-monthly',
+          price: 32,
+          description: 'Un plan qui s’adapte à la croissance rapide de votre formation.',
+          features: [
+            { name: '10 projets' },
+            { name: '100 réponses / projets' },
+            { name: 'Analytique avancée' },
+            { name: 'Temps de réponse de support de 24 heures' },
+          ],
+          isFeatured: true,
+          type: 'monthly',
+        },
+        {
+          name: 'Élite',
+          id: 'tier-enterprise-monthly',
+          lookupKey: 'tier-enterprise-monthly',
+          price: 48,
+          description: 'Support et infrastructure dédiés pour votre formation.',
+          features: [
+            { name: '25 projets' },
+            { name: '200 réponses / projets' },
+            { name: 'Analytique avancée' },
+            { name: 'Temps de réponse dédié de 1 heure' },
+          ],
+          isFeatured: false,
+          type: 'monthly',
+        },
+        // Yearly
+        {
+          name: 'Solo',
+          id: 'tier-freelancer-yearly',
+          lookupKey: 'tier-freelancer-yearly',
+          price: 150,
+          description: 'Les essentiels pour offrir votre meilleur travail à vos apprenants.',
+          features: [
+            { name: '2 projets' },
+            { name: '50 réponses / projets' },
+            { name: 'Analytique de base' },
+            { name: 'Temps de réponse de support de 48 heures' },
+          ],
+          isFeatured: false,
+          type: 'yearly',
+        },
+        {
+          name: 'Innovateur',
+          id: 'tier-startup-yearly',
+          lookupKey: 'tier-startup-yearly',
+          price: 200,
+          description: 'Un plan qui s’adapte à la croissance rapide de votre formation.',
+          features: [
+            { name: '5 projets' },
+            { name: '100 réponses / projets' },
+            { name: 'Analytique avancée' },
+            { name: 'Temps de réponse de support de 24 heures' },
+          ],
+          isFeatured: true,
+          type: 'yearly',
+        },
+        {
+          name: 'Élite',
+          id: 'tier-enterprise-yearly',
+          lookupKey: 'tier-enterprise-yearly',
+          price: 400,
+          description: 'Support et infrastructure dédiés pour votre formation.',
+          features: [
+            { name: '25 projets' },
+            { name: '200 réponses / projets' },
+            { name: 'Analytique avancée' },
+            { name: 'Temps de réponse dédié de 1 heure' },
+          ],
+          isFeatured: false,
+          type: 'yearly',
+        },
+      ];
+      
+      /*
       const tiers = [
         {
           name: 'Freelancer',
@@ -129,6 +222,7 @@ export function useStripe() {
           type: 'yearly',
         },
       ]
+      */
 
       return { checkout, navigateToStripeDashboard, tiers }
 }

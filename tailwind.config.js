@@ -72,6 +72,7 @@ export default {
           "error": "#ff0000",
           },
         },
+        "dark",
       ],
     },
   plugins: [

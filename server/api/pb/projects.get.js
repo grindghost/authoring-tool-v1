@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
     const userProjects = await pb.collection('Projects').getFullList(200, {
       filter: `author.id="${userId}"`, // Filter projects by the userId field in the related author record
       expand: 'author', // Expand the author field to include the full user record
+      sort: 'created',
     });
 
     // Preprocess each record to filter expanded fields

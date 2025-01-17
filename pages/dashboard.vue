@@ -4,16 +4,16 @@
     import { useProjects } from '~/stores/projects';
     import { da } from 'date-fns/locale';
     
-    import auth from '~/middleware/auth';
-    import { AuthHandler } from 'next-auth/core';
-    import { set } from 'date-fns';
+    // import auth from '~/middleware/auth';
+    // import { AuthHandler } from 'next-auth/core';
+    // import { set } from 'date-fns';
+    // import { useSession } from '@auth0/nextjs-auth0/client';
 
     const showProjectCreationOverlay = ref(false);
     const showDeleteProjectOverlay = ref(false);
     const selectedProjectId = ref(null);
 
     const { status, data } = useAuth();
-    import { useSession } from '@auth0/nextjs-auth0/client';
     const router = useRouter();
     const projectStore = useProjects();
 

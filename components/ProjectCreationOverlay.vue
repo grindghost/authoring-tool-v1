@@ -84,7 +84,7 @@
 
     // Convert canvas to image data URL and set it to pdfImage
     pdfImage.value = canvas.toDataURL('image/png');
-    console.log('pdfImage', pdfImage.value);
+    // console.log('pdfImage', pdfImage.value);
   };
   reader.readAsArrayBuffer(file);
 };
@@ -97,10 +97,7 @@
     console.log('Confirm button clicked', projectName.value, pdfFile.value);
     showOverlay.value = false;
 
-    // Retrive the authenticated user id
-    const userId = data.value.user.userId;
-
-    await projectStore.createProject(userId,projectName.value, projectDescription.value, pdfFile.value, pdfImage.value);
+    await projectStore.createProject(projectName.value, projectDescription.value, pdfFile.value, pdfImage.value);
     emit('projectCreated')
   };
   </script>

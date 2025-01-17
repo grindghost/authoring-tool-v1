@@ -82,30 +82,31 @@ export const useProjects = defineStore('projects', {
       }
     },
 
-    async saveProject(userId, id, profile) {
+    async saveProject(projectId, profile) {
+      
       this.startLoading();
       
       this.statusMessage = 'Sauvegarde';
       
       try {
-        if (userId) {
-          const response = await $fetch(`/api/pb/update-project/${id}`, {
+        // Send the request without passing the userId explicitly
+        const response = await $fetch(`/api/pb/update-project/${projectId}`, {
             method: 'PUT',
             body: { profile },
-            headers: { UserId: userId },
-          });
+        });
 
-          // Update project in state
-          const projectIndex = this.projects.findIndex((p) => p.id === id);
+
+          // Update projects state
+          const projectIndex = this.projects.findIndex((p) => p.id === projectId);
           if (projectIndex >= 0) {
             this.projects[projectIndex].profile = profile;
           } else {
-            this.projects.push({ id, profile });
+            this.projects.push({ projectId, profile });
           }
 
           // Optional: persist updated projects in localStorage
           // localStorage.setItem('projects', JSON.stringify(this.projects));
-        }
+        
       } catch (error) {
         console.error('Failed to save project:', error);
       }
@@ -125,7 +126,7 @@ export const useProjects = defineStore('projects', {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
 
-        // Trigger download
+        // Trigger the download on the client
         const a = document.createElement('a');
         a.href = url;
         a.download = `${projectId}.zip`;
@@ -138,11 +139,14 @@ export const useProjects = defineStore('projects', {
       }
     },
 
-    async createProject(userId, projectName, projectDescription, pdfFile, pdfImage) {
+    async createProject(projectName, projectDescription, pdfFile, pdfImage) {
+              
       this.startLoading();
+      
       this.statusMessage = 'Création du projet';
+      
       try {
-        if (userId) {
+
           const formData = new FormData();
           formData.append('projectName', projectName);
           formData.append('projectDescription', projectDescription);
@@ -151,30 +155,24 @@ export const useProjects = defineStore('projects', {
           const pdfImageBlob = await fetch(pdfImage).then((res) => res.blob());
           formData.append('pdfImage', pdfImageBlob, 'cover_image.png');
 
-          // Stringify the user
-            //   const userJson = JSON.stringify({
-            //     id: this.user.id,
-            //     email: this.user.email,
-            //     firstName: this.user.firstName,
-            //     lastName: this.user.lastName,
-            //   });
-
           const response = await fetch('/api/pb/create-project', {
             method: 'POST',
-            headers: {
-              UserId: userId,
-            },
             body: formData,
           });
+
           const data = await response.json();
 
           if (data.success) {
-            this.projects.push(data.project);
+            
+            // console.log(data.project);
+            // this.projects.push(data.project);
+            
+            // Refetch the projects
+            await this.fetchProjects();
             return data.projectId;
           } else {
             throw new Error(data.message || 'Project creation failed');
           }
-        }
       } catch (error) {
         console.error('Failed to create project:', error);
       } finally {
@@ -184,7 +182,9 @@ export const useProjects = defineStore('projects', {
 
     async updateProjectFiles(projectId, pdfFile, pdfImage) {
       this.startLoading();
+      
       this.statusMessage = 'Mise à jour des fichiers du projet';
+      
       try {
         const formData = new FormData();
         formData.append('projectId', projectId);
@@ -195,7 +195,7 @@ export const useProjects = defineStore('projects', {
           formData.append('pdfImage', pdfImageBlob, 'cover_image.png');
         }
     
-        const response = await fetch('/api/update-project-files', {
+        const response = await fetch('/api/pb/update-project-files', {
           method: 'POST',
           body: formData,
         });
@@ -203,11 +203,12 @@ export const useProjects = defineStore('projects', {
         const data = await response.json();
     
         if (data.success) {
-          const updatedProject = this.projects.find((p) => p.id === projectId);
-          if (updatedProject) {
-            updatedProject.profile.pdfURL = data.pdfFileUrl;
-            updatedProject.profile.pdfCoverImgUrl = data.coverImageUrl;
-          }
+        //   const updatedProject = this.projects.find((p) => p.id === projectId);
+        //   if (updatedProject) {
+        //     updatedProject.profile.pdfURL = data.pdfFileUrl;
+        //     updatedProject.profile.pdfCoverImgUrl = data.coverImageUrl;
+        //   }
+          await this.fetchProjects();
           return true;
         } else {
           throw new Error(data.message || 'Failed to update project files');

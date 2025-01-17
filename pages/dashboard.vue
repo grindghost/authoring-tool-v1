@@ -124,7 +124,7 @@
 
 
 <template>
-    <div class="p-6 space-y-8 pt-24 bg-slate-50">
+    <div class="p-6 space-y-8 pt-24 bg-slate-50" :class="projectStore.isLoading ? 'transparent' : ''">
       <!-- New Project Button -->
       <div
         class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8"

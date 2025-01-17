@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" v-if="projectStore.projects.length">
+  <div class="editor" v-if="projectStore.projects.length" :class="projectStore.isLoading ? 'transparent' : ''">
   <!-- Alert to save the project -->
     <div class="alert-container mt-20 px-4 fixed z-50 bottom-0 pb-4 pt-10 w-full" v-if="showAlert">
     <div role="alert" class="alert bg-white  shadow-lg">

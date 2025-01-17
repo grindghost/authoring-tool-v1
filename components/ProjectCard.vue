@@ -46,7 +46,7 @@ const author = computed(() => {
 
 const description = computed(() => { 
 try {
-  return props.project.profile.description.slice(0, 30) + '...';
+  return props.project.profile.description.length > 0 ? props.project.profile.description.slice(0, 30) + '...' : '';
 } catch (error) {
   return "lorem ipsum dolor sit amet...";
 }

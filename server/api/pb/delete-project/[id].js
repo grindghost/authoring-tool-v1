@@ -4,8 +4,7 @@ import { pb } from '~/server/plugins/pocketbase'; // Import Pocketbase instance
 import { getServerSession } from '#auth';
 
 export default defineEventHandler(async (event) => {
-    const { id } = event.context.params; // Extract the project ID from the route parameters
-    // const userId = getHeader(event, 'UserId'); // Get userId from the request header
+    const { id } = event.context.params; // Extract the project ID from the route 
 
     // Get the authenticated user's session
     const authSession = await getServerSession(event);
@@ -27,10 +26,15 @@ export default defineEventHandler(async (event) => {
 
     // Access the current user's ID
     const userId = authSession?.user?.userId;
-
+    
     try {
       // Fetch the existing project to ensure the user is authorized to delete it
       const project = await pb.collection('Projects').getOne(id);
+
+      // Check if the user is the author of the project
+      if (project.author !== userId) {
+        throw createError({ statusCode: 403, message: 'Unauthorized to delete this project' })
+      }      
 
       // Find the file associated with this project in the Files collection
       const fileRecords = await pb.collection('Files').getFullList({

@@ -103,9 +103,6 @@ export const useProjects = defineStore('projects', {
           } else {
             this.projects.push({ projectId, profile });
           }
-
-          // Optional: persist updated projects in localStorage
-          // localStorage.setItem('projects', JSON.stringify(this.projects));
         
       } catch (error) {
         console.error('Failed to save project:', error);
@@ -164,11 +161,9 @@ export const useProjects = defineStore('projects', {
 
           if (data.success) {
             
-            // console.log(data.project);
-            // this.projects.push(data.project);
-            
             // Refetch the projects
             await this.fetchProjects();
+
             return data.projectId;
           } else {
             throw new Error(data.message || 'Project creation failed');

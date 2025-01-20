@@ -1,11 +1,14 @@
-<template>
-    <div class="pt-40">embed</div>
-</template>
-
 <script setup lang="ts">
+  import UnitEmbed from '~/components/UnitEmbed.vue';
 
-definePageMeta({
-  layout: false,
-});
+  // Disable layout
+  definePageMeta({
+    layout: false,
+  });
 
 </script>
+
+<template>
+  <UnitEmbed  />
+  <div>embed</div>
+</template>

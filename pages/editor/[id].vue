@@ -393,7 +393,7 @@
       <!-- Middle Canvas (Iframe for PDF Preview) -->
       <div class="middle-canvas">
         <div class="browser-mockup with-url">
-        <a class="iframe-src bg-gray-50 link" :href="iframeSrc">{{ iframeSrc }}</a>
+        <a class="iframe-src bg-gray-50 link" :href="iframeSrc" target="_blank">{{ iframeSrc }}</a>
       </div>
     </div>
 
@@ -642,7 +642,7 @@ async function updateIframeSrc() {
   const token = selectedActivity.value.token;
   const langParam = project.value.lang;
 
-  iframeSrc.value = `https://jdb-nuxt.vercel.app/?token=${encodeURIComponent(token)}&lang=${langParam}`;
+  iframeSrc.value = `https://jdb-nuxt.vercel.app/embed?token=${encodeURIComponent(token)}&lang=${langParam}`;
 }
 
 

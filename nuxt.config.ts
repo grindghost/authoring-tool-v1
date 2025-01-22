@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     head: {
       title: 'Mon journal de bord', // Default website title
       meta: [
-        { name: 'description', content: 'Transformez vos PDF interactifs en journal de bord et créez un document précieux pour accompagner votre aventure éducative.' },
+        { name: 'description', content: 'Transformez vos PDF interactifs en journal de bord et créez des documents précieux pour accompagner vos aventures éducatives.' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { charset: 'utf-8' },
       ],

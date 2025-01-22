@@ -1,4 +1,9 @@
 export function useStripe() {
+  
+  const config = useRuntimeConfig();
+  
+  // Parse the tiers JSON string into an object
+  const tierData = JSON.parse(config.public.NUXT_PUBLIC_TIERS);
     
   const checkout = async (lookupKey: string) => {
     const PRICE_LOOKUP_KEY = 'monthly_standard'
@@ -30,15 +35,17 @@ export function useStripe() {
           console.error('Error creating portal session:', res.error)
         }
       }
+      // Map the tier data into the required format
       const tiers = [
+        // Monthly tiers
         {
-          name: 'Solo',
-          id: 'tier-freelancer-monthly',
-          lookupKey: 'tier-freelancer-monthly',
-          price: 24,
+          name: tierData.tier1.name,
+          id: tierData.tier1.id,
+          lookupKey: tierData.tier1.id,
+          price: tierData.tier1.price,
           description: 'Les essentiels pour offrir votre meilleur à vos apprenants.',
           features: [
-            { name: '2 projets' },
+            { name: `${tierData.tier1.limit} projets` },
             { name: '50 réponses / projets' },
             { name: 'Analytique de base' },
             { name: 'Temps de réponse de support de 48 heures' },
@@ -47,13 +54,13 @@ export function useStripe() {
           type: 'monthly',
         },
         {
-          name: 'Innovateur',
-          id: 'tier-startup-monthly',
-          lookupKey: 'tier-startup-monthly',
-          price: 32,
+          name: tierData.tier2.name,
+          id: tierData.tier2.id,
+          lookupKey: tierData.tier2.id,
+          price: tierData.tier2.price,
           description: 'Un plan qui s’adapte à la croissance rapide de votre formation.',
           features: [
-            { name: '10 projets' },
+            { name: `${tierData.tier2.limit} projets` },
             { name: '100 réponses / projets' },
             { name: 'Analytique avancée' },
             { name: 'Temps de réponse de support de 24 heures' },
@@ -62,13 +69,13 @@ export function useStripe() {
           type: 'monthly',
         },
         {
-          name: 'Élite',
-          id: 'tier-enterprise-monthly',
-          lookupKey: 'tier-enterprise-monthly',
-          price: 48,
+          name: tierData.tier3.name,
+          id: tierData.tier3.id,
+          lookupKey: tierData.tier3.id,
+          price: tierData.tier3.price,
           description: 'Support et infrastructure dédiés pour votre formation.',
           features: [
-            { name: '25 projets' },
+            { name: `${tierData.tier3.limit} projets` },
             { name: '200 réponses / projets' },
             { name: 'Analytique avancée' },
             { name: 'Temps de réponse dédié de 1 heure' },
@@ -76,15 +83,15 @@ export function useStripe() {
           isFeatured: false,
           type: 'monthly',
         },
-        // Yearly
+        // Yearly tiers
         {
-          name: 'Solo',
-          id: 'tier-freelancer-yearly',
-          lookupKey: 'tier-freelancer-yearly',
-          price: 150,
+          name: tierData.tier4.name,
+          id: tierData.tier4.id,
+          lookupKey: tierData.tier4.id,
+          price: tierData.tier4.price,
           description: 'Les essentiels pour offrir votre meilleur travail à vos apprenants.',
           features: [
-            { name: '2 projets' },
+            { name: `${tierData.tier4.limit} projets` },
             { name: '50 réponses / projets' },
             { name: 'Analytique de base' },
             { name: 'Temps de réponse de support de 48 heures' },
@@ -93,13 +100,13 @@ export function useStripe() {
           type: 'yearly',
         },
         {
-          name: 'Innovateur',
-          id: 'tier-startup-yearly',
-          lookupKey: 'tier-startup-yearly',
-          price: 200,
+          name: tierData.tier5.name,
+          id: tierData.tier5.id,
+          lookupKey: tierData.tier5.id,
+          price: tierData.tier5.price,
           description: 'Un plan qui s’adapte à la croissance rapide de votre formation.',
           features: [
-            { name: '5 projets' },
+            { name: `${tierData.tier5.limit} projets` },
             { name: '100 réponses / projets' },
             { name: 'Analytique avancée' },
             { name: 'Temps de réponse de support de 24 heures' },
@@ -108,13 +115,13 @@ export function useStripe() {
           type: 'yearly',
         },
         {
-          name: 'Élite',
-          id: 'tier-enterprise-yearly',
-          lookupKey: 'tier-enterprise-yearly',
-          price: 400,
+          name: tierData.tier6.name,
+          id: tierData.tier6.id,
+          lookupKey: tierData.tier6.id,
+          price: tierData.tier6.price,
           description: 'Support et infrastructure dédiés pour votre formation.',
           features: [
-            { name: '25 projets' },
+            { name: `${tierData.tier6.limit} projets` },
             { name: '200 réponses / projets' },
             { name: 'Analytique avancée' },
             { name: 'Temps de réponse dédié de 1 heure' },
@@ -123,106 +130,7 @@ export function useStripe() {
           type: 'yearly',
         },
       ];
-      
-      /*
-      const tiers = [
-        {
-          name: 'Freelancer',
-          id: 'tier-freelancer-monthly',
-          lookupKey: 'tier-freelancer-monthly',
-          price: 24,
-          description: 'The essentials to provide your best work for clients.',
-          features: [
-            { name: '5 products' },
-            { name: 'Up to 1,000 subscribers' },
-            { name: 'Basic analytics' },
-            { name: '48-hour support response time' },
-          ],
-          isFeatured: false,
-          type: 'monthly',
-        },
-        {
-          name: 'Startup',
-          id: 'tier-startup-monthly',
-          lookupKey: 'tier-startup-monthly',
-          price: 32,
-          description: 'A plan that scales with your rapidly growing business.',
-          features: [
-            { name: '25 products' },
-            { name: 'Up to 10,000 subscribers' },
-            { name: 'Advanced analytics' },
-            { name: '24-hour support response time' },
-            { name: 'Marketing automations' },
-          ],
-          isFeatured: true,
-          type: 'monthly',
-        },
-        {
-          name: 'Enterprise',
-          id: 'tier-enterprise-monthly',
-          lookupKey: 'tier-enterprise-monthly',
-          price: 48,
-          description: 'Dedicated support and infrastructure for your company.',
-          features: [
-            { name: 'Unlimited products' },
-            { name: 'Unlimited subscribers' },
-            { name: 'Advanced analytics' },
-            { name: '1-hour, dedicated support response time' },
-            { name: 'Marketing automations' },
-          ],
-          isFeatured: false,
-          type: 'monthly',
-        },
-        // Yearly
-        {
-          name: 'Freelancer',
-          id: 'tier-freelancer-yearly',
-          lookupKey: 'tier-freelancer-yearly',
-          price: 150,
-          description: 'The essentials to provide your best work for clients.',
-          features: [
-            { name: '5 products' },
-            { name: 'Up to 1,000 subscribers' },
-            { name: 'Basic analytics' },
-            { name: '48-hour support response time' },
-          ],
-          isFeatured: false,
-          type: 'yearly',
-        },
-        {
-          name: 'Startup',
-          id: 'tier-startup-yearly',
-          lookupKey: 'tier-startup-yearly',
-          price: 200,
-          description: 'A plan that scales with your rapidly growing business.',
-          features: [
-            { name: '25 products' },
-            { name: 'Up to 10,000 subscribers' },
-            { name: 'Advanced analytics' },
-            { name: '24-hour support response time' },
-            { name: 'Marketing automations' },
-          ],
-          isFeatured: true,
-          type: 'yearly',
-        },
-        {
-          name: 'Enterprise',
-          id: 'tier-enterprise-yearly',
-          lookupKey: 'tier-enterprise-yearly',
-          price: 400,
-          description: 'Dedicated support and infrastructure for your company.',
-          features: [
-            { name: 'Unlimited products' },
-            { name: 'Unlimited subscribers' },
-            { name: 'Advanced analytics' },
-            { name: '1-hour, dedicated support response time' },
-            { name: 'Marketing automations' },
-          ],
-          isFeatured: false,
-          type: 'yearly',
-        },
-      ]
-      */
+
 
       return { checkout, navigateToStripeDashboard, tiers }
 }

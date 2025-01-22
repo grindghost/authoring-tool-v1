@@ -1,13 +1,9 @@
 // server/api/projects.get.js
 
-import { pb } from '~/server/plugins/pocketbase' // Import Pocketbase instance
+import { pb } from '~/server/plugins/pocketbase'; // Import Pocketbase instance
 import { getServerSession } from '#auth';
 
 export default defineEventHandler(async (event) => {
-  
-   // Get userId from request header
-  // const _userId = getHeader(event, 'UserId');
-
   // Get the authenticated user's session
   const authSession = await getServerSession(event);
 
@@ -26,34 +22,48 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Access the current user's ID
-  const userId = authSession?.user?.userId;
-  console.log('');
-  console.log(`Auth session: ${JSON.stringify(authSession)}`);
-  console.log('');
+  // Determine project limits based on the user's subscription plan
+  const tierData = JSON.parse(process.env.NUXT_PUBLIC_TIERS);
+
+  const planLimits = {
+    [tierData.tier1.id]: tierData.tier1.limit,
+    [tierData.tier2.id]: tierData.tier2.limit,
+    [tierData.tier3.id]: tierData.tier3.limit,
+    [tierData.tier4.id]: tierData.tier4.limit,
+    [tierData.tier5.id]: tierData.tier5.limit,
+    [tierData.tier6.id]: tierData.tier6.limit
+  };
+  const userPlan = authSession.user.plan;
+  const projectLimit = planLimits[userPlan] || 0;
+
+  // Validate the user's plan
+  if (projectLimit === 0) {
+    throw createError({
+      statusCode: 403,
+      message: 'Invalid subscription plan',
+    });
+  }
 
   try {
-
-    // Return only projects corresponding to the user's ID
-    const userProjects = await pb.collection('Projects').getFullList(200, {
-      filter: `author.id="${userId}"`, // Filter projects by the userId field in the related author record
+    // Fetch only the allowed number of projects corresponding to the user's ID
+    const userProjects = await pb.collection('Projects').getList(1, projectLimit, {
+      filter: `author.id="${authSession.user.userId}"`, // Filter projects by the userId field
       expand: 'author', // Expand the author field to include the full user record
       sort: 'created',
     });
 
     // Preprocess each record to filter expanded fields
-    userProjects.forEach(record => {
+    const sanitizedProjects = userProjects.items.map((record) => {
       if (record.expand?.author) {
         const { name, email, id } = record.expand.author; // Extract only desired fields
         record.expand.author = { name, email, id }; // Replace the expanded author with filtered data
       }
+      return record;
     });
 
-    return userProjects;
-
-
+    return sanitizedProjects;
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error fetching projects:', error.message);
     throw createError({ statusCode: 500, message: 'Failed to fetch projects' });
   }
 });

@@ -1,250 +1,234 @@
 <script setup lang="ts">
-    import { ref, computed, watchEffect } from 'vue';
-    import { useRouter } from 'vue-router';
-    import { useProjects } from '~/stores/projects';
-    import { da } from 'date-fns/locale';
-    
-    // import auth from '~/middleware/auth';
-    // import { AuthHandler } from 'next-auth/core';
-    // import { set } from 'date-fns';
-    // import { useSession } from '@auth0/nextjs-auth0/client';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useProjects } from "~/stores/projects";
 
-    const showProjectCreationOverlay = ref(false);
-    const showDeleteProjectOverlay = ref(false);
-    const selectedProjectId = ref(null);
+const config = useRuntimeConfig();
+// Parse the tiers JSON string into an object
+const tiers = JSON.parse(config.public.NUXT_PUBLIC_TIERS);
 
-    const { status, data } = useAuth();
-    const router = useRouter();
-    const projectStore = useProjects();
+const { navigateToStripeDashboard } = useStripe()
 
-    // Filter state
-    const filterKey = ref('author'); // Default filter key
-    const filterValue = ref(''); // Default filter value
+const showProjectCreationOverlay = ref(false);
+const showDeleteProjectOverlay = ref(false);
+const selectedProjectId = ref(null);
+const projectLimitReached = ref(false); // Tracks if the user has reached the project limit
 
-    definePageMeta({
-        middleware: ["auth"],
-    });
+const { status, data } = useAuth();
+const router = useRouter();
+const projectStore = useProjects();
 
-    // Fetch projects on component mount, to make sure 
-    // the informations on the card is up to date...
-    onMounted(async() => {
-      if (status.value === 'authenticated') {
-        if (projectStore.projectsLoaded == false) { 
-          console.log('Initiating the projects fetch...');
-          // await projectStore.fetchProjects(data.value.user.userId);     
-          await projectStore.fetchProjects();   
-          console.log(projectStore.projects);   
-        }
-      }
-    });
 
-    // Group projects by author
-    const groupedProjects = computed(() => {
-    const groups = {};
-    projectStore.projects.forEach((project) => {
 
-        const authorName = project?.expand?.author?.name || 'Auteur inconnu';
-        
-        if (!groups[authorName]) {
-          groups[authorName] = [];
-        }
-        groups[authorName].push(project);
-    });
-    return groups;
-    });
+// Fetch projects on component mount
+onMounted(async () => {
 
-    // Filtered projects logic
-    const filteredProjects = computed(() => {
-      const filterText = filterValue.value.toLowerCase();
-      const filtered = {};
-
-      Object.entries(groupedProjects.value).forEach(([author, projects]) => {
-          const matchingProjects = projects.filter((project) => {
-          const name = project.profile?.name.toLowerCase();
-          
-          // Preformat the date into the string format used for display on the cards
-          // const date = new Date(project.updated).toLocaleDateString('fr-FR');
-          const date = new Date(project.updated);
-          const options = { year: 'numeric', month: 'long', day: 'numeric' };
-          const formattedDate = new Intl.DateTimeFormat('fr-FR', options).format(date);
-
-          const authorName = project.expand?.author?.name.toLowerCase();
-
-          if (filterKey.value === 'name') {
-              return name.includes(filterText);
-          } else if (filterKey.value === 'date') {
-              return formattedDate.includes(filterText);
-          } else if (filterKey.value === 'author') {
-              return authorName.includes(filterText);
-          }
-          return true;
-          });
-
-          if (matchingProjects.length) {
-            filtered[author] = matchingProjects;
-          }
-    });
-
-    return filtered;
-    });
-
-    function handleDeleteProject(projectId) {
-        selectedProjectId.value = projectId; // Store the projectId
-        showDeleteProjectOverlay.value = true; // Show the overlay
+  checkProjectLimit();
+  if (status.value === "authenticated") {
+    if (!projectStore.projectsLoaded) {
+      console.log("Initiating the projects fetch...");
+      await projectStore.fetchProjects();
+      checkProjectLimit();
     }
+  }
+});
 
-    async function confirmDeleteProject() {
-        showDeleteProjectOverlay.value = false;
-        
-        setTimeout(async () => {
-            await projectStore.deleteProject(selectedProjectId.value);
-            selectedProjectId.value = null;
-        }, 200);
+// Group projects by courseId
+const groupedProjects = computed(() => {
+  const groups = {};
+  projectStore.projects.forEach((project) => {
+    const courseId = project.profile?.courseId || "Uncategorized";
+    if (!groups[courseId]) {
+      groups[courseId] = [];
     }
+    groups[courseId].push(project);
+  });
+  return groups;
+});
 
-    function cancelDelete() {
-        selectedProjectId.value = null;
-        showDeleteProjectOverlay.value = false;
+// Filtered projects logic
+const filterKey = ref("courseId");
+const filterValue = ref("");
+const filteredProjects = computed(() => {
+  const filterText = filterValue.value.toLowerCase();
+  const filtered = {};
+
+  Object.entries(groupedProjects.value).forEach(([courseId, projects]) => {
+    const matchingProjects = projects.filter((project) => {
+      const courseName = project.profile?.courseId.toLowerCase();
+      const projectName = project.profile?.name.toLowerCase();
+      return (
+        (filterKey.value === "courseId" && courseName.includes(filterText)) ||
+        (filterKey.value === "name" && projectName.includes(filterText))
+      );
+    });
+
+    if (matchingProjects.length) {
+      filtered[courseId] = matchingProjects;
     }
+  });
 
-    function onProjectCreated() {
-        showProjectCreationOverlay.value = false;
-        
-        setTimeout(async () => {
-            // projectStore.fetchProjects(data.value.user.userId);
-            await projectStore.fetchProjects();
-        }, 200);  
-    }
+  return filtered;
+});
 
-    function editProject(projectId) {
-        router.push(`/editor/${projectId}`);
+// Check if the user has reached the project limit
+function checkProjectLimit() {
+  const userPlan = data.value?.user?.plan;
+  const currentProjects = projectStore.projects.length;
+  const planLimits = {
+  [tiers.tier1.id]: tiers.tier1.limit,
+  [tiers.tier2.id]: tiers.tier2.limit,
+  [tiers.tier3.id]: tiers.tier3.limit,
+  [tiers.tier4.id]: tiers.tier1.limit,
+  [tiers.tier5.id]: tiers.tier2.limit,
+  [tiers.tier6.id]: tiers.tier3.limit,
+  };
+  console.log(planLimits)
+  projectLimitReached.value = currentProjects >= planLimits[userPlan];
+}
 
-    }
+function handleDeleteProject(projectId) {
+  selectedProjectId.value = projectId;
+  showDeleteProjectOverlay.value = true;
+}
+
+async function confirmDeleteProject() {
+  showDeleteProjectOverlay.value = false;
+  await projectStore.deleteProject(selectedProjectId.value);
+  selectedProjectId.value = null;
+  checkProjectLimit();
+}
+
+function cancelDelete() {
+  selectedProjectId.value = null;
+  showDeleteProjectOverlay.value = false;
+}
+
+function onProjectCreated(newProjectId) {
+  showProjectCreationOverlay.value = false;
+  
+  // Check the project limit
+  checkProjectLimit();
+  router.push(`/editor/${newProjectId}`);
+}
+
+function editProject(projectId) {
+  router.push(`/editor/${projectId}`);
+}
 </script>
 
-
 <template>
-    <div class="p-6 space-y-8 pt-24 bg-slate-50" :class="projectStore.isLoading ? 'transparent' : ''">
-      <!-- New Project Button -->
-      <div
-        class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8"
-        @click="showProjectCreationOverlay = true"
-      >
-        +
+  <div class="p-6 space-y-8 pt-24 bg-slate-50" :class="{ transparent: projectStore.isLoading }">
+    <!-- New Project Button -->
+    <div class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8" @click="showProjectCreationOverlay = true" v-if="!projectLimitReached">
+      +
+    </div>
+
+    <!-- Alert for project limit reached -->
+    <div v-if="projectLimitReached" class="alert bg-white shadow-lg rounded-lg border-none">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        class="stroke-info h-12 w-12 shrink-0 stroke-primary">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        <span class="line-clamp-4">Vous avez atteint la limite de projets pour votre forfait actuel. Pour ajouter plus de projets, passez à un plan supérieur.</span>
       </div>
-  
-      <!-- Filter Section -->
-      <div class="flex items-center space-x-4 mb-6">
-        <!-- Dropdown to select filter parameter -->
-        <select v-model="filterKey" class="border rounded px-4 py-2 text-gray-600">
-          <option value="author">Auteur</option>
-          <option value="name">Nom du projet</option>
-          <option value="date">Date</option>
-        </select>
-  
-        <!-- Text input to type filter value -->
-        <input
-          type="text"
-          v-model="filterValue"
-          class="border rounded px-4 py-2 w-full"
-          placeholder="Filtrer les projets..."
+      <div class="flex-none md:ml-24 lg:ml-96">
+        <button class="btn btn-primary btn-sm" @click="navigateToStripeDashboard">Upgrade</button>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="flex items-center space-x-4 mb-6">
+      <select v-model="filterKey" class="border rounded px-4 py-2 text-gray-600">
+        <option value="courseId">Course ID</option>
+        <option value="name">Project Name</option>
+      </select>
+      <input
+        type="text"
+        v-model="filterValue"
+        class="border rounded px-4 py-2 w-full"
+        placeholder="Filter projects..."
+      />
+    </div>
+
+    <!-- Projects Grouped by Course ID -->
+    <div v-for="(projects, courseId) in filteredProjects" :key="courseId" class="space-y-4">
+      <h2 class="text-xl font-medium">{{ courseId }}</h2>
+      <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <ProjectCard
+          v-for="project in projects"
+          :key="project.id"
+          :project="project"
+          :title="project.profile.name"
+          class="h-80"
+          @click="editProject(project.id)"
+          @deleteProject="handleDeleteProject"
         />
       </div>
-  
-      <!-- Projects Grouped by Author -->
-      <div v-for="(projects, author, index) in filteredProjects" :key="author" class="space-y-4">
-        <h2 class="text-xl font-medium">{{ author }}</h2>
+    </div>
 
-        <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          <ProjectCard
-            v-for="project in projects"
-            :key="project.id"
-            :project="project"
-            :title="project.profile.name"
-            class="h-80"
-            @click="editProject(project.id)"
-            @deleteProject="handleDeleteProject"
-          />
-        </div>
-      </div>
-  
-      <!-- Project Creation Overlay -->
-      <ProjectCreationOverlay
-        v-if="showProjectCreationOverlay"
-        @close="showProjectCreationOverlay = false"
-        @projectCreated="onProjectCreated"
-      />
-  
-      <!-- Overlay for delete project confirmation -->
-      <transition name="fade">
-        <div v-if="showDeleteProjectOverlay" class="overlay" @click="cancelDelete">
-          <div class="overlay-content" @click.stop>
-            <h3>Êtes-vous certain de vouloir supprimer ce projet?</h3>
-            <div class="overlay-buttons">
-              <button class="btn bg-primary rounded-md text-white" @click="confirmDeleteProject">Supprimer</button>
-              <button class="btn rounded-md" @click="cancelDelete">Annuler</button>
-            </div>
+    <!-- Project Creation Overlay -->
+    <ProjectCreationOverlay
+      v-if="showProjectCreationOverlay"
+      @close="showProjectCreationOverlay = false"
+      @projectCreated="onProjectCreated"
+    />
+
+    <!-- Delete Project Overlay -->
+    <transition name="fade">
+      <div v-if="showDeleteProjectOverlay" class="overlay" @click="cancelDelete">
+        <div class="overlay-content" @click.stop>
+          <h3>Are you sure you want to delete this project?</h3>
+          <div class="overlay-buttons">
+            <button class="btn bg-primary rounded-md text-white" @click="confirmDeleteProject">Delete</button>
+            <button class="btn rounded-md" @click="cancelDelete">Cancel</button>
           </div>
         </div>
-      </transition>
-    </div>
-  </template>
-  
+      </div>
+    </transition>
+  </div>
+</template>
 
-  
-  <style scoped>
-
-  
-select {
-    -webkit-appearance: none;
-    appearance: none;
-    background-repeat: no-repeat;
-    background-position: right;
-    background-position-x: 90%;
-    -webkit-padding-end: 20px;
+<style scoped>
+/* Reuse styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
-  
-  /* Existing styles */
-  .overlay {
-    position: fixed;
-    margin: 0px !important;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .overlay-content {
-    background: white;
-    width: 50%;
-    padding: 2rem 2rem 1rem 2rem;
-    border-radius: 10px;
-    text-align: center;
-    height: auto;
-    box-shadow: 0px -1px 12px 5px rgba(0, 0, 0, 0.17);
-    animation: fadeIn 0.5s ease-in-out forwards;
-  }
-  
-  .overlay-buttons {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-  }
-  
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s;
-  }
-  
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
-  }
-  </style>
+
+.overlay-content {
+  background: white;
+  width: 50%;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0px -1px 12px 5px rgba(0, 0, 0, 0.17);
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

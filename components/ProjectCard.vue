@@ -98,7 +98,7 @@ return date.toLocaleDateString('fr-FR', options);
         <p class="text-sm text-gray-500 mb-4">
           {{ description }}
         </p>
-        <div class="card-actions mt-4 flex justify-between">
+        <div class="card-actions flex justify-between">
           <button @click.stop="editProject" class="btn bg-primary rounded-md text-white">Modifier</button>
           <button @click.stop="deleteProject" class="btn bg-white rounded-md">
             <OhVueIcon name="md-deleteforever-round" />
@@ -114,6 +114,8 @@ return date.toLocaleDateString('fr-FR', options);
     margin: 0;
     padding: 0;
     position: relative;
+    height: 120px;
+    min-height: 100px;
 
   }
   

@@ -97,8 +97,8 @@
     console.log('Confirm button clicked', projectName.value, pdfFile.value);
     showOverlay.value = false;
 
-    await projectStore.createProject(projectName.value, projectDescription.value, pdfFile.value, pdfImage.value);
-    emit('projectCreated')
+    const newProjectId = await projectStore.createProject(projectName.value, projectDescription.value, pdfFile.value, pdfImage.value);
+    emit('projectCreated', newProjectId)
   };
   </script>
   

@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useProjects } from "~/stores/projects";
+import { da } from 'date-fns/locale';
+
 
 const config = useRuntimeConfig();
 // Parse the tiers JSON string into an object
@@ -47,7 +49,7 @@ const groupedProjects = computed(() => {
 });
 
 // Filtered projects logic
-const filterKey = ref("courseId");
+const filterKey = ref("name");
 const filterValue = ref("");
 const filteredProjects = computed(() => {
   const filterText = filterValue.value.toLowerCase();
@@ -57,9 +59,16 @@ const filteredProjects = computed(() => {
     const matchingProjects = projects.filter((project) => {
       const courseName = project.profile?.courseId.toLowerCase();
       const projectName = project.profile?.name.toLowerCase();
+      
+      // Preformat the date into the string format used for display on the card
+      const date = new Date(project.updated);
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = new Intl.DateTimeFormat('fr-FR', options).format(date);
+
       return (
         (filterKey.value === "courseId" && courseName.includes(filterText)) ||
-        (filterKey.value === "name" && projectName.includes(filterText))
+        (filterKey.value === "name" && projectName.includes(filterText)) ||
+        (filterKey.value === 'date' && formattedDate.includes(filterText))
       );
     });
 
@@ -138,24 +147,25 @@ function editProject(projectId) {
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <div>
-        <span class="line-clamp-4">Vous avez atteint la limite de projets pour votre forfait actuel. Pour ajouter plus de projets, passez à un plan supérieur.</span>
+        <span class="line-clamp-4 leading-5">Vous avez atteint la limite de projets pour votre forfait actuel. Pour ajouter plus de projets, passez à un plan supérieur.</span>
       </div>
       <div class="flex-none md:ml-24 lg:ml-96">
-        <button class="btn btn-primary btn-sm" @click="navigateToStripeDashboard">Upgrade</button>
+        <button class="btn btn-primary btn-sm text-white" @click="navigateToStripeDashboard">Upgrade</button>
       </div>
     </div>
 
     <!-- Filter Section -->
     <div class="flex items-center space-x-4 mb-6">
       <select v-model="filterKey" class="border rounded px-4 py-2 text-gray-600">
-        <option value="courseId">Course ID</option>
-        <option value="name">Project Name</option>
+        <option value="courseId">Identifiant</option>
+        <option value="name">Nom du projet</option>
+        <option value="date">Date</option>
       </select>
       <input
         type="text"
         v-model="filterValue"
         class="border rounded px-4 py-2 w-full"
-        placeholder="Filter projects..."
+        placeholder="Filtrer les projets..."
       />
     </div>
 
@@ -186,10 +196,10 @@ function editProject(projectId) {
     <transition name="fade">
       <div v-if="showDeleteProjectOverlay" class="overlay" @click="cancelDelete">
         <div class="overlay-content" @click.stop>
-          <h3>Are you sure you want to delete this project?</h3>
-          <div class="overlay-buttons">
-            <button class="btn bg-primary rounded-md text-white" @click="confirmDeleteProject">Delete</button>
-            <button class="btn rounded-md" @click="cancelDelete">Cancel</button>
+          <h3 class="mb-4">Souhaitez-vous vraiment supprimer ce projet?</h3>
+          <div class="overlay-buttons flex justify-center gap-3">
+            <button class="btn bg-primary rounded-md text-white" @click="confirmDeleteProject">Oui, supprimer</button>
+            <button class="btn rounded-md" @click="cancelDelete">Annuler</button>
           </div>
         </div>
       </div>
@@ -203,6 +213,7 @@ function editProject(projectId) {
   position: fixed;
   top: 0;
   left: 0;
+  margin-top: 0px !important;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);

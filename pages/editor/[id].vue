@@ -393,7 +393,33 @@
       <!-- Middle Canvas (Iframe for PDF Preview) -->
       <div class="middle-canvas">
         <div class="browser-mockup with-url">
-        <a class="iframe-src bg-gray-50 link" :href="iframeSrc" target="_blank">{{ iframeSrc }}</a>
+        <!-- <a class="iframe-src bg-gray-50 link" :href="iframeSrc" target="_blank">{{ iframeSrc }}</a> -->
+        <div class="relative border border-gray-200 rounded-md inline-block p-4">
+          <a
+            class="link break-all text-[0.7rem] leading-1 text-gray-500 inline-block pr-14 text-primary"
+            :href="iframeSrc"
+            target="_blank"
+          >
+            {{ iframeSrc }}
+          </a>
+
+          <div 
+            class="absolute top-0 right-0 m-2 hover:bg-gray-200 px-2 py-1 bg-gray-100 rounded-md cursor-pointer"
+            @click="copyToClipboard"
+            title="Copy to clipboard"
+            >
+            <OhVueIcon name="fa-regular-copy"fill="#8d8d8d"  scale="0.9"/>
+          </div>
+
+          <!-- <button
+            @click="copyToClipboard"
+            class="absolute top-0 right-0 text-gray-500 hover:text-gray-700 p-1"
+            title="Copy to clipboard"
+          >
+            <OhVueIcon name="fa-regular-copy" class="bg-gray-50" fill="#8d8d8d"  scale="0.9"/>
+          </button> -->
+        </div>
+
       </div>
     </div>
 
@@ -486,14 +512,15 @@ import { useProjectModelStore } from '~/stores/projectModel'
 const { status, data } = useAuth();
 
 import { OhVueIcon, addIcons } from "oh-vue-icons";
-import { BiCheckCircle, HiDownload } from "oh-vue-icons/icons";
+import { BiCheckCircle, HiDownload, FaRegularCopy } from "oh-vue-icons/icons";
+
 
 import { isBefore, set, startOfDay } from "date-fns";
 import ProjectUpdateOverlay from '~/components/ProjectUpdateOverlay.vue';
 
 
 // Register the icons
-addIcons(BiCheckCircle, HiDownload);
+addIcons(BiCheckCircle, HiDownload, FaRegularCopy);
 
 definePageMeta({
   middleware: ["auth"],
@@ -586,6 +613,17 @@ function clickProjectAccordion() {
     accordion.value.activity = false;   
   }
 }
+
+function copyToClipboard() {
+      navigator.clipboard.writeText(iframeSrc.value).then(
+        () => {
+          console.log("Copied to clipboard!");
+        },
+        () => {
+          console.log("Failed to copy!");
+        }
+      );
+    }
 
 function displayCoverImg() {
   window.open(project.value.pdfCoverImgUrl, '_blank')
@@ -1138,8 +1176,6 @@ input[type="checkbox"]:checked::before {
   font-size: 0.8rem;
   line-height: 1rem;
   display: block;
-  padding: 1rem;
-  border-radius: 0.2rem;
 }
 
 .tooltip {

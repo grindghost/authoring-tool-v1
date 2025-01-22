@@ -1,3 +1,3 @@
 <template>
-    <div>Cancelled!!</div>
+    <div>Cancelled!</div>
   </template>

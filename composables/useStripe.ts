@@ -47,10 +47,10 @@ export function useStripe() {
           features: [
             { name: `${tierData.tier1.limit} projets` },
             { name: '50 réponses / projets' },
-            { name: 'Analytique de base' },
-            { name: 'Temps de réponse de support de 48 heures' },
+            // { name: 'Analytique de base' },
+            // { name: 'Temps de réponse de support de 48 heures' },
           ],
-          isFeatured: false,
+          isFeatured: true,
           type: 'monthly',
         },
         {
@@ -62,10 +62,10 @@ export function useStripe() {
           features: [
             { name: `${tierData.tier2.limit} projets` },
             { name: '100 réponses / projets' },
-            { name: 'Analytique avancée' },
-            { name: 'Temps de réponse de support de 24 heures' },
+            // { name: 'Analytique avancée' },
+            // { name: 'Temps de réponse de support de 24 heures' },
           ],
-          isFeatured: true,
+          isFeatured: false,
           type: 'monthly',
         },
         {
@@ -77,8 +77,8 @@ export function useStripe() {
           features: [
             { name: `${tierData.tier3.limit} projets` },
             { name: '200 réponses / projets' },
-            { name: 'Analytique avancée' },
-            { name: 'Temps de réponse dédié de 1 heure' },
+            // { name: 'Analytique avancée' },
+            // { name: 'Temps de réponse dédié de 1 heure' },
           ],
           isFeatured: false,
           type: 'monthly',
@@ -93,10 +93,10 @@ export function useStripe() {
           features: [
             { name: `${tierData.tier4.limit} projets` },
             { name: '50 réponses / projets' },
-            { name: 'Analytique de base' },
-            { name: 'Temps de réponse de support de 48 heures' },
+            // { name: 'Analytique de base' },
+            // { name: 'Temps de réponse de support de 48 heures' },
           ],
-          isFeatured: false,
+          isFeatured: true,
           type: 'yearly',
         },
         {
@@ -108,10 +108,10 @@ export function useStripe() {
           features: [
             { name: `${tierData.tier5.limit} projets` },
             { name: '100 réponses / projets' },
-            { name: 'Analytique avancée' },
-            { name: 'Temps de réponse de support de 24 heures' },
+            // { name: 'Analytique avancée' },
+            // { name: 'Temps de réponse de support de 24 heures' },
           ],
-          isFeatured: true,
+          isFeatured: false,
           type: 'yearly',
         },
         {
@@ -123,8 +123,8 @@ export function useStripe() {
           features: [
             { name: `${tierData.tier6.limit} projets` },
             { name: '200 réponses / projets' },
-            { name: 'Analytique avancée' },
-            { name: 'Temps de réponse dédié de 1 heure' },
+            // { name: 'Analytique avancée' },
+            // { name: 'Temps de réponse dédié de 1 heure' },
           ],
           isFeatured: false,
           type: 'yearly',

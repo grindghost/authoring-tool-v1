@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   // Redirect if the user is unauthenticated
   if (status.value === "unauthenticated" && to.path !== "/login") {
     console.log("Redirecting to login...");
-    return navigateTo("/login");
+    return navigateTo("/");
   }
   });
   

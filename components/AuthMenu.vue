@@ -5,7 +5,6 @@ const { navigateToStripeDashboard } = useStripe()
 
 const router = useRouter()
 
-
 import { useProjects } from '~/stores/projects';
 const projectStore = useProjects();
 
@@ -18,9 +17,9 @@ const navigateToProjectsDashboard = async() => {
 }
 
 const solutions = [
-  { name: 'Dashboard', fn: navigateToProjectsDashboard },
-  { name: 'Manage Billing', fn: navigateToStripeDashboard },
-  { name: 'Sign Out', fn: signOut },
+  { name: 'Tableau de bord', fn: navigateToProjectsDashboard },
+  { name: 'Mon abonnement', fn: navigateToStripeDashboard },
+  { name: 'Déconnexion', fn: signOut },
 ]
 
 </script>

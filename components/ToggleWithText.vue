@@ -2,6 +2,7 @@
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 
 const enabled = defineModel<boolean>({ default: false })
+
 </script>
 
 <template>

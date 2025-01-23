@@ -4,6 +4,9 @@ import { useRouter } from "vue-router";
 import { useProjects } from "~/stores/projects";
 import { da } from 'date-fns/locale';
 
+definePageMeta({
+  middleware: ["auth"],
+});
 
 const config = useRuntimeConfig();
 // Parse the tiers JSON string into an object
@@ -24,11 +27,7 @@ const projectStore = useProjects();
 
 // Fetch projects on component mount
 onMounted(async () => {
-
-
-
   
-
   if (status.value === "authenticated") {
     // Get the subscription status
     const isSubscribed = data.value?.user?.isSubscribed;
@@ -141,7 +140,11 @@ function editProject(projectId) {
 </script>
 
 <template>
-  <div class="p-6 space-y-8 pt-24 bg-slate-50" :class="{ transparent: projectStore.isLoading }">
+  <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50">
+    <PricingSectionAlternate />
+  </div>
+  <div v-else class="p-6 space-y-8 pt-24 bg-slate-50" :class="{ transparent: projectStore.isLoading }">
+    
     <!-- New Project Button -->
     <div class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8" @click="showProjectCreationOverlay = true" v-if="!projectLimitReached">
       +

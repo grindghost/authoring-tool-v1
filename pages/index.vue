@@ -6,6 +6,7 @@ const { status, signIn, signOut } = useAuth()
 <template>
     <Hero />
     <!-- <Problem /> -->
+    <RoadmapSection />
     <PricingSection />
     <!-- <FeaturesAccordion /> -->
 </template>

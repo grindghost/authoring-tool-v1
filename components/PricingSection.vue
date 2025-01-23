@@ -36,7 +36,7 @@ const buttonText = computed(() => {
 </script>
 
 <template>
-  <section class="bg-gray-100 py-24 px-8">
+  <section class="bg-gray-100 py-24 px-8" id="pricing">
     <div class="text-center mb-20">
       <p class="font-medium text-primary mb-8">Tarifs</p>
       <h2 class="font-extrabold text-4xl lg:text-6xl tracking-tight mb-12 md:mb-12">
@@ -56,7 +56,7 @@ const buttonText = computed(() => {
 
     </div>
 
-    <div class="flex flex-col lg:flex-row justify-center gap-4 items-stretch">
+    <div class="flex flex-col lg:flex-row justify-center gap-4 items-stretch max-w-5xl m-auto">
       <div
         v-for="tier in filteredTiers"
         :key="tier.id"
@@ -70,7 +70,7 @@ const buttonText = computed(() => {
           <span
             class="badge text-xs text-primary-content font-semibold border-0 bg-primary"
           >
-            POPULAIRE
+            RECOMMANDÉ
           </span>
         </div>
 

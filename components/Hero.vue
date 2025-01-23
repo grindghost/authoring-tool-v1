@@ -1,5 +1,5 @@
 <template>
-    <section class="pt-40 pb-20 bg-white">
+    <section class="pt-24 lg:pt-40 pb-20 bg-white">
         <div class="px-6 mx-auto max-w-7xl">
             <div class="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
                 <h1 class="mb-8 text-5xl font-extrabold leading-none tracking-tight text-gray-900 md:text-6xl">
@@ -10,12 +10,13 @@
                     <span>une réflexion à la fois</span>
                 </h1>
                 <p class="px-0 mb-8 text-lg text-gray-600 md:text-xl lg:px-24">
-                    Transformez vos PDF interactifs en journal de bord et créez un document précieux pour accompagner votre aventure éducative.
+                    Transformez vos PDF interactifs en unités de réflexion dynamiques et offrez aux apprenants un document personnalisé de leurs propres réponses.
 
                     <!-- Aidez vos apprenants à transformer leurs réflexions en un document enrichissant qui accompagne chaque étape de leur formation. -->
                 </p>
+                <img src="assets/explainer.png" class="mb-3" alt="">
                 <div class="mb-4 space-x-0 md:space-x-2 md:mb-8">
-                    <a href="#_" class="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg text-white bg-primary rounded-lg sm:w-auto sm:mb-0 hover:bg-secondary">
+                    <a href="#pricing" class="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg text-white bg-primary rounded-lg sm:w-auto sm:mb-0 hover:bg-secondary">
                         Débuter
                         <!-- Get Started -->
                         <svg class="w-4 h-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -31,7 +32,7 @@
                     </a>
                 </div>
             </div>
-            <div class="w-full mx-auto mt-20 text-center md:w-10/12">
+            <div class="w-full mx-auto mt-8 lg:mt-[3.5rem] text-center md:w-10/12">
                 <div class="relative z-0 w-full mt-8">
                     <div class="relative overflow-hidden shadow-2xl rounded-b-lg">
                         <div class="flex items-center flex-none px-4 bg-primary rounded-t-xl h-11">

@@ -25,8 +25,23 @@ const projectStore = useProjects();
 // Fetch projects on component mount
 onMounted(async () => {
 
-  checkProjectLimit();
+
+
+  
+
   if (status.value === "authenticated") {
+    // Get the subscription status
+    const isSubscribed = data.value?.user?.isSubscribed;
+    // Check if the user is subscribed
+    if (!isSubscribed) {
+      console.log('Your are not subscribed');
+      return;
+      // navigateToStripeDashboard();
+    }
+
+    checkProjectLimit();
+
+    // Check if the projects have already been fetched
     if (!projectStore.projectsLoaded) {
       console.log("Initiating the projects fetch...");
       await projectStore.fetchProjects();
@@ -92,7 +107,6 @@ function checkProjectLimit() {
   [tiers.tier5.id]: tiers.tier2.limit,
   [tiers.tier6.id]: tiers.tier3.limit,
   };
-  console.log(planLimits)
   projectLimitReached.value = currentProjects >= planLimits[userPlan];
 }
 

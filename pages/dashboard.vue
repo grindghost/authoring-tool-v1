@@ -164,7 +164,7 @@ function editProject(projectId) {
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <div>
-        <span class="line-clamp-4 leading-5">Vous avez atteint la limite de projets pour votre forfait actuel. Pour ajouter plus de projets, passez à un plan supérieur.</span>
+        <span class="line-clamp-4 leading-5">Vous avez atteint la limite de projets pour votre forfait actuel. Pour ajouter plus de projets, passez à un forfait supérieur.</span>
       </div>
       <div class="flex-none md:ml-24 lg:ml-96">
         <button class="btn btn-primary btn-sm text-white" @click="navigateToStripeDashboard">Upgrade</button>

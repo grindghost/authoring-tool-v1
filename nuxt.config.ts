@@ -33,6 +33,8 @@ export default defineNuxtConfig({
   
     public: {
       NUXT_PUBLIC_TIERS: process.env.NUXT_PUBLIC_TIERS,
+      NUXT_PUBLIC_ALLOWED_SOURCE: process.env.NUXT_PUBLIC_ALLOWED_SOURCE,
+
     }
 
   },

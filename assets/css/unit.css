@@ -1,0 +1,457 @@
+/* Overpass */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@100..900&family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Overpass';
+  }
+
+html {
+    padding: 0px;  
+    opacity: 0; /* Initially hidden */
+    animation: fadeIn 2s ease forwards; /* Apply fade-in animation */
+    /* overscroll-behavior: none; This can be used to disable overscroll behavior */
+
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.theme-default {
+    --color-theme-white: #fff;
+    --color-theme-button: #0755b1;
+    --color-theme-button-hover: #0e67d6;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+}
+
+.theme-brio {
+    --color-theme: #012038;
+    --color-theme-light: #0755b1;
+    --color-theme-white: #fff;
+    --color-theme-accent: #0755b1;
+  
+    --color-theme-button: #0755b1;
+    --color-theme-button-hover: #0e67d6;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+  
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+}
+
+.theme-ul-yellow {
+    --color-theme: #ffc103;
+    --color-theme-light: #ffc103;
+    --color-theme-white: #fff;
+    --color-theme-accent: #ffc103;
+  
+    --color-theme-button: #ffc103;
+    --color-theme-button-hover: #eeb302;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+  
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+}
+
+.theme-ul-red {
+    --color-theme: #e30513;
+    --color-theme-light: #e30513;
+    --color-theme-white: #fff;
+  
+    --color-theme-button: #e30513;
+    --color-theme-button-hover: #c40612;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+  
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+}
+
+
+.wrapper {
+    border-radius: 8px;
+    box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
+    background-color: white;
+    width: 796px;
+    height: 444px;
+    max-width: 796px;
+    max-height: 444px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wrapper-portal {
+    background: rgb(235, 239, 241);
+    background: linear-gradient(180deg, rgba(235, 239, 241, 1) 44%, rgba(198, 204, 205, 1) 82%);  
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .acitivity-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .acitivity-container-portal {
+    border-radius: 8px;
+    box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
+    background-color: white;
+    width: 100%;
+    height: 70%;
+    min-height: 70vh;
+    max-width: 796px;
+    max-height: 446px;
+    margin: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .overlays-container {
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: visible;
+    background: var(--color-theme-overlays-gradient);
+    
+  }
+
+  .loading-overlay {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3.5rem;
+    color: white;
+    /* To have the endpoint beneath */
+    position: absolute;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  #confirmation-revisit-overlay {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: space-evenly; */
+    justify-content: center;
+    gap: 1.8rem;
+  }
+
+  #confirmation-revisit-overlay h1 {
+    font-size: 2rem;
+  }
+
+  #maintenance-overlay {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  #endpoint-overlay {
+      display: flex;
+      flex-direction: row;
+      align-items: left;
+      height: 100%;
+      justify-content: space-between;
+      cursor: pointer !important;
+      animation: fadeIn 2s ease forwards;
+    }
+  
+  #started-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    visibility: hidden;
+  }
+  
+  #icon-checkmark {
+    color: #fff;
+    font-size: 50px;
+  }
+
+  #icon-loading {
+    color: #fff;
+    font-size: 50px;
+    margin-top: 30px;
+    margin-bottom: -20px;
+  }
+
+  .transparent {
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(4px);
+    opacity: 1;
+  }
+
+
+  .bottom-gradient {
+    background: rgb(209, 61, 61);
+    background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    position: absolute;
+    bottom: 0;
+    z-index: 2000;
+    width: 100%;
+    height: 50px;
+    pointer-events: none;
+  }
+
+.footer {
+    width: 100%;
+    height: 150px;
+    padding: 0 30px;
+    background-color: #f4f6f8;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.footer-portal {
+  width: 100%;
+  height: 95px;
+  padding: 0 30px;
+  background-color: #f4f6f8;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.options-container {
+  display: flex;
+  flex-grow: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 1.2rem;
+}
+
+.footer .options {
+  font-size: 0.8rem;
+  color: #ccc;
+  transition: ease-in-out 0.15s;
+}
+
+.footer div .options:hover {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transform: scale(1.1);
+}
+
+.footer-portal .options {
+  font-size: 0.8rem;
+  color: #ccc;
+  transition: ease-in-out 0.15s;
+}
+
+.footer-portal div .options:hover {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transform: scale(1.1);
+}
+
+button {
+    -webkit-border-radius: 6;
+    -moz-border-radius: 6;
+    border-radius: 6px;
+    border: none;
+    font-family: Overpass;
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-align: center;
+    background: var(--color-theme-button);
+    background-color: var(--color-theme-button);
+    padding: 12px 20px 10px 20px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s linear, background-color 0.3s;
+}
+
+button:hover {
+    background: var(--color-theme-button-hover);
+    background-color: var(--color-theme-button-hover);
+    text-decoration: none;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+
+button:disabled {
+    background: var(--color-theme-button-disabled);
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.footer button {
+  padding: 16px 20px 16px 20px;
+}
+
+.maxchar {
+    font-size: 14px;
+  }
+
+/* Quill editor overrides */
+
+.ql-container {
+    height: calc(100% - 42px);
+  }
+
+.quill-container {
+  position: relative;
+  height: 100%;
+  margin: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.ql-container.ql-snow {
+    border: 0px solid #ccc !important;
+}
+
+.ql-toolbar.ql-snow {
+    border-top: 0px solid #ccc !important;
+    border-right: 0px solid #ccc !important;
+    border-left: 0px solid #ccc !important;
+    border-bottom: 1px solid #ccc !important;
+    padding-bottom: 16px !important;
+
+}
+
+.ql-editor {
+    margin-top: 8px;
+    font-size: larger;
+    font-weight: 300;
+    max-height: 276px;
+}
+  
+
+/* Disable text selection */
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+  }
+
+
+  /* Overlay text styles */
+
+  .overlays-container h1 {
+    font-weight: 600;
+    line-height: 1.12;
+  }
+
+  .overlays-container .text-accent {
+    font-weight: 600;
+    font-size: 1.3rem;
+    /* color: var(--color-theme-accent); */
+  }
+
+  /* Custom CSS to replace header dropdown labels 
+  .ql-snow .ql-picker-options .ql-picker-item[data-value="1"]::before {
+    content : 'H1' !important;
+  }
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before {
+    content : 'H1' !important;
+  }
+
+  .ql-snow .ql-picker-options .ql-picker-item[data-value="2"]::before {
+    content : 'H2' !important;
+  }
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before {
+    content : 'H2' !important;
+  }
+
+  .ql-snow .ql-picker-options .ql-picker-item[data-value="3"]::before {
+    content : 'H3' !important;
+  }
+
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before {
+    content : 'H3' !important;
+  }
+    */
+
+  .hidden {
+    display: none;
+  }
+
+  .fadeInScale { 
+    opacity: 0;
+    animation: fadeInScaleAnimation 0.5s forwards;
+    /* animation-delay: 4s; */
+  }
+
+  .fadeOutScale {
+    opacity: 0;
+    animation: fadeOutScaleAnimation 0.5s forwards;
+    /* animation-delay: 1s; */
+  }
+
+  @keyframes fadeInScaleAnimation {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    } 
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    } 
+
+  }
+
+  @keyframes fadeOutScaleAnimation {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    } 
+
+    100% {
+      opacity: 0;
+      transform: scale(0.5);
+
+    } 
+
+  }

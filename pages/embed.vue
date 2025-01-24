@@ -137,6 +137,7 @@
             return;
         }
         
+        
         // Logic to assign, of remotly retrieve the unit profile (from db)
         profile.value = await store.GetUnitProfile(token, lang); 
         // profile.value = objTest;

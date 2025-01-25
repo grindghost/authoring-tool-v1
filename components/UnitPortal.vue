@@ -194,9 +194,9 @@ const handleRestoreDefaultText = () => {
     store.RestoreDefaultText();
 }
 
-onMounted(() => {
-    import ("assets/css/unit.css");
-});
+// onMounted(() => {
+//     import ("assets/css/unit.css");
+// });
 
 </script>
 
@@ -209,10 +209,10 @@ onMounted(() => {
         <!-- Overlays container-->
         <transition name="fade">
         <div class="overlays-container noselect" v-if="store.overlayVisible" >  
-            <OverlayLoading v-if="store.currentOverlay === 'loading'" />
-            <OverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
-            <OverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
-            <OverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
+            <UnitOverlayLoading v-if="store.currentOverlay === 'loading'" />
+            <UnitOverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
+            <UnitOverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
+            <UnitOverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
         </div>
         </transition>
     
@@ -220,7 +220,7 @@ onMounted(() => {
     <div class="acitivity-container-portal" :class="store.overlayVisible ? 'transparent' : ''">
         
         <!-- Quill editor -->
-        <QuillEditor2 v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
+        <UnitQuillEditor2 v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
 
         <!-- Footer -->
         <div class="footer-portal noselect">

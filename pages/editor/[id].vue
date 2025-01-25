@@ -394,6 +394,7 @@
       <div class="middle-canvas">
         <div class="browser-mockup with-url">
         <!-- <a class="iframe-src bg-gray-50 link" :href="iframeSrc" target="_blank">{{ iframeSrc }}</a> -->
+        <!-- <UnitEmbed :profile=profile /> -->
         <div class="relative border border-gray-200 rounded-md inline-block p-4">
           <a
             class="link break-all text-[0.7rem] leading-1 text-gray-500 inline-block pr-14 text-primary"
@@ -680,7 +681,7 @@ async function updateIframeSrc() {
   const token = selectedActivity.value.token;
   const langParam = project.value.lang;
 
-  iframeSrc.value = `https://jdb-nuxt.vercel.app/embed?token=${encodeURIComponent(token)}&lang=${langParam}`;
+  iframeSrc.value = `https://monjournaldebord.ca/embed?token=${encodeURIComponent(token)}&lang=${langParam}`;
 }
 
 

@@ -1,6 +1,6 @@
   <template>
-    <div class="loading-overlay">
-      <fa v-if="isMounted" :icon="['fas', 'spinner']" class="fa-pulse" id="icon-loading" />
+    <div class="overlay-content">
+      <fa v-if="isMounted" :icon="['fas', 'spinner']" class="fa-pulse icon" />
       <p v-html="statusMessage"></p>
     </div>
   </template>
@@ -28,3 +28,34 @@
     });
 
   </script>
+
+<style scoped>
+
+.overlay-content{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3.5rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .icon {
+    color: #fff;
+    font-size: 50px;
+    margin-top: 30px;
+    margin-bottom: -20px;
+  }
+
+p {
+  font-size: 1.3rem; 
+  font-weight: 300; 
+  line-height: 140%; 
+  white-space: pre;
+  text-align: center; 
+}
+
+</style>

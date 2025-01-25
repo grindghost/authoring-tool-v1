@@ -1,9 +1,11 @@
 <template>
-    <!-- This is the embed unit component -->
-    <UnitEmbed
-        :profile=profile 
-    />
-  
+    
+    <div style="padding: 2px">
+        <!-- This is the embed unit component -->
+        <UnitEmbed
+            :profile=profile 
+        />
+    </div>
 </template>
 
 <script setup>

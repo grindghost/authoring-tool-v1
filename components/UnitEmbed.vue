@@ -199,9 +199,9 @@ const handleRestoreDefaultText = () => {
     store.RestoreDefaultText();
 }
 
-onMounted(() => {
-    import ("assets/css/unit.css");
-});
+// onMounted(() => {
+//     import ("assets/css/unit.css");
+// });
 
 </script>
 
@@ -212,10 +212,10 @@ onMounted(() => {
         <!-- Overlays container-->
         <transition name="fade">
         <div class="overlays-container noselect" v-if="store.overlayVisible" >  
-            <OverlayLoading v-if="store.currentOverlay === 'loading'" />
-            <OverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
-            <OverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
-            <OverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
+            <UnitOverlayLoading v-if="store.currentOverlay === 'loading'" />
+            <UnitOverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
+            <UnitOverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
+            <UnitOverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
         </div>
         </transition>
     
@@ -223,7 +223,7 @@ onMounted(() => {
     <div class="acitivity-container" :class="store.overlayVisible ? 'transparent' : ''">
 
         <!-- Quill editor -->
-        <QuillEditor2 v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
+        <UnitQuillEditor2 v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
 
         <!-- Footer -->
         <div class="footer noselect">
@@ -265,13 +265,131 @@ onMounted(() => {
  
 <style scoped>
 
-/* Define the fade transition */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
+.wrapper {
+    border-radius: 8px;
+    box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
+    background-color: white;
+    width: 796px;
+    height: 444px;
+    max-width: 796px;
+    max-height: 444px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .acitivity-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .overlays-container {
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: visible;
+    background: var(--color-theme-overlays-gradient);   
+  }
+
+  /* Disable text selection */
+  .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+          -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Edge, Opera and Firefox */
+    }
+
+  .transparent {
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(4px);
+    opacity: 1;
+  }
+
+  .footer {
+      width: 100%;
+      height: 150px;
+      padding: 0 30px;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+  }
+
+  .options-container {
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 1.2rem;
+  }
+
+  .footer .options {
+    font-size: 0.8rem;
+    color: #ccc;
+    transition: ease-in-out 0.15s;
+  }
+
+  .footer div .options:hover {
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transform: scale(1.1);
+  }
+
+  .maxchar {
+    font-size: 14px;
+  }
+
+  button {
+    -webkit-border-radius: 6;
+    -moz-border-radius: 6;
+    border-radius: 6px;
+    border: none;
+    font-family: 'Overpass', 'sans-serif';
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-align: center;
+    background: var(--color-theme-button);
+    background-color: var(--color-theme-button);
+    padding: 16px 20px 16px 20px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s linear, background-color 0.3s;
+  } 
+
+  button:hover {
+      background: var(--color-theme-button-hover);
+      background-color: var(--color-theme-button-hover);
+      text-decoration: none;
+      transform: scale(1.1);
+      cursor: pointer;
+  }
+
+
+  button:disabled {
+      background: var(--color-theme-button-disabled);
+      cursor: not-allowed;
+      text-decoration: none;
+  }
+
+  /* Define the fade transition */
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .fade-enter-from, .fade-leave-to {
+    opacity: 0;
+  }
 
 </style>
     

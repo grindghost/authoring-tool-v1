@@ -8,6 +8,7 @@
   <script setup>
   import { useAppStateStore } from '/stores/appState';
   const store = useAppStateStore();
+  import 'quill/dist/quill.snow.css';
   
   const isClient = ref(false); // Client-side detection
   let quill;
@@ -147,4 +148,33 @@
     document.head.appendChild(style);
   }
   </script>
+
+<style scoped>
+  .ql-container {
+    height: calc(100% - 42px);
+  }
+
+  .quill-container {
+    position: relative;
+    height: 100%;
+    margin: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+
+  .ql-toolbar.ql-snow {
+      border-top: 0px solid #ccc !important;
+      border-right: 0px solid #ccc !important;
+      border-left: 0px solid #ccc !important;
+      border-bottom: 1px solid #ccc !important;
+      padding-bottom: 16px !important;
+
+  }
+  .ql-editor {
+      margin-top: 8px;
+      font-size: larger;
+      font-weight: 300;
+      max-height: 276px;
+  }
+  </style>
   

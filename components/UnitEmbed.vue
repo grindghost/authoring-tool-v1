@@ -2,6 +2,10 @@
     
     import { useAppStateStore } from '/stores/appState';
     
+    definePageMeta({
+      auth: false,
+    })
+
     const store = useAppStateStore();
 
     const props = defineProps({
@@ -110,6 +114,10 @@ const applyCustomTheme = (customTheme) => {
     }
 });
 
+const editorContent = computed(() => {
+    return store.editorContent;
+})
+
 // Watch the `answer` ref from the store and update `isAnswerEmpty`
 watch(() => store.editorContent, (newAnswer) => {
     isAnswerEmpty.value = checkIfEmpty(newAnswer);
@@ -125,9 +133,9 @@ const handleRestoreDefaultText = () => {
     store.RestoreDefaultText();
 }
 
-// onMounted(() => {
-//     import ("assets/css/unit.css");
-// });
+onMounted(() => {
+    console.log(props.profile.history);
+});
 
 </script>
 
@@ -261,6 +269,8 @@ const handleRestoreDefaultText = () => {
 
   .maxchar {
     font-size: 14px;
+    display: flex;
+    flex-direction: row;
     font-family: var(--theme-font) !important;
   }
 

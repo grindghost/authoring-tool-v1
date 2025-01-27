@@ -36,6 +36,24 @@ export const useAppStateStore = defineStore('app', () => {
   // Getters
   const enableEditor = computed(() => !overlayVisible.value && !isLoading.value);
 
+  const resetAppState = () => {
+    unitToken.value = '';
+    unitProfile.value = null;
+    lang.value = 'fr';
+    mode.value = '';
+    editorContent.value = '<p></p>';
+    statusMessage.value = '';
+    startTime.value = 0;
+    endTime.value = 0;
+    timeElapsed.value = 0;
+    isLoading.value = true;
+    isMaintenanceMode.value = false;
+    isEndpoint.value = false;
+    // historyContent.value = null;
+    overlayVisible.value = false;
+    currentOverlay.value = 'loading';
+  };
+  
   const GetUnitProfile = async (token, language) => {
 
     // Assign the token
@@ -100,6 +118,8 @@ export const useAppStateStore = defineStore('app', () => {
     isMaintenanceMode.value = profile.configs.maintenanceMode;
     isEndpoint.value = profile.activity.isEndpoint;
     historyContent.value = profile.history;
+    
+    console.log('hey', historyContent.value );
 
     if (isMaintenanceMode.value) {
       currentOverlay.value = 'maintenance';
@@ -121,6 +141,7 @@ export const useAppStateStore = defineStore('app', () => {
 
     // Logic to assing a value to the editor content
     if (historyContent.value === null) {
+      console.log('la')
       editorContent.value = unitProfile.value.activity.defaultText;
     } else {
       editorContent.value = historyContent.value;
@@ -279,6 +300,7 @@ export const useAppStateStore = defineStore('app', () => {
     unitToken,
 
     GetUnitProfile,
+    resetAppState,
     SetUnitStateOnArrival,
 
     hideOverlay,

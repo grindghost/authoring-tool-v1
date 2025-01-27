@@ -272,6 +272,8 @@ const handleRestoreDefaultText = () => {
 
   .maxchar {
     font-size: 14px;
+    display: flex;
+    flex-direction: row;
     font-family: var(--theme-font) !important;
   }
 

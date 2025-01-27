@@ -36,7 +36,6 @@ export default defineEventHandler(async (event) => {
         secure: true,
         sameSite: process.env.SAME_SITE,
         maxAge: 60 * 60 * 24 * 365 * 10, // 10 years in seconds (permanent)
-
       });
     }
 

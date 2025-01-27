@@ -394,7 +394,13 @@
       <div class="middle-canvas">
         <div class="browser-mockup with-url">
         <!-- <a class="iframe-src bg-gray-50 link" :href="iframeSrc" target="_blank">{{ iframeSrc }}</a> -->
-        <!-- <UnitEmbed :profile=profile /> -->
+        <div ref="scalableContainer" class="scalable-container">
+        
+        <div class="custom-component">
+          <UnitEmbed :profile=profile />
+        </div>
+
+        </div>
         <div class="relative border border-gray-200 rounded-md inline-block p-4">
           <a
             class="link break-all text-[0.7rem] leading-1 text-gray-500 inline-block pr-14 text-primary"
@@ -409,7 +415,7 @@
             @click="copyToClipboard"
             title="Copy to clipboard"
             >
-            <OhVueIcon name="fa-regular-copy"fill="#8d8d8d"  scale="0.9"/>
+            <OhVueIcon name="fa-regular-copy" fill="#8d8d8d"  scale="0.9"/>
           </div>
 
           <!-- <button
@@ -508,6 +514,12 @@ import  DOMPurify from 'dompurify';
 import { useRouter, useRoute } from 'vue-router'
 import { useProjects } from '~/stores/projects'
 import { useProjectModelStore } from '~/stores/projectModel'
+
+import { useAppStateStore } from '/stores/appState';
+const appStateStore = useAppStateStore();
+
+import { initializeContainerScaler } from '~/utils/scaler2';
+const scalableContainer = ref(null); // Reference to the container to be scaled
 
 // import { useUser } from 'vue-clerk';
 const { status, data } = useAuth();
@@ -655,6 +667,81 @@ function clickActivityAccordion() {
   accordion.value.activity = false;   
 }
 
+const profile = computed(() => {
+
+  // Reset the app state
+  appStateStore.resetAppState();
+
+  // Get the project from the projects sotre
+  const currentProject = projectStore.projects.find((p) => p.id === route.params.id);
+
+  // Create the profile
+  const finalProfile = {
+    configs: {
+                "collectionId": "jjq7raxar3a1nu3",
+                "collectionName": "Configs",
+                "created": "2024-10-17 19:11:48.366Z",
+                "currentCollection": "Automne 2024",
+                "history": 3,
+                "id": "3znbpxwdnlhju0q",
+                "maintenanceMode": false,
+                "maxChar": 1000,
+                "name": "global",
+                "openInNewWindow": true,
+                "proxy": "https://ulavalcorsproxy.onrender.com/",
+                "updated": "2024-12-25 19:13:50.948Z"
+            },
+    project: currentProject,
+    activity: selectedActivity.value,
+    locale: {
+                "lang": "fr",
+                "placeholder": "Entrez votre réflexion ici...",
+                "editorView": {
+                    "buttons": {
+                        "submit": "Soumette",
+                        "correct": "Corriger"
+                    },
+                    "charCount": "caractères",
+                    "allowedChar": "permis",
+                    "toolbar": {
+                        "h1": "Niveau 1",
+                        "h2": "Niveau 2",
+                        "h3": "Niveau 3",
+                        "normal": "Paragraphe"
+                    },
+                    "restoreDefaultText": "Restorer le format"
+                },
+                "completedView": {
+                    "body": "Votre réponse sera compilée dans votre journal<br>de bord que vous pourrez télécharger au format<br>PDF à la fin de votre formation.",
+                    "button": "Corriger ma réponse",
+                    "header": "Vous avez bel et bien<br>complété cet exercice."
+                },
+                "endpointView": {
+                    "body": "Cliquez ici pour récupérer votre PDF<br>contenant toutes vos réponses.",
+                    "header": "Le journal de bord<br>de votre module<br>est prêt!",
+                    "button": "Télécharger"
+                },
+                "maintenanceView": {
+                    "header": "Maintenance en cours...",
+                    "body": "Nous devons temporairement restreindre l'accès<br/>aux zones de réflexions interactives, car nous effectuons <br/>des travaux de maintenance. Nous vous prions de nous<br/>excuser pour cette interruption..."
+                }
+            },
+            history: "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...</p>"
+  }
+  
+  setTimeout(() => {
+  
+    // Propagate the unit profile to the app state store
+    appStateStore.SetUnitStateOnArrival(finalProfile);
+
+    // Set the unit token
+    appStateStore.unitToken = finalProfile.activity.token;
+  }, 200)
+
+  return finalProfile;  
+
+});
+
 /**
  * Selects the activity corresponding to the given activity key.
  * Updates the `activeActivity` and `selectedActivity` with the 
@@ -668,11 +755,7 @@ function selectActivity(activityKey) {
   selectedActivity.value = project.value.activities[activityKey] || {};
   
   accordion.value.project = false;
-  accordion.value.activity = true;à
-
-  // Logic will go here...
-
-  // ...
+  accordion.value.activity = true;
 
   // Uncomment here...
   // iframe.value.style.border = `1px solid #e3e0e0`;
@@ -822,7 +905,12 @@ onMounted(async () => {
 
     // Set the current project ID
     projectStore.currentProject = project;
-    console.log('currentProjectId:', projectStore.currentProject);
+    // console.log('currentProjectId:', projectStore.currentProject);
+
+    const container = ref.scalerContainer;
+    
+    // Initialize the scaler for the specific container
+    initializeContainerScaler(scalableContainer.value);
 
     // Uncomment here
     // adjustIframeSize();
@@ -1235,4 +1323,36 @@ input[type="checkbox"]:checked::before {
   background: linear-gradient(180deg, rgba(0,0,0,0) 22%, rgba(0,0,0,0.6601234243697479) 100%);
 }
 
+/*  */
+
+.scalable-container {
+  position: relative;
+  width: 100% !important;
+  padding-top: 56.125%;
+  height: 0;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.scalable-container > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box; /* Include borders/paddings in dimensions */
+}
+
+.custom-component {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: top left; /* Scale from the center */
+  padding: 2px;
+}
 </style>

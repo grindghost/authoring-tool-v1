@@ -23,8 +23,8 @@
           <img :src="pdfCoverImgUrl" :onload="setCoverLoaded" alt="" ref="coverImage" class="cover-image" />
         </div>
   
-        <img src="../public/left_hand.png" ref="leftHand" :class="['left-hand', { 'fade-in': coverLoaded }]" />
-        <img src="../public/right_hand.png" ref="rightHand" :class="['right-hand', { 'fade-in': coverLoaded }]" />
+        <img src="/left_hand.png" ref="leftHand" :class="['left-hand', { 'fade-in': coverLoaded }]" />
+        <img src="/right_hand.png" ref="rightHand" :class="['right-hand', { 'fade-in': coverLoaded }]" />
       </div>
     </div>
   </template>
@@ -111,7 +111,9 @@
     text-align: left;
     margin-bottom: 24px;
     font-size: 34px;
+    line-height: 116%;
     white-space: pre;
+    font-family: var(--theme-font) !important;
   }
   
   .body-text {
@@ -120,19 +122,23 @@
     font-weight: 300;
     line-height: 140%;
     white-space: pre;
+    font-family: var(--theme-font) !important;
   }
   
   .file-info {
     line-height: 160%;
     margin-top: auto;
+    font-family: var(--theme-font) !important;
   }
   
   .text-accent {
     /* Define your accent color if needed */
+    color: var(--color-theme-accent);
   }
   
   .file-size {
     font-size: 16px;
+    font-family: var(--theme-font) !important;
   }
   
   .download-button {
@@ -143,6 +149,7 @@
   
   .image-container {
     width: 80%;
+    right: -230px;
     position: relative;
     margin-right: 50px;
   }
@@ -231,6 +238,38 @@
       -webkit-mask-position: 120%;
       mask-position: 120%;
       opacity: 1;
+  }
+
+  button {
+      -webkit-border-radius: 6;
+      -moz-border-radius: 6;
+      border-radius: 6px;
+      border: none;
+      font-family: var(--theme-font) !important; 
+      color: #ffffff;
+      font-size: 1.5rem;
+      text-align: center;
+      background: var(--color-theme-button);
+      background-color: var(--color-theme-button);
+      padding: 12px 20px 10px 20px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.15s linear, background-color 0.3s;
+  }
+
+  button:hover {
+      background: var(--color-theme-button-hover);
+      background-color: var(--color-theme-button-hover);
+      text-decoration: none;
+      transform: scale(1.1);
+      cursor: pointer;
+  }
+
+
+  button:disabled {
+      background: var(--color-theme-button-disabled);
+      cursor: not-allowed;
+      text-decoration: none;
   }
   
   </style>

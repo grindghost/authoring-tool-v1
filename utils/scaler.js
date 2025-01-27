@@ -1,7 +1,8 @@
+
 export default function Scaler() {
     const _width = 800; // Target container width
     const _height = 449; // Target container height
-  
+
     try {
       const container = document.getElementsByTagName('*')[0];
   

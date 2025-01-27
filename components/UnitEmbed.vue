@@ -30,76 +30,6 @@
       return textContent.length === 0;
     };
 
-    /*
-    const computedTheme = computed(() => { 
-        
-        const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
-        const customTheme = store.unitProfile?.project?.profile?.customTheme;
-        const theme = store.unitProfile?.project?.profile?.theme;
-
-      if (useCustomTheme == false) {
-        if (theme == "brio" || theme == "ul-yellow" || theme == "ul-red") {
-          // return the actual theme
-          return theme;  
-        } 
-      } else {
-      // Return the default theme, with accent color
-    // const root = document.documentElement;
-        
-    // root.style.setProperty("--color-theme", customTheme);
-    // root.style.setProperty("--color-theme-light", customTheme);
-    // root.style.setProperty("--color-theme-accent", customTheme);
-    // root.style.setProperty("--color-theme-button", customTheme);
-    // root.style.setProperty("--color-theme-button-hover", customTheme);  
-    // return "default";
-
-    applyCustomTheme(customTheme);
-    return "custom"
-
-    }
-  });
-    */
-  // ****************************************;
-    /*
-  const applyCustomTheme = (customTheme) => {
-  // Define the styles dynamically using the custom theme
-  const styleContent = `
-    .theme-custom {
-      --color-theme: ${customTheme};
-      --color-theme-light: ${customTheme};
-      --color-theme-white: #fff;
-      --color-theme-accent: ${customTheme};
-  
-      --color-theme-button: ${customTheme};
-      --color-theme-button-hover: ${customTheme};
-      --color-theme-button-disabled: #d1d7d8;
-      --color-theme-textarea-bg: #F8F9FA;
-  
-      --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
-      --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
-    }
-  `;
-
-  // Create a new style element
-  let styleElement = null;
-    try {
-      styleElement = document.getElementById("custom-theme-style");     
-    } catch (error) {
-      // ...
-    }
-  if (styleElement == null) {
-
-    styleElement = document.createElement("style");
-    styleElement.id = "custom-theme-style";
-    document.head.appendChild(styleElement);
-    // Set the style content
-    styleElement.innerHTML = styleContent;
-  }
-
-
-};
-
-*/
 
 const computedTheme = computed(() => {
   // const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
@@ -109,10 +39,6 @@ const computedTheme = computed(() => {
   // const theme = store.unitProfile?.project?.profile?.theme;
   const theme = props.profile?.project?.profile?.theme;
 
-  console.log("useCustomTheme", useCustomTheme);
-  console.log("customTheme", customTheme);
-  console.log("theme", theme);
-
   if (!useCustomTheme) {
     if (theme === "brio" || theme === "ul-yellow" || theme === "ul-red") {
       return theme;
@@ -121,7 +47,6 @@ const computedTheme = computed(() => {
     if (process.client) {
       applyCustomTheme(customTheme);
     }
-    console.log("custom theme");
     return "custom";
   }
 });
@@ -141,6 +66,7 @@ const applyCustomTheme = (customTheme) => {
         --color-theme-textarea-bg: #F8F9FA;
         --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
         --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+        --theme-font: 'Overpass', sans-serif;
       }
     `;
 
@@ -209,28 +135,28 @@ const handleRestoreDefaultText = () => {
     <!-- Main container -->
     <div class="wrapper" :class="`theme-${computedTheme}`">  
 
-        <!-- Overlays container-->
-        <transition name="fade">
-        <div class="overlays-container noselect" v-if="store.overlayVisible" >  
-            <UnitOverlayLoading v-if="store.currentOverlay === 'loading'" />
-            <UnitOverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
-            <UnitOverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
-            <UnitOverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
-        </div>
-        </transition>
+      <!-- Overlays container-->
+      <transition name="fade">
+      <div class="overlays-container noselect" v-if="store.overlayVisible" >  
+          <UnitOverlayLoading v-if="store.currentOverlay === 'loading'" />
+          <UnitOverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
+          <UnitOverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
+          <UnitOverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
+      </div>
+      </transition>
     
-    <!-- Editor container -->
-    <div class="acitivity-container" :class="store.overlayVisible ? 'transparent' : ''">
+      <!-- Editor container -->
+      <div class="acitivity-container" :class="store.overlayVisible ? 'transparent' : ''">
 
         <!-- Quill editor -->
-        <UnitQuillEditor2 v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
+        <UnitQuillEditor v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
 
         <!-- Footer -->
         <div class="footer noselect">
 
             <div class="maxchar">
             
-            <span id="count">
+            <span class="count">
                 <strong>{{ answerLength }}</strong>
                 {{ charCount }}
             </span>
@@ -264,7 +190,6 @@ const handleRestoreDefaultText = () => {
     
  
 <style scoped>
-
 .wrapper {
     border-radius: 8px;
     box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
@@ -295,32 +220,13 @@ const handleRestoreDefaultText = () => {
     background: var(--color-theme-overlays-gradient);   
   }
 
-  /* Disable text selection */
-  .noselect {
-      -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none; /* Safari */
-        -khtml-user-select: none; /* Konqueror HTML */
-          -moz-user-select: none; /* Old versions of Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-                user-select: none; /* Non-prefixed version, currently
-                                      supported by Chrome, Edge, Opera and Firefox */
-    }
-
-  .transparent {
-    -webkit-filter: blur(5px);
-    -moz-filter: blur(5px);
-    -o-filter: blur(5px);
-    -ms-filter: blur(5px);
-    filter: blur(4px);
-    opacity: 1;
-  }
-
   .footer {
       width: 100%;
       height: 150px;
       padding: 0 30px;
       background-color: #f4f6f8;
       display: flex;
+      margin-top: auto;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
@@ -338,6 +244,7 @@ const handleRestoreDefaultText = () => {
     font-size: 0.8rem;
     color: #ccc;
     transition: ease-in-out 0.15s;
+    font-family: var(--theme-font) !important;
   }
 
   .footer div .options:hover {
@@ -345,10 +252,16 @@ const handleRestoreDefaultText = () => {
     font-size: 0.8rem;
     font-weight: 600;
     transform: scale(1.1);
+    font-family: var(--theme-font) !important;
+  }
+
+  span .count {
+    font-family: var(--theme-font) !important;
   }
 
   .maxchar {
     font-size: 14px;
+    font-family: var(--theme-font) !important;
   }
 
   button {
@@ -356,7 +269,7 @@ const handleRestoreDefaultText = () => {
     -moz-border-radius: 6;
     border-radius: 6px;
     border: none;
-    font-family: 'Overpass', 'sans-serif';
+    font-family: var(--theme-font) !important;
     color: #ffffff;
     font-size: 1.5rem;
     text-align: center;

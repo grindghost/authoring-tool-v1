@@ -2,8 +2,8 @@
 
 import JSZip from 'jszip';
 import { encryptContent } from '~/utils/encryption';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+// import { readFile } from 'fs/promises';
+// import { join } from 'path';
 
 export default defineEventHandler(async (event) => {
   const { projectId, activities, lang } = await readBody(event);
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     };
 
     const token = await encryptContent(JSON.stringify(tokenData));
-    const tokenUrl = `https://jdb-nuxt.vercel.app/?token=${encodeURIComponent(token)}&lang=${lang}`;
+    const tokenUrl = `https://monjournaldebord.ca/?token=${encodeURIComponent(token)}&lang=${lang}`;
 
     const htmlContent = `
         <!DOCTYPE html>

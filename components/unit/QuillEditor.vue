@@ -144,6 +144,10 @@
       .ql-snow .ql-picker.ql-header .ql-picker-label:not([data-value])::before {
         content: '${normal}' !important;
       }
+      /* Re-apply the font to the editor content */
+      .ql-editor * {
+          font-family: var(--theme-font) !important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -175,6 +179,7 @@
       font-size: larger;
       font-weight: 300;
       max-height: 276px;
+      font-family: var(--theme-font) !important;
   }
   </style>
   

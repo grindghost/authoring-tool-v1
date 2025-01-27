@@ -22,14 +22,11 @@ const handleBuyNow = async (lookupKey: string) => {
 
 const buttonText = computed(() => {
   if (data.value?.user?.isSubscribed) {
-    return 'Gérer mon abonnement'
-    // return 'Manage Subscription'
+    return 'Commencez maintenant'
   } else if (status.value === 'authenticated') {
     return 'Acheter maintenant'
-    // return 'Buy Now'
   } else {
-    return 'Connectez-vous pour acheter'
-    // return 'Sign In to Buy'
+    return 'Commencez maintenant ' // Connectez-vous pour acheter
   }
 })
 

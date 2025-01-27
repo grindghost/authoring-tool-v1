@@ -668,7 +668,11 @@ function selectActivity(activityKey) {
   selectedActivity.value = project.value.activities[activityKey] || {};
   
   accordion.value.project = false;
-  accordion.value.activity = true;
+  accordion.value.activity = true;à
+
+  // Logic will go here...
+
+  // ...
 
   // Uncomment here...
   // iframe.value.style.border = `1px solid #e3e0e0`;

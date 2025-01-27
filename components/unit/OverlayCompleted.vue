@@ -67,7 +67,8 @@
     line-height: 1.12;
     text-align: center; 
     margin-bottom: 20px; 
-    white-space: pre
+    white-space: pre;
+    font-family: var(--theme-font) !important;
   }
 
   p {
@@ -75,7 +76,8 @@
     font-weight: 300; 
     line-height: 140%; 
     white-space: pre;
-    text-align: center; 
+    text-align: center;
+    font-family: var(--theme-font) !important; 
   }
 
   button {
@@ -83,7 +85,7 @@
       -moz-border-radius: 6;
       border-radius: 6px;
       border: none;
-      font-family: Overpass;
+      font-family: var(--theme-font) !important; 
       color: #ffffff;
       font-size: 1.5rem;
       text-align: center;

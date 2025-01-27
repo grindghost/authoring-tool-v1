@@ -30,76 +30,6 @@
       return textContent.length === 0;
     };
 
-    /*
-    const computedTheme = computed(() => { 
-        
-        const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
-        const customTheme = store.unitProfile?.project?.profile?.customTheme;
-        const theme = store.unitProfile?.project?.profile?.theme;
-
-      if (useCustomTheme == false) {
-        if (theme == "brio" || theme == "ul-yellow" || theme == "ul-red") {
-          // return the actual theme
-          return theme;  
-        } 
-      } else {
-      // Return the default theme, with accent color
-    // const root = document.documentElement;
-        
-    // root.style.setProperty("--color-theme", customTheme);
-    // root.style.setProperty("--color-theme-light", customTheme);
-    // root.style.setProperty("--color-theme-accent", customTheme);
-    // root.style.setProperty("--color-theme-button", customTheme);
-    // root.style.setProperty("--color-theme-button-hover", customTheme);  
-    // return "default";
-
-    applyCustomTheme(customTheme);
-    return "custom"
-
-    }
-  });
-    */
-  // ****************************************;
-    /*
-  const applyCustomTheme = (customTheme) => {
-  // Define the styles dynamically using the custom theme
-  const styleContent = `
-    .theme-custom {
-      --color-theme: ${customTheme};
-      --color-theme-light: ${customTheme};
-      --color-theme-white: #fff;
-      --color-theme-accent: ${customTheme};
-  
-      --color-theme-button: ${customTheme};
-      --color-theme-button-hover: ${customTheme};
-      --color-theme-button-disabled: #d1d7d8;
-      --color-theme-textarea-bg: #F8F9FA;
-  
-      --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
-      --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
-    }
-  `;
-
-  // Create a new style element
-  let styleElement = null;
-    try {
-      styleElement = document.getElementById("custom-theme-style");     
-    } catch (error) {
-      // ...
-    }
-  if (styleElement == null) {
-
-    styleElement = document.createElement("style");
-    styleElement.id = "custom-theme-style";
-    document.head.appendChild(styleElement);
-    // Set the style content
-    styleElement.innerHTML = styleContent;
-  }
-
-
-};
-
-*/
 
 const computedTheme = computed(() => {
   // const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
@@ -136,6 +66,7 @@ const applyCustomTheme = (customTheme) => {
         --color-theme-textarea-bg: #F8F9FA;
         --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
         --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+        --theme-font: 'Overpass', sans-serif;
       }
     `;
 
@@ -204,7 +135,7 @@ const handleRestoreDefaultText = () => {
 
 <template>
     <!-- Main container -->
-    <div class="wrapper-portal" :class="`theme-${computedTheme}`">  
+    <div class="wrapper" :class="`theme-${computedTheme}`">  
 
         <!-- Overlays container-->
         <transition name="fade">
@@ -217,17 +148,17 @@ const handleRestoreDefaultText = () => {
         </transition>
     
     <!-- Editor container -->
-    <div class="acitivity-container-portal" :class="store.overlayVisible ? 'transparent' : ''">
+    <div class="acitivity-container" :class="store.overlayVisible ? 'transparent' : ''">
         
         <!-- Quill editor -->
-        <UnitQuillEditor2 v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
+        <UnitQuillEditor v-model:content="store.editorContent" contentType="html" :placeholder="placeholder" />
 
         <!-- Footer -->
-        <div class="footer-portal noselect">
+        <div class="footer noselect">
 
             <div class="maxchar">
             
-            <span id="count">
+            <span class="count">
                 <strong>{{ answerLength }}</strong>
                 {{ charCount }}
             </span>
@@ -261,6 +192,120 @@ const handleRestoreDefaultText = () => {
     
  
 <style scoped>
+
+.wrapper {
+    background: rgb(235, 239, 241);
+    background: linear-gradient(180deg, rgba(235, 239, 241, 1) 44%, rgba(198, 204, 205, 1) 82%);  
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .acitivity-container {
+    border-radius: 8px;
+    box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
+    background-color: white;
+    width: 100%;
+    height: 70%;
+    min-height: 70vh;
+    max-width: 796px;
+    max-height: 446px;
+    margin: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .overlays-container {
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: visible;
+    background: var(--color-theme-overlays-gradient);   
+  }
+
+  .footer {
+    width: 100%;
+    height: 95px;
+    padding: 0 30px;
+    background-color: #f4f6f8;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .options-container {
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 1.2rem;
+  }
+
+  .footer .options {
+    font-size: 0.8rem;
+    color: #ccc;
+    transition: ease-in-out 0.15s;
+    font-family: var(--theme-font) !important;
+  }
+
+  .footer div .options:hover {
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transform: scale(1.1);
+    font-family: var(--theme-font) !important;
+  }
+
+  span .count {
+    font-family: var(--theme-font) !important;
+  }
+
+  .maxchar {
+    font-size: 14px;
+    font-family: var(--theme-font) !important;
+  }
+
+  button {
+    -webkit-border-radius: 6;
+    -moz-border-radius: 6;
+    border-radius: 6px;
+    border: none;
+    font-family: var(--theme-font) !important;
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-align: center;
+    background: var(--color-theme-button);
+    background-color: var(--color-theme-button);
+    padding: 16px 20px 16px 20px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s linear, background-color 0.3s;
+  } 
+
+  button:hover {
+      background: var(--color-theme-button-hover);
+      background-color: var(--color-theme-button-hover);
+      text-decoration: none;
+      transform: scale(1.1);
+      cursor: pointer;
+  }
+
+
+  button:disabled {
+      background: var(--color-theme-button-disabled);
+      cursor: not-allowed;
+      text-decoration: none;
+  }
 
 /* Define the fade transition */
 .fade-enter-active, .fade-leave-active {

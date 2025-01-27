@@ -1,6 +1,6 @@
 <template>
     
-    <div style="padding: 2px">
+    <div style="padding: 2px;">
         <!-- This is the embed unit component -->
         <UnitEmbed
             :profile=profile 

@@ -56,6 +56,7 @@ p {
   line-height: 140%; 
   white-space: pre;
   text-align: center; 
+  font-family: var(--theme-font) !important;
 }
 
 </style>

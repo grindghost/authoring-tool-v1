@@ -17,6 +17,68 @@ html {
     overscroll-behavior-y: none !important;
   }
 
+  /* Theme variables */
+
+  .theme-default {
+    --color-theme-white: #fff;
+    --color-theme-button: #0755b1;
+    --color-theme-button-hover: #0e67d6;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+    --theme-font: 'Overpass', sans-serif;
+}
+
+.theme-brio {
+    --color-theme: #012038;
+    --color-theme-light: #0755b1;
+    --color-theme-white: #fff;
+    --color-theme-accent: #0755b1;
+  
+    --color-theme-button: #0755b1;
+    --color-theme-button-hover: #0e67d6;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+  
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+    --theme-font: 'Overpass', sans-serif;
+}
+
+.theme-ul-yellow {
+    --color-theme: #ffc103;
+    --color-theme-light: #ffc103;
+    --color-theme-white: #fff;
+    --color-theme-accent: #ffc103;
+  
+    --color-theme-button: #ffc103;
+    --color-theme-button-hover: #eeb302;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+  
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+    --theme-font: 'Overpass', sans-serif;
+}
+
+.theme-ul-red {
+    --color-theme: #e30513;
+    --color-theme-light: #e30513;
+    --color-theme-white: #fff;
+  
+    --color-theme-button: #e30513;
+    --color-theme-button-hover: #c40612;
+    --color-theme-button-disabled: #d1d7d8;
+    --color-theme-textarea-bg: #F8F9FA;
+  
+    --color-theme-container-gradient: linear-gradient(0deg, rgba(228, 233, 234, 1) 65%, rgba(255,255,255,1) 100%);
+    --color-theme-overlays-gradient: linear-gradient(0deg, rgba(41, 40, 40, 0.85) 0%, rgba(0, 0, 0, 0.7) 70%, rgba(1, 1, 1, 0.59) 100%);
+    --theme-font: 'Overpass', sans-serif;
+}
+
+/* Form overrides */
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -132,6 +194,15 @@ html {
     -ms-filter: blur(5px);
     filter: blur(4px);
     opacity: 1;
-    /* transform: scale(1.015); */
-    /* transition: transform 0.5s ease-in-out; */
   }
+
+    /* Disable text selection */
+    .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+          -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Edge, Opera and Firefox */
+    }

@@ -50,7 +50,7 @@ export const useAppStateStore = defineStore('app', () => {
     isMaintenanceMode.value = false;
     isEndpoint.value = false;
     // historyContent.value = null;
-    overlayVisible.value = false;
+    overlayVisible.value = true;
     currentOverlay.value = 'loading';
   };
   

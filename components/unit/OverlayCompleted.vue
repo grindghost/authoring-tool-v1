@@ -5,7 +5,7 @@
       <div class="profile">
         <OhVueIcon name="fa-book" />
         <span>
-          {{ projectId }}
+          {{ projectId }} | {{ activityId }}
         </span>
 
 
@@ -41,6 +41,10 @@
 
     const projectId = computed(() => {
       return appStore.unitProfile.project.id
+    })
+
+    const activityId = computed(() => {
+      return appStore.unitProfile.activity.activityTitle
     })
 
     const handleClick = () => {

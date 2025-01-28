@@ -114,6 +114,7 @@
     line-height: 116%;
     white-space: pre;
     font-family: var(--theme-font) !important;
+    font-weight: 600;
   }
   
   .body-text {
@@ -133,6 +134,7 @@
   
   .text-accent {
     /* Define your accent color if needed */
+    font-family: var(--theme-font) !important;
     color: var(--color-theme-accent);
   }
   

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon journal de bord</title>
+
+    <style>
+
+      * {
+        margin: 0;
+      }
+
+      iframe {
+        width: 800px;
+        height: 446px;
+        overflow: hidden;
+      }
+
+      body {
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body spellcheck="false">
+    <iframe
+      id="dynamicIframe"
+      src="provider.html"
+      frameborder="0"
+      allowfullscreen="allowfullscreen"
+      allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
+      title="Interactive Video"
+      scrolling="no"
+    ></iframe>
+  </body>
+
+  <script defer>
+
+    // Scaler function
+    function Scaler() {
+      try {
+        const container = document.getElementsByTagName("*")[0];
+        if (window.innerWidth <= 801) {
+
+          // Remove any previous styles related to scale/transform to prevent bloat
+          container.style.removeProperty("transform-origin");
+          container.style.removeProperty("transform");
+
+          let wrapWidth = 800; // width of the wrapper
+          let wrapHeight = 446; // height of the wrapper
+          let childWidth = window.innerWidth; // width of child iframe
+          let childHeight = window.innerHeight; // child height
+          let wScale = childWidth / wrapWidth;
+          let hScale = childHeight / wrapHeight;
+          let scale = Math.min(wScale, hScale); // get the lowest ratio
+
+          // Instead of using setAttribute, update individual style properties
+          container.style.transform = `scale(${scale})`;
+          container.style.transformOrigin = "left top";
+          container.style.maxWidth = "800px";
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+
+      // Listen for the message from the child
+    window.addEventListener('message', function(event) {
+        // You may want to validate the origin of the message for security reasons
+        // if (event.origin !== 'https://your-child-frame-origin.com') {
+        //    return; // Ignore the message if it’s not from the expected origin
+        // }
+        
+        const data = event.data;
+
+        if (data.action === 'openNewWindow') {
+            window.open(data.url, '_blank'); // Open the URL in a new window/tab
+        }
+    });
+
+    window.addEventListener("DOMContentLoaded", Scaler, false);
+    window.addEventListener("resize", Scaler, false);
+  </script>
+</html>

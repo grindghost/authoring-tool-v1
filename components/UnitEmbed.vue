@@ -129,9 +129,6 @@ const handleRestoreDefaultText = () => {
     store.RestoreDefaultText();
 }
 
-onMounted(() => {
-    console.log(props.profile.history);
-});
 
 </script>
 

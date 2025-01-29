@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 562 562">
+  <defs>
+    <style>
+      .cls-1 {
+        filter: url(#drop-shadow-1);
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+    </style>
+    <filter id="drop-shadow-1" x="-28" y="-29" width="620" height="620">
+      <feOffset dx="1" dy="0"/>
+      <feGaussianBlur result="blur" stdDeviation="19"/>
+      <feFlood flood-color="#000" flood-opacity=".08"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <!-- Generator: Adobe Illustrator 28.7.3, SVG Export Plug-In . SVG Version: 1.2.0 Build 164)  -->
+  <g>
+    <g id="Layer_1">
+      <g class="cls-1">
+        <circle class="cls-2" cx="281" cy="281" r="253"/>
+        <g id="Layer_1-2" data-name="Layer_1">
+          <path d="M411.6,344v-199.1c0-7.7-6.2-13.9-13.9-13.9h-195.2c-31.6,0-57.1,25.5-57.1,57.1v189.8c0,31.6,25.5,57.1,57.1,57.1h194.4c7.7,0,13.9-6.2,13.9-13.9v-9.3c0-4.6-2.3-8.5-5.4-10.8-2.3-9.3-2.3-35.5,0-44,3.1-2.3,5.4-6.9,5.4-10.8l.8-2.3ZM221.8,210.5c0-2.3,1.5-3.9,3.9-3.9h125.8c2.3,0,3.9,1.5,3.9,3.9v11.6c0,2.3-1.5,3.9-3.9,3.9h-125.8c-2.3,0-3.9-1.5-3.9-3.9,0,0,0-11.6,0-11.6ZM221.8,248.3c0-2.3,1.5-3.9,3.9-3.9h125.8c2.3,0,3.9,1.5,3.9,3.9v11.6c0,2.3-1.5,3.9-3.9,3.9h-125.8c-2.3,0-3.9-1.5-3.9-3.9,0,0,0-11.6,0-11.6ZM371.5,396.4h-169c-10.8,0-19.3-8.5-19.3-19.3s8.5-19.3,19.3-19.3h169.7c-.8,10-.8,27.8,0,37.8l-.8.8Z"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

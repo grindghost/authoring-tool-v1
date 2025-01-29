@@ -119,8 +119,6 @@ export const useAppStateStore = defineStore('app', () => {
     isEndpoint.value = profile.activity.isEndpoint;
     historyContent.value = profile.history;
     
-    console.log('hey', historyContent.value );
-
     if (isMaintenanceMode.value) {
       currentOverlay.value = 'maintenance';
     } else if (isEndpoint.value) {
@@ -141,7 +139,6 @@ export const useAppStateStore = defineStore('app', () => {
 
     // Logic to assing a value to the editor content
     if (historyContent.value === null) {
-      console.log('la')
       editorContent.value = unitProfile.value.activity.defaultText;
     } else {
       editorContent.value = historyContent.value;

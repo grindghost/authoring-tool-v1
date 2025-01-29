@@ -12,7 +12,7 @@
 }
 
 html {
-    @apply bg-slate-50 !important;
+    /* @apply bg-slate-50 !important; */
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior-y: none !important;
   }

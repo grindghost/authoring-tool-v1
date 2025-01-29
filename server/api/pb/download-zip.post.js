@@ -360,10 +360,15 @@ export default defineEventHandler(async (event) => {
     const activityZipContent = await activityZip.generateAsync({ type: 'nodebuffer' });
 
     // Add the activity zip file to the main zip
-    let formattedTitle = activity.activityTitle
-    .toLowerCase() // Convert to lowercase
-    .replace(/\s+/g, '_') // Replace spaces with underscores
-    .replace(/télécharger/g, 'endpoint'); // Replace "téléchargez" with "endpoint"
+    let formattedTitle = activity.activityTitle.toLowerCase(); // Convert to lowercase
+
+    // Check if the title contains "télécharger"
+    if (formattedTitle.includes('télécharger')) {
+      formattedTitle = 'endpoint'; // Replace the entire title with "endpoint"
+    } else {
+      formattedTitle = formattedTitle
+        .replace(/\s+/g, '_'); // Replace spaces with underscores
+    }
 
     // Add the activity zip file to the main zip
     mainZip.file(`${formattedTitle}.zip`, activityZipContent);

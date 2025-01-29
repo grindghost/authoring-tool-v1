@@ -1,5 +1,5 @@
 <template>
-    <div id="endpoint-overlay" @click="handleClick">
+    <div class="overlay" @click="handleClick">
       <div :class="['overlay-content', { 'fade-in': coverLoaded }]">
         <div class="top">
           <h1 class="header" v-html="header"></h1>
@@ -23,14 +23,15 @@
           <img :src="pdfCoverImgUrl" :onload="setCoverLoaded" alt="" ref="coverImage" class="cover-image" />
         </div>
   
-        <img src="/left_hand.png" ref="leftHand" :class="['left-hand', { 'fade-in': coverLoaded }]" />
-        <img src="/right_hand.png" ref="rightHand" :class="['right-hand', { 'fade-in': coverLoaded }]" />
+        <img src="/left_hand.png" ref="leftHand" :class="['left-hand', { 'fade-in': imgReady }]" />
+        <img src="/right_hand.png" ref="rightHand" :class="['right-hand', { 'fade-in': imgReady }]" />
       </div>
     </div>
   </template>
   
   <script setup>
-  import { useAppStateStore } from '/stores/appState';
+  import { set } from 'date-fns';
+import { useAppStateStore } from '/stores/appState';
   import { useStatusStore } from '/stores/status';
   
   const statusStore = useStatusStore();
@@ -39,6 +40,7 @@
   const coverImage = ref(null);
   const coverImageContainer = ref(null);
   const coverLoaded = ref(false);
+  const imgReady = ref(false);
 
   const leftHand = ref(null);
   const rightHand = ref(null);
@@ -80,12 +82,22 @@
       // Calculate the positions of the left and right hands based on the cover image width
       leftHand.value.style.left = `${coverImageContainer.value.offsetLeft - 47}px`;
       rightHand.value.style.right = `${coverImageContainer.value.offsetLeft - 64}px`;
+      
+      setTimeout(() => {
+        imgReady.value = true;   
+      }, 500)
+
+
     }
   }
   </script>
   
   
   <style scoped>
+
+  .overlay {
+    cursor: pointer;
+  }
   
   .overlay-content {
     padding: 0px 52px 0px 52px;
@@ -95,6 +107,8 @@
     flex-direction: column;
     justify-content: center;
     opacity: 0;
+    cursor: pointer;
+
   }
   
   .top {

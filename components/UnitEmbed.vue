@@ -1,10 +1,6 @@
 <script setup>
     
     import { useAppStateStore } from '/stores/appState';
-    
-    definePageMeta({
-      auth: false,
-    })
 
     const store = useAppStateStore();
 

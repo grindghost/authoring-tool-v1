@@ -19,6 +19,8 @@
 
     definePageMeta({
         layout: false,
+        auth: false,
+
     });
 
     onMounted(async() => {

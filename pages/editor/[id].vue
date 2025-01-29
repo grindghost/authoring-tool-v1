@@ -441,7 +441,7 @@
           <div class="flex-column justify-start items-start ml-1">
             <h4 class="font-bold mb-[-3px]">
               <!-- {{ activity.activityTitle.slice(0, 20) + '...' }} -->
-              Exercice {{ index + 1 }}
+              Activité {{ index + 1 }}
             </h4>
             <span class="text-sm">
             {{ activity.activityTitle.slice(0, 18) + '...' }}

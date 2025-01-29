@@ -201,7 +201,8 @@ const handleRestoreDefaultText = () => {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
     padding: 1rem;
   }
 
@@ -210,11 +211,10 @@ const handleRestoreDefaultText = () => {
     box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
     background-color: white;
     width: 100%;
-    height: 70%;
-    min-height: 70vh;
+    height: 90vh;
+    max-height: 90vh;
     max-width: 796px;
-    max-height: 446px;
-    margin: auto;
+    margin: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -235,6 +235,7 @@ const handleRestoreDefaultText = () => {
   .footer {
     width: 100%;
     height: 95px;
+    min-height: 95px;
     padding: 0 30px;
     background-color: #f4f6f8;
     display: flex;

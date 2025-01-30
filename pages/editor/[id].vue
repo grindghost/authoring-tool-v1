@@ -768,7 +768,7 @@ async function updateIframeSrc() {
   const token = selectedActivity.value.token;
   const langParam = project.value.lang;
 
-  iframeSrc.value = `https://monjournaldebord.ca/embed?token=${encodeURIComponent(token)}&lang=${langParam}`;
+  iframeSrc.value = `https://monjournaldebord.ca/portal/?token=${encodeURIComponent(token)}&lang=${langParam}`;
 }
 
 

@@ -237,8 +237,8 @@ const handleRestoreDefaultText = () => {
 
   .overlays-container {
     width: 100%;
-    height: 100%;
-    min-height: 100vh;
+    height: 100dvh;
+    /* min-height: 100vh; */
     z-index: 3000;
     position: fixed; /* Changed to fixed */
     top: 0;

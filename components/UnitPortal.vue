@@ -40,6 +40,11 @@ const computedTheme = computed(() => {
   const theme = props.profile?.project?.profile?.theme;
 
   if (!useCustomTheme) {
+
+    if (!theme) {
+      return "brio";
+    }
+
     if (theme === "brio" || theme === "ul-yellow" || theme === "ul-red") {
       return theme;
     }

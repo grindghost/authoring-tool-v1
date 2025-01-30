@@ -40,6 +40,13 @@ const computedTheme = computed(() => {
   const theme = props.profile?.project?.profile?.theme;
 
   if (!useCustomTheme) {
+
+    // In the case the project doesn't exist, 
+    // or the app is in global maintenance mode...
+    if (!theme) {
+      return "brio";
+    }
+
     if (theme === "brio" || theme === "ul-yellow" || theme === "ul-red") {
       return theme;
     }

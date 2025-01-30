@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
 
   // Get the token from query params
   const token = getQuery(event).token; 
+  const lang = getQuery(event).lang;
+
   console.log('Token received from the query:', token);
+  console.log('Language received from the query:', lang);
 
   await ensureAuthenticated("Get answer"); // Ensure authentication before each request
 
@@ -38,19 +41,32 @@ export default defineEventHandler(async (event) => {
 
     // Decrypt the token
     const decryptedPayload = await decryptContent(token);
-    console.log('Decrypted payload:', decryptedPayload);
     const decryptedPayloadJson = JSON.parse(decryptedPayload);
     const { source, project, exercice } = decryptedPayloadJson;
 
     const projectId = project;
     const activityId = exercice;
 
+    // Object to hold the unit profile
     const UnitProfile = {};
 
     // Get the 'configs' collection for the global config
     const globalConfig = await pb.collection('Configs').getFirstListItem(`name = 'global'`);
 
     UnitProfile['configs'] = globalConfig;
+
+    // Return the unit profile if the app is in maintenance mode
+    if (UnitProfile.configs.maintenanceMode) {
+      
+      // Get the locale from the lang query param
+      const allLocales = await pb.collection('Locales').getFullList(10); // Get all records
+      const locale = allLocales.find(
+        (locale) => locale.dict && locale.dict.lang === lang
+      );
+
+      UnitProfile['locale'] = locale.dict || {};
+      return UnitProfile;
+    }
 
     // Get the project from the `Projects` collection
     const currentProject = await pb.collection('Projects').getFirstListItem(`id = '${projectId}'`);
@@ -61,7 +77,7 @@ export default defineEventHandler(async (event) => {
 
     UnitProfile['project'] = currentProject;
 
-    const allLocales = await pb.collection('Locales').getFullList(200); // Get all records
+    const allLocales = await pb.collection('Locales').getFullList(10); // Get all records
 
     const locale = allLocales.find(
       (locale) => locale.dict && locale.dict.lang === currentProject.profile.lang

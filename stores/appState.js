@@ -69,7 +69,7 @@ export const useAppStateStore = defineStore('app', () => {
     statusMessage.value = statusStore.status[lang.value].loading;
 
     // Fetch the unit profile
-    unitProfile.value = await fetchFromApi(`/pb/profile?token=${encodeURIComponent(token)}`);
+    unitProfile.value = await fetchFromApi(`/pb/profile?token=${encodeURIComponent(token)}&lang=${lang.value}`);
 
     // Start the loading status
     isLoading.value = false;
@@ -115,12 +115,15 @@ export const useAppStateStore = defineStore('app', () => {
       unitToken.value = profile.activity.token;
     }
 
-    isMaintenanceMode.value = profile.configs.maintenanceMode;
-    isEndpoint.value = profile.activity.isEndpoint;
-    historyContent.value = profile.history;
+    isMaintenanceMode.value = profile?.configs?.maintenanceMode;
+    isEndpoint.value = profile?.activity?.isEndpoint;
+    historyContent.value = profile?.history;
     
     if (isMaintenanceMode.value) {
       currentOverlay.value = 'maintenance';
+      console.log(profile.value);
+      return; // Exit the function
+
     } else if (isEndpoint.value) {
       currentOverlay.value = 'isEndpoint';
     } else if (historyContent.value === null) {

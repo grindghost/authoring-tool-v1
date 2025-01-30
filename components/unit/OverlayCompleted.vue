@@ -5,11 +5,10 @@
       <div class="profile">
         <OhVueIcon name="fa-book" />
         <span>
-          {{ projectId }} | {{ activityId }}
+          {{ activityId }}
         </span>
-
-
       </div>
+      
         <fa icon="fa-circle-check" class="fa-beat overlay-icon" />
         <div class="text-wrapper">
           <h1 v-html="header"></h1>

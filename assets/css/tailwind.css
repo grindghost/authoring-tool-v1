@@ -206,3 +206,21 @@ html {
                 user-select: none; /* Non-prefixed version, currently
                                       supported by Chrome, Edge, Opera and Firefox */
     }
+
+    /* Default styles */
+    .text-wrapper br {
+      display: inline; /* Ensure <br> is visible by default */
+    }
+
+    /* Hide <br> on small screens (e.g., mobile devices) */
+    @media only screen and (max-width: 600px) {
+      .text-wrapper br {
+        display: none;
+      }
+
+      .text-wrapper br::after {
+        content: " "; /* Add a space after the <br> */
+        white-space: pre; /* Preserve the space */
+      }
+
+    }

@@ -11,7 +11,7 @@
 
       </div>
         <fa icon="fa-circle-check" class="fa-beat overlay-icon" />
-        <div style="padding: 0px 130px 0px 130px; color: white">
+        <div class="text-wrapper">
           <h1 v-html="header"></h1>
           <p v-html="body"></p>
         </div>
@@ -65,23 +65,37 @@
     gap: 1.8rem;
   }
 
+  .text-wrapper {
+    margin: 0 auto;
+    max-width: 450px;
+    /* width: 100%; */
+  }
+
+  @media only screen and (max-width: 600px) {
+    .text-wrapper {
+      margin: 0 2.2rem;
+    }
+  }
+
   h1 {
     font-size: 2rem;
     font-weight: 600;
     line-height: 1.12;
     text-align: center; 
     margin-bottom: 20px; 
-    white-space: pre;
+    /* white-space: pre; */
     font-family: var(--theme-font) !important;
+    color: #fff;
   }
 
   p {
     font-size: 1.3rem; 
     font-weight: 300; 
     line-height: 140%; 
-    white-space: pre;
+    /* white-space: pre; */
     text-align: center;
     font-family: var(--theme-font) !important; 
+    color: #fff;
   }
 
   button {
@@ -172,5 +186,7 @@
     } 
 
   }
+
+
 
 </style>

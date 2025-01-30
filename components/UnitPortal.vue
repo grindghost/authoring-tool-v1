@@ -197,8 +197,8 @@ const handleRestoreDefaultText = () => {
     background: rgb(235, 239, 241);
     background: linear-gradient(180deg, rgba(235, 239, 241, 1) 44%, rgba(198, 204, 205, 1) 82%);  
     width: 100%;
-    height: 100%;
-    min-height: 100vh;
+    height: 100dvh;
+    /* min-height: 100vh; */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -212,7 +212,7 @@ const handleRestoreDefaultText = () => {
     box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
     background-color: white;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     max-width: 796px;
     margin: 0;
     overflow: hidden;

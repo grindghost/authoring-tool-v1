@@ -155,11 +155,23 @@
 
 <style scoped>
   .ql-container {
-    height: calc(100% - 42px);
+    /* height: calc(100% - 42px); */
+    height: auto;
+    height: 100%;
+    padding-top: 12px;
+    overflow-y: scroll;
+    /* Add a fading effect toward the bottom */
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  
   }
 
   .quill-container {
     position: relative;
+    
+    display: flex;
+    flex-direction: column;
+    
     height: 100%;
     margin: 10px;
     margin-bottom: 18px;
@@ -175,10 +187,9 @@
 
   }
   .ql-editor {
-      margin-top: 8px;
       font-size: larger;
       font-weight: 300;
-      max-height: 276px;
+      overflow-y: scroll;
       font-family: var(--theme-font) !important;
   }
   </style>

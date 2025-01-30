@@ -204,6 +204,7 @@ const handleRestoreDefaultText = () => {
     justify-content: flex-start;
     align-items: center;
     padding: 1rem;
+    position: fixed; /* Changed to fixed */
   }
 
   .acitivity-container {
@@ -211,8 +212,7 @@ const handleRestoreDefaultText = () => {
     box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
     background-color: white;
     width: 100%;
-    height: 90vh;
-    max-height: 90vh;
+    height: 100%;
     max-width: 796px;
     margin: 0;
     overflow: hidden;
@@ -221,16 +221,31 @@ const handleRestoreDefaultText = () => {
     justify-content: space-between;
   }
 
-  .overlays-container {
+  /* .overlays-container {
     width: 100%;
     height: 100%;
+    min-height: 100vh;
     z-index: 3000;
     position: absolute;
     top: 0;
     left: 0;
+    bottom: 0;
     visibility: visible;
     background: var(--color-theme-overlays-gradient);   
-  }
+  } */
+
+
+  .overlays-container {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    z-index: 3000;
+    position: fixed; /* Changed to fixed */
+    top: 0;
+    left: 0;
+    visibility: visible;
+    background: var(--color-theme-overlays-gradient);
+}
 
   .footer {
     width: 100%;

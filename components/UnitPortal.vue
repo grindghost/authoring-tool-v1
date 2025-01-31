@@ -144,8 +144,9 @@ const handleRestoreDefaultText = () => {
 
         <!-- Overlays container-->
         <transition name="fade">
-        <div class="overlays-container noselect" v-if="store.overlayVisible" >  
-            <UnitOverlayLoading v-if="store.currentOverlay === 'loading'" />
+        <div class="overlays-container noselect" v-if="store.overlayVisible" > 
+            <UnitOverlayMessage v-if="store.currentOverlay === 'message'" />
+            <UnitOverlayLoading v-else-if="store.currentOverlay === 'loading'" />
             <UnitOverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
             <UnitOverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
             <UnitOverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />

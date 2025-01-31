@@ -122,7 +122,7 @@ export const useAppStateStore = defineStore('app', () => {
     
     // Check if there's a message (for error handling)
     if (profile?.message !== null) {
-      console.log(profile.message);
+      currentOverlay.value = 'message';
       return;
     }
 

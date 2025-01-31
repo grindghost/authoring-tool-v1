@@ -8,15 +8,22 @@ import sanitizeHtml from 'sanitize-html';
 export default defineEventHandler(async (event) => {
   const backpackId = getCookie(event, 'backpackId');
   const token = getQuery(event).token;
-  const lang = getQuery(event).lang;
+  let lang = getQuery(event).lang;
+
+  // Normalize the iso language received from the query
+  if (lang !== 'fr' || lang !== 'en') {
+    lang = 'fr';
+  }
 
   // Ensure authentication on pocketbase
+  // With some retries, if needed...
   await ensureAuthenticated("Get answer");
 
+  // Initialize the unit profile
   const UnitProfile = { message: null };
 
+  // Check DB instance availability
   try {
-    // Check PocketBase availability
     let globalConfig;
     try {
       globalConfig = await pb.collection('Configs').getFirstListItem(`name = 'global'`);
@@ -46,10 +53,24 @@ export default defineEventHandler(async (event) => {
       setCookie(event, 'backpackId', validBackpackId, { httpOnly: true, secure: true, sameSite: process.env.SAME_SITE, maxAge: 60 * 60 * 24 * 365 * 10, });
     }
 
-    const decryptedPayload = JSON.parse(await decryptContent(token));
-    const { project, exercice } = decryptedPayload;
+    // Validate the received token
+    let decryptedPayload;
+    try {
+      decryptedPayload = JSON.parse(await decryptContent(token));
+    } catch {
+      UnitProfile.message = 'Invalid token';
+      return UnitProfile;
+    }
 
-    // Validate project existence
+    const { project, exercice, source } = decryptedPayload;
+
+    if (!project || !exercice || !source || source !== process.env.NUXT_PUBLIC_ALLOWED_SOURCE) {
+      UnitProfile.message = 'Token validation failed';
+      stream.end();
+      return UnitProfile;
+    } 
+
+    // Validate project existence (could be a wrong value, or deleted...)
     let currentProject;
     try {
       currentProject = await pb.collection('Projects').getFirstListItem(`id = '${project}'`);
@@ -80,12 +101,13 @@ export default defineEventHandler(async (event) => {
       UnitProfile.message = 'Author account not found';
       return UnitProfile;
     }
+
     if (!account.is_subscribed) {
       UnitProfile.message = 'Subscription required';
       return UnitProfile;
     }
 
-    // Validate profile publication
+    // Validate project publication status
     if (!currentProject.profile.published) {
       UnitProfile.message = 'Profile not published';
       return UnitProfile;
@@ -103,7 +125,7 @@ export default defineEventHandler(async (event) => {
     // Validate history record count (for the whole project)
     const historyRecords = await pb.collection('History').getFullList(200, { filter: `courseId = '${project}'` });
 
-    if (historyRecords.length > 100) {
+    if (historyRecords.length > 150) {
       UnitProfile.message = 'Too many history records';
       return UnitProfile;
     }

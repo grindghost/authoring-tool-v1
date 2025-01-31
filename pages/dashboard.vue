@@ -140,10 +140,10 @@ function editProject(projectId) {
 </script>
 
 <template>
-  <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50">
+  <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50 wrapper">
     <PricingSectionAlternate />
   </div>
-  <div v-else class="p-6 space-y-8 pt-24 bg-slate-50" :class="{ transparent: projectStore.isLoading }">
+  <div v-else class="p-6 space-y-8 pt-24 bg-slate-50 wrapper" :class="{ transparent: projectStore.isLoading }">
     
     <!-- New Project Button -->
     <div class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8" @click="showProjectCreationOverlay = true" v-if="!projectLimitReached">
@@ -225,6 +225,12 @@ function editProject(projectId) {
 </template>
 
 <style scoped>
+
+.wrapper {
+  height: 100%;
+  min-height: 100dvh;
+}
+
 /* Reuse styles */
 .overlay {
   position: fixed;

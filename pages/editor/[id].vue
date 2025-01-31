@@ -932,7 +932,7 @@ onUnmounted(() => {
 .editor {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
   height: 100%;
   background: rgb(235,239,241);
   background: linear-gradient(180deg, rgba(235,239,241,1) 44%, rgba(198,204,205,1) 82%);

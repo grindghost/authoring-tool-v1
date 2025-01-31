@@ -223,4 +223,14 @@ html {
         white-space: pre; /* Preserve the space */
       }
 
+      /* For the portal endpoint overlay */
+      .top br {
+        display: none;
+      }
+
+      .top br::after {
+        content: " "; /* Add a space after the <br> */
+        white-space: pre; /* Preserve the space */
+      }
+
     }

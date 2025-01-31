@@ -124,6 +124,7 @@
         const lang = queryParams.get('lang') || 'fr';
 
         // Step 3: Validate and decrypt the token with the server
+        /*
         const decryptedPayload = await $fetch('/api/validateToken', {
             method: 'GET',
             params: { token },
@@ -137,6 +138,8 @@
             document.body.innerHTML = "🔓 Invalid or missing parameters in the token.";  
             return;
         }
+
+        */
         
         // Logic to assign, of remotly retrieve the unit profile (from db)
         profile.value = await store.GetUnitProfile(token, lang); 

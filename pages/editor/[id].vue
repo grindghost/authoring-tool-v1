@@ -726,7 +726,9 @@ const profile = computed(() => {
                     "body": "Nous devons temporairement restreindre l'accès<br/>aux zones de réflexions interactives, car nous effectuons <br/>des travaux de maintenance. Nous vous prions de nous<br/>excuser pour cette interruption..."
                 }
             },
-            history: "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...</p>"
+            history: "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...</p>",
+            message: null,
+
   }
   
   setTimeout(() => {

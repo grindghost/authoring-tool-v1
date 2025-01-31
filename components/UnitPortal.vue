@@ -149,7 +149,7 @@ const handleRestoreDefaultText = () => {
             <UnitOverlayLoading v-else-if="store.currentOverlay === 'loading'" />
             <UnitOverlayMaintenance v-else-if="store.currentOverlay === 'maintenance'" />
             <UnitOverlayCompleted v-else-if="store.currentOverlay === 'completed'" />
-            <UnitOverlayEndpoint v-else-if="store.currentOverlay === 'isEndpoint'" />
+            <UnitOverlayEndpointPortal v-else-if="store.currentOverlay === 'isEndpoint'" />
         </div>
         </transition>
     

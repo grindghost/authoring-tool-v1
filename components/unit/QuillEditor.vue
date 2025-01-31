@@ -100,7 +100,7 @@
         const plainText = quill.getText(); // Get plain text content
         const currentLength = plainText.trim().length; // Trim to remove trailing newline characters
 
-        if (store.unitProfile.activity.useCharactersLimit && currentLength > store.unitProfile.activity.maxCharAllowed) {
+        if (store.unitProfile?.activity?.useCharactersLimit && currentLength > store.unitProfile?.activity?.maxCharAllowed) {
           // Revert to the last valid state
           quill.root.innerHTML = lastValidContent;
           quill.setSelection(store.unitProfile.activity.maxCharAllowed); // Adjust selection to the limit

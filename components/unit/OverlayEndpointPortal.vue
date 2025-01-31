@@ -1,38 +1,53 @@
 <template>
     <div class="overlay" @click="handleClick">
       <div :class="['overlay-content', { 'fade-in': coverLoaded }]">
-        <div class="top">
-          <h1 class="header" v-html="header"></h1>
-          <p class="body-text" v-html="body"></p>
+        
+        <div class="profile">
+          <OhVueIcon name="fa-book" />
+          <span>
+            Mon journal de bord
+          </span>
         </div>
-  
-        <div class="bottom">
-          <p class="file-info">
-            <span class="text-accent">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span>
-            <br />
-            <span class="file-size">~{{ pdfFileSize }}</span>
-          </p>
-          <button class="download-button">
-            {{ button }}
-          </button>
+
+        <!-- Left part with the text -->
+        <div class="left">
+          <!-- Top part with the text -->
+          <div class="top">
+            <h1 v-html="header"></h1>
+            <p v-html="body"></p>
+          </div>
+          <!-- Bottom part with the text -->
+          <div class="bottom">
+            <p class="file-info">
+              <span class="text-accent">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span>
+              <br />
+              <span class="file-size">~{{ pdfFileSize }}</span>
+            </p>
+            <button class="download-button">
+              {{ button }}
+            </button>
+          </div>
         </div>
-      </div>
-      
-      <div class="image-container">
+
+        <!-- Right part with the image cover -->
+        <div class="image-container">
         <div :class="['cover-container', { 'fade-in': coverLoaded }]" ref="coverImageContainer">
           <img :src="pdfCoverImgUrl" :onload="setCoverLoaded" alt="" ref="coverImage" class="cover-image" />
         </div>
-  
-        <img src="/left_hand.png" ref="leftHand" :class="['left-hand', { 'fade-in': imgReady }]" />
-        <img src="/right_hand.png" ref="rightHand" :class="['right-hand', { 'fade-in': imgReady }]" />
+      </div>
+
       </div>
     </div>
   </template>
   
   <script setup>
   import { set } from 'date-fns';
-import { useAppStateStore } from '/stores/appState';
+  import { useAppStateStore } from '/stores/appState';
   import { useStatusStore } from '/stores/status';
+
+  import { OhVueIcon, addIcons } from "oh-vue-icons";
+  import { FaBook } from "oh-vue-icons/icons";
+  addIcons(FaBook);
   
   const statusStore = useStatusStore();
   const appStore = useAppStateStore();
@@ -41,9 +56,6 @@ import { useAppStateStore } from '/stores/appState';
   const coverImageContainer = ref(null);
   const coverLoaded = ref(false);
   const imgReady = ref(false);
-
-  const leftHand = ref(null);
-  const rightHand = ref(null);
 
     // Get the text from the unit profile locales
     const locale = computed (() => {
@@ -76,13 +88,6 @@ import { useAppStateStore } from '/stores/appState';
     
     if (coverImage.value) {
       
-      // Get the cover image width
-      const coverWidth = coverImage.value.clientWidth;
-  
-      // Calculate the positions of the left and right hands based on the cover image width
-      leftHand.value.style.left = `${coverImageContainer.value.offsetLeft - 47}px`;
-      rightHand.value.style.right = `${coverImageContainer.value.offsetLeft - 64}px`;
-      
       setTimeout(() => {
         imgReady.value = true;   
       }, 500)
@@ -100,49 +105,78 @@ import { useAppStateStore } from '/stores/appState';
   }
   
   .overlay-content {
-    padding: 0px 52px 0px 52px;
-    width: 370px;
-    color: white;
+    width: 100%;
+    height: 100%;
+    padding: 3rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
+    gap: 1.8rem;
     opacity: 0;
     cursor: pointer;
+  }
 
+  .profile {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 300;
+
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+  }
+
+  .left {
+    height: 100dvh;
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1.8rem;
   }
   
   .top {
-    margin-top: 50px;
-    margin-bottom: 16px;
+    /*  */
   }
   
   .bottom {
-    margin-top: auto;
-    margin-bottom: 54px;
+    /*  */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
   
-  .header {
-    text-align: left;
-    margin-bottom: 24px;
-    font-size: 34px;
-    line-height: 116%;
-    white-space: pre;
-    font-family: var(--theme-font) !important;
+  h1 {
+    font-size: 2.5rem;
     font-weight: 600;
-  }
-  
-  .body-text {
-    text-align: left;
-    font-size: 18px;
-    font-weight: 300;
-    line-height: 140%;
-    white-space: pre;
+    line-height: 1.12;
+    text-align: left; 
+    margin-bottom: 20px; 
+    /* white-space: pre; */
     font-family: var(--theme-font) !important;
+    color: #fff;
+  }
+
+  p {
+    font-size: 1.3rem; 
+    font-weight: 300; 
+    line-height: 140%; 
+    /* white-space: pre; */
+    text-align: left;
+    font-family: var(--theme-font) !important; 
+    color: #fff;
   }
   
   .file-info {
-    line-height: 160%;
+    line-height: 120%;
     margin-top: auto;
+    font-weight: 500;
     font-family: var(--theme-font) !important;
   }
   
@@ -163,34 +197,22 @@ import { useAppStateStore } from '/stores/appState';
   }
   
   .image-container {
-    width: 80%;
-    right: -230px;
-    position: relative;
+    /* width: 80%; */
     margin-right: 50px;
   }
   
   .cover-container {
     height: fit-content;
     width: fit-content;
-    max-height: 355px;
-    position: absolute;
-    z-index: 1;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    margin-top: auto;
-    margin-right: auto;
-    margin-left: auto;
-    margin-bottom: 46px;
+    max-height: 455px;
     opacity: 0;
     background-color: rgb(255, 255, 255);
     box-shadow: 0px 0px 10px 11px rgba(0,0,0,.17);
   }
   
   .cover-image {
-    max-width: 300px;
-    max-height: 355px;
+    min-width: 100px;
+    max-height: 455px;
     /* opacity: 0; */
   
     -webkit-mask-image: linear-gradient(45deg,#000 25%,rgba(0,0,0,.2) 50%,#000 75%);
@@ -201,37 +223,62 @@ import { useAppStateStore } from '/stores/appState';
     mask-position: 0;
   
   }
-  
-  .loading-icon {
-    max-width: 275px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    z-index: 2;
+
+  @media only screen and (max-width: 700px) {
+      .overlay-content {
+        flex-direction: column-reverse;
+        height: 100dvh;
+
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 600;
+      line-height: 1.12;
+      text-align: center; 
+      margin-bottom: 20px; 
+      /* white-space: pre; */
+      font-family: var(--theme-font) !important;
+      color: #fff;
+    }
+
+    p {
+      text-align: center;
+    }
+
+    .left {
+      height: auto;
+    }
+
+    .top {
+      width: 100%;
+    }
+
+    .bottom {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .image-container {
+      margin-right: 0;
+      max-width: 30%;
+    }
+
+    .cover-image {
+      height: auto;
+      min-height: 1px;
+      min-width: 1px;
+    }
+
+    .download-button {
+      width: 100%;
+    }
+
+
   }
-  
-  
-  .left-hand {
-    width: 157px;
-    position: absolute;
-    bottom: -24px;
-    z-index: 3;
-    left: 3px;
-    opacity: 0;
-  }
-  
-  .right-hand {
-    width: 140px;
-    position: absolute;
-    bottom: -24px;
-    z-index: 3;
-    right: -15px;
-    opacity: 0;
-  }
-  
+
   
   .fade-in {
     animation: fadeIn 0.8s ease-in forwards; /* Adjust duration as desired */

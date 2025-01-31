@@ -1,102 +1,128 @@
 // server/api/pb/profile.get.js
 
 import { getCookie, setCookie, createError } from 'h3';
-import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit'; // Import Pocketbase instance
-import { validateOrCreateUser, decryptContent } from '~/server/utils/authPB'; // Use adapted helper methods
+import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit';
+import { validateOrCreateUser, decryptContent } from '~/server/utils/authPB';
 import sanitizeHtml from 'sanitize-html';
 
 export default defineEventHandler(async (event) => {
-  // Get the backpackId from cookies
-  const backpackId = getCookie(event, 'backpackId'); 
-
-  // Get the token from query params
-  const token = getQuery(event).token; 
+  const backpackId = getCookie(event, 'backpackId');
+  const token = getQuery(event).token;
   const lang = getQuery(event).lang;
 
-  console.log('Token received from the query:', token);
-  console.log('Language received from the query:', lang);
+  // Ensure authentication on pocketbase
+  await ensureAuthenticated("Get answer");
 
-  await ensureAuthenticated("Get answer"); // Ensure authentication before each request
+  const UnitProfile = { message: null };
 
   try {
-    // Step 1: Validate or create the user
-    const { valid, backpackId: validBackpackId, decryptedbackpackId } = await validateOrCreateUser(pb, backpackId, event);
-
-    if (!valid) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Unable to validate user',
-      });
-    }
-
-    // Step 2: Update the cookie if a new backpackId was created
-    if (validBackpackId !== backpackId) {
-      setCookie(event, 'backpackId', validBackpackId, {
-        httpOnly: true,
-        secure: true,
-        sameSite: process.env.SAME_SITE,
-        maxAge: 60 * 60 * 24 * 365 * 10, // 10 years in seconds (permanent)
-      });
-    }
-
-    // Decrypt the token
-    const decryptedPayload = await decryptContent(token);
-    const decryptedPayloadJson = JSON.parse(decryptedPayload);
-    const { source, project, exercice } = decryptedPayloadJson;
-
-    const projectId = project;
-    const activityId = exercice;
-
-    // Object to hold the unit profile
-    const UnitProfile = {};
-
-    // Get the 'configs' collection for the global config
-    const globalConfig = await pb.collection('Configs').getFirstListItem(`name = 'global'`);
-
-    UnitProfile['configs'] = globalConfig;
-
-    // Return the unit profile if the app is in maintenance mode
-    if (UnitProfile.configs.maintenanceMode) {
-      
-      // Get the locale from the lang query param
-      const allLocales = await pb.collection('Locales').getFullList(10); // Get all records
-      const locale = allLocales.find(
-        (locale) => locale.dict && locale.dict.lang === lang
-      );
-
-      UnitProfile['locale'] = locale.dict || {};
+    // Check PocketBase availability
+    let globalConfig;
+    try {
+      globalConfig = await pb.collection('Configs').getFirstListItem(`name = 'global'`);
+      UnitProfile['configs'] = globalConfig;
+    } catch {
+      UnitProfile.message = 'PocketBase instance unavailable';
       return UnitProfile;
     }
 
-    // Get the project from the `Projects` collection
-    const currentProject = await pb.collection('Projects').getFirstListItem(`id = '${projectId}'`);
+    // Check maintenance mode
+    if (globalConfig.maintenanceMode) {
+      const allLocales = await pb.collection('Locales').getFullList(10);
+      const locale = allLocales.find(l => l.dict?.lang === lang);
+      UnitProfile['locale'] = locale?.dict || {};
+      UnitProfile.message = 'Maintenance mode enabled';
+      return UnitProfile;
+    }
 
-    UnitProfile['activity'] = currentProject.profile.activities[exercice];
+    // Validate user
+    const { valid, backpackId: validBackpackId, decryptedbackpackId } = await validateOrCreateUser(pb, backpackId, event);
+    if (!valid) {
+      UnitProfile.message = 'User validation failed';
+      return UnitProfile;
+    }
+
+    if (validBackpackId !== backpackId) {
+      setCookie(event, 'backpackId', validBackpackId, { httpOnly: true, secure: true, sameSite: process.env.SAME_SITE, maxAge: 60 * 60 * 24 * 365 * 10, });
+    }
+
+    const decryptedPayload = JSON.parse(await decryptContent(token));
+    const { project, exercice } = decryptedPayload;
+
+    // Validate project existence
+    let currentProject;
+    try {
+      currentProject = await pb.collection('Projects').getFirstListItem(`id = '${project}'`);
+      // Get the project details
+      UnitProfile['project'] = currentProject;
+      
+      // Get the activity details
+      UnitProfile['activity'] = currentProject.profile.activities[exercice];
+
+      // Initialize the history
+      UnitProfile['history'] = null;
+
+    } catch {
+      UnitProfile.message = 'Project not found';
+      return UnitProfile;
+    }
+
+    // Get the locale
+    const allLocales = await pb.collection('Locales').getFullList(10);
+    const locale = allLocales.find(l => l.dict?.lang === currentProject.profile.lang);
+    UnitProfile['locale'] = locale?.dict || {};
+
+    // Validate account subscription
+    let account;
+    try {
+      account = await pb.collection('accounts').getFirstListItem(`userId = '${currentProject.author}'`);
+    } catch {
+      UnitProfile.message = 'Author account not found';
+      return UnitProfile;
+    }
+    if (!account.is_subscribed) {
+      UnitProfile.message = 'Subscription required';
+      return UnitProfile;
+    }
+
+    // Validate profile publication
+    if (!currentProject.profile.published) {
+      UnitProfile.message = 'Profile not published';
+      return UnitProfile;
+    }
+
+    // Validate expiration date
+    if (currentProject.profile.useExpirationDate) {
+      const expirationDate = new Date(currentProject.profile.expirationDate);
+      if (expirationDate < new Date()) {
+        UnitProfile.message = 'Profile expired';
+        return UnitProfile;
+      }
+    }
+        
+    // Validate history record count (for the whole project)
+    const historyRecords = await pb.collection('History').getFullList(200, { filter: `courseId = '${project}'` });
+
+    if (historyRecords.length > 100) {
+      UnitProfile.message = 'Too many history records';
+      return UnitProfile;
+    }
 
     delete currentProject.profile.activities;
-
     UnitProfile['project'] = currentProject;
 
-    const allLocales = await pb.collection('Locales').getFullList(10); // Get all records
-
-    const locale = allLocales.find(
-      (locale) => locale.dict && locale.dict.lang === currentProject.profile.lang
-    );
-
-    UnitProfile['locale'] = locale.dict || {};
-
-    // Get the historic events
+    // Retrieve latest historic event
     let matchingEvents = [];
-
-    // Step 4: Query the `history` collection for matching records
     try {
       matchingEvents = await pb.collection('History').getFullList(200, {
-        filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}' && activityId = '${activityId}'`,
+        filter: `backpackId = '${decryptedbackpackId}' && courseId = '${project}' && activityId = '${exercice}'`,
         sort: '-date', // Sort by creationDate in descending order
       });
     } catch (error) {
-      console.warn('No matching records found or query failed:', error.message);
+      // console.warn('No matching records found or query failed:', error.message);
       UnitProfile['history'] = null; // Gracefully handle no matches
+      UnitProfile.message = 'No matching records found or query failed';
+      return UnitProfile;
     }
 
     if (matchingEvents.length === 0) {
@@ -124,13 +150,11 @@ export default defineEventHandler(async (event) => {
 
     }
 
+    // Return the unit profile
     return UnitProfile;
-    
+
   } catch (error) {
-    console.error('Error fetching answer:', error.message);
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message,
-    });
+    UnitProfile.message = error.message;
+    return UnitProfile;
   }
 });

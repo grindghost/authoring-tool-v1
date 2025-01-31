@@ -4,6 +4,7 @@ import { useStatusStore } from './status';
 
 import DOMPurify from 'dompurify';
 import Bowser from "bowser"; // To detect browser... (especially for Firefox)
+import { set } from 'date-fns';
 
 export const useAppStateStore = defineStore('app', () => {
   
@@ -119,6 +120,12 @@ export const useAppStateStore = defineStore('app', () => {
     isEndpoint.value = profile?.activity?.isEndpoint;
     historyContent.value = profile?.history;
     
+    // Check if there's a message (for error handling)
+    if (profile?.message !== null) {
+      console.log(profile.message);
+      return;
+    }
+
     if (isMaintenanceMode.value) {
       currentOverlay.value = 'maintenance';
       console.log(profile.value);

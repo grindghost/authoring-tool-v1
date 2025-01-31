@@ -6,6 +6,8 @@
   </template>
   
   <script setup>
+  import { set } from 'date-fns';
+  
   import { useAppStateStore } from '/stores/appState';
   const store = useAppStateStore();
   import 'quill/dist/quill.snow.css';
@@ -18,6 +20,11 @@
     content: String,
     placeholder: String,
   });
+
+  const computedPlaceholder = computed(() => {
+    return props.placeholder;
+  });
+
   const emit = defineEmits(['update:content']);
   
   const editorContainer = ref(null);
@@ -37,16 +44,29 @@
     isClient.value = true;
   
     if (isClient.value) {
+
       const Quill = (await import('quill')).default;
-  
-      quill = new Quill(editorContainer.value, {
-        theme: 'snow',
-        placeholder: props.placeholder,
-        modules: {
-          toolbar: toolbarOptions,
-        },
-      });
-  
+
+      // Fix: add some delay to allow the placeholder to hydrate
+      // setTimeout(() => {
+
+        quill = new Quill(editorContainer.value, {
+          theme: 'snow',
+          placeholder: props.placeholder,
+          modules: {
+            toolbar: toolbarOptions,
+          },
+        });
+
+      //}, 1000)
+
+      setTimeout(() => {
+        setQuillPlaceholderText(computedPlaceholder.value); 
+      }, 1000);
+
+
+
+
       if (props.content) {
         const delta = quill.clipboard.convert(props.content);
         quill.setContents(delta, 'silent');
@@ -94,6 +114,8 @@
       setTimeout(() => {
         applyHeaderStyles();
       }, 1500);
+
+      //}, 1000)
     }
   });
   
@@ -110,6 +132,23 @@
     }
   });
   
+// Function to set the placeholder text dynamically
+function setQuillPlaceholderText(placeholderText) {
+  // Create a <style> element
+  const style = document.createElement('style');
+  style.type = 'text/css';
+
+  // Define the CSS rule for the placeholder
+  style.innerHTML = `
+    .ql-editor.ql-blank::before {
+      content: "${placeholderText}" !important;
+    }
+  `;
+
+  // Append the <style> element to the document's <head>
+  document.head.appendChild(style);
+}
+
   // Function to apply localized header styles
   function applyHeaderStyles() {
 

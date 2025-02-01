@@ -33,7 +33,8 @@
 
     // Get the text from the unit profile locales
     const locale = computed (() => {
-      return appStore.unitProfile.locale.completedView;
+      console.log(appStore.unitProfile?.locale?.completedView);
+      return appStore.unitProfile?.locale?.completedView;
     });
 
     const { header, body, button } = locale.value;
@@ -43,12 +44,13 @@
     })
 
     const activityId = computed(() => {
-      return appStore.unitProfile.activity.activityTitle
+      return appStore.unitProfile?.activity?.activityTitle
     })
 
     const handleClick = () => {
       appStore.hideOverlay();
     };
+
 
 </script>
 

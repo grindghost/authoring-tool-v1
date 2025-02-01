@@ -679,9 +679,7 @@ const profile = computed(() => {
   // Get the project from the projects sotre
   const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id));
 
-  watch(currentProject.value, (oldValue) => {
-    // ;
-  })
+
   
   // projectStore.projects.find((p) => p.id === route.params.id);
 
@@ -787,11 +785,19 @@ async function updateIframeSrc() {
 watch(selectedActivity, (newValue) => { 
 
   project.value.activities[activeActivity.value] = newValue;
+
+  if (newValue.isEndpoint) {
+    console.log('isEndpoint');
+    appStateStore.overlayVisible = true;
+    appStateStore.currentOverlay = 'isEndpoint';
+  } else {
+    appStateStore.overlayVisible = false;
+    console.log('completed');
+  }
+
 }, { deep: true });
 
-
 watch(project, (newValue, oldValue) => { 
-
   if (!showProjectUpdateOverlay.value) {
     showAlert.value = true;
   }
@@ -894,6 +900,7 @@ function openEditor(fieldName) {
 }
 
 
+
 // Vue Lifecycle Hooks
 onMounted(async () => {
 
@@ -914,6 +921,7 @@ onMounted(async () => {
     if (firstThumbnail) {
       firstThumbnail.click();
     }
+
 
     // Set the current project ID
     projectStore.currentProject = project;

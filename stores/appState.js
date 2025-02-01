@@ -37,6 +37,16 @@ export const useAppStateStore = defineStore('app', () => {
   // Getters
   const enableEditor = computed(() => !overlayVisible.value && !isLoading.value);
 
+  // Watchers to display the changes in the editor
+  watch(unitProfile, (newValue, oldValue) => {
+    if (newValue.activity.isEndpoint) {
+      currentOverlay.value = 'isEndpoint';
+    } else {
+      currentOverlay.value = 'completed';
+    }
+
+  }, { deep: true });
+
   const resetAppState = () => {
     unitToken.value = '';
     unitProfile.value = null;

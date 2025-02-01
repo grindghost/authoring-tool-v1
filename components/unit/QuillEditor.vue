@@ -21,9 +21,7 @@
     placeholder: String,
   });
 
-  const computedPlaceholder = computed(() => {
-    return props.placeholder;
-  });
+  const computedPlaceholder = computed(() => props.placeholder ?? '');
 
   const emit = defineEmits(['update:content']);
   
@@ -52,7 +50,7 @@
 
         quill = new Quill(editorContainer.value, {
           theme: 'snow',
-          placeholder: props.placeholder,
+          placeholder: computedPlaceholder.value,
           modules: {
             toolbar: toolbarOptions,
           },
@@ -124,6 +122,11 @@
       quill.root.innerHTML = newContent; // Set the raw HTML directly
       lastValidContent = newContent; // Update the last valid state
     }
+  });
+
+  // Watch for placeholder changes
+  watch(() => props.placeholder, (newPlaceholder) => {
+    setQuillPlaceholderText(newPlaceholder); // Apply CSS fix
   });
   
   onBeforeUnmount(() => {

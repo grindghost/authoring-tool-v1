@@ -667,13 +667,23 @@ function clickActivityAccordion() {
   accordion.value.activity = false;   
 }
 
+const computedSelectedActivity = computed(() => {
+  return selectedActivity.value
+})
+
 const profile = computed(() => {
 
   // Reset the app state
   appStateStore.resetAppState();
 
   // Get the project from the projects sotre
-  const currentProject = projectStore.projects.find((p) => p.id === route.params.id);
+  const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id));
+
+  watch(currentProject.value, (oldValue) => {
+    // ;
+  })
+  
+  // projectStore.projects.find((p) => p.id === route.params.id);
 
   // Create the profile
   const finalProfile = {
@@ -692,7 +702,7 @@ const profile = computed(() => {
                 "updated": "2024-12-25 19:13:50.948Z"
             },
     project: currentProject,
-    activity: selectedActivity.value,
+    activity: computedSelectedActivity,
     locale: {
                 "lang": "fr",
                 "placeholder": "Entrez votre réflexion ici...",
@@ -738,7 +748,7 @@ const profile = computed(() => {
 
     // Set the unit token
     appStateStore.unitToken = finalProfile.activity.token;
-  }, 200)
+  }, 500)
 
   return finalProfile;  
 
@@ -775,7 +785,7 @@ async function updateIframeSrc() {
 
 
 watch(selectedActivity, (newValue) => { 
-  // selectedActivity.value = newValue;
+
   project.value.activities[activeActivity.value] = newValue;
 }, { deep: true });
 

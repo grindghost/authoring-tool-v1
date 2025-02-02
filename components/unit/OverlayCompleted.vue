@@ -33,7 +33,6 @@
 
     // Get the text from the unit profile locales
     const locale = computed (() => {
-      console.log(appStore.unitProfile?.locale?.completedView);
       return appStore.unitProfile?.locale?.completedView;
     });
 

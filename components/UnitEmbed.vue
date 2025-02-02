@@ -30,31 +30,38 @@
       return textContent.length === 0;
     };
 
+    // Watch for changes in the profile
+    watch(() => props.profile, (newValue) => {
+      if (newValue) {
+        Object.assign(props.profile, newValue);
+      }
+    }, { deep: true });
 
-const computedTheme = computed(() => {
-  // const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
-  const useCustomTheme = props.profile?.project?.profile?.useCustomTheme;
-  // const customTheme = store.unitProfile?.project?.profile?.customTheme;
-  const customTheme = props.profile?.project?.profile?.customTheme;
-  // const theme = store.unitProfile?.project?.profile?.theme;
-  const theme = props.profile?.project?.profile?.theme;
+  const computedTheme = computed(() => {
 
-  if (!useCustomTheme) {
+    // const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
+    const useCustomTheme = props.profile?.project?.profile?.useCustomTheme;
+    // const customTheme = store.unitProfile?.project?.profile?.customTheme;
+    const customTheme = props.profile?.project?.profile?.customTheme;
+    // const theme = store.unitProfile?.project?.profile?.theme;
+    const theme = props.profile?.project?.profile?.theme;
 
-    // In the case the project doesn't exist, 
-    // or the app is in global maintenance mode...
-    if (!theme) {
-      return "brio";
-    }
+    if (!useCustomTheme) {
 
-    if (theme === "brio" || theme === "ul-yellow" || theme === "ul-red") {
-      return theme;
-    }
-  } else {
-    if (process.client) {
-      applyCustomTheme(customTheme);
-    }
-    return "custom";
+      // In the case the project doesn't exist, 
+      // or the app is in global maintenance mode...
+      if (!theme) {
+        return "brio";
+      }
+
+      if (theme === "brio" || theme === "ul-yellow" || theme === "ul-red") {
+        return theme;
+      }
+    } else {
+      if (process.client) {
+        applyCustomTheme(customTheme);
+      }
+      return "custom";
   }
 });
 

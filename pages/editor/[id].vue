@@ -679,8 +679,6 @@ const profile = computed(() => {
   // Get the project from the projects sotre
   const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id));
 
-
-  
   // projectStore.projects.find((p) => p.id === route.params.id);
 
   // Create the profile
@@ -699,7 +697,7 @@ const profile = computed(() => {
                 "proxy": "https://ulavalcorsproxy.onrender.com/",
                 "updated": "2024-12-25 19:13:50.948Z"
             },
-    project: currentProject,
+    project: currentProject.value,
     activity: computedSelectedActivity,
     locale: {
                 "lang": "fr",
@@ -787,15 +785,13 @@ watch(selectedActivity, (newValue) => {
   project.value.activities[activeActivity.value] = newValue;
 
   if (newValue.isEndpoint) {
-    console.log('isEndpoint');
     appStateStore.overlayVisible = true;
     appStateStore.currentOverlay = 'isEndpoint';
   } else {
     appStateStore.overlayVisible = false;
-    console.log('completed');
   }
 
-}, { deep: true });
+  }, { deep: true });
 
 watch(project, (newValue, oldValue) => { 
   if (!showProjectUpdateOverlay.value) {

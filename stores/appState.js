@@ -7,7 +7,7 @@ import Bowser from "bowser"; // To detect browser... (especially for Firefox)
 import { set } from 'date-fns';
 
 export const useAppStateStore = defineStore('app', () => {
-  
+
   // States
   const unitToken = ref('');
   const unitProfile = ref(null);

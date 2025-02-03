@@ -144,7 +144,7 @@ export const convertQuillHtmlToText = (quillHtml) => {
   $('body').children().each((i, el) => {
     const tag = $(el).prop('tagName').toLowerCase();
     
-    if (tag === 'h2' || tag === 'p') {
+    if (tag === 'h1' || tag === 'h2' ||  tag === 'h3' || tag === 'p') {
       // Handle headings and paragraphs
       result += $(el).text() + '\n\n';
     } else if (tag === 'ol' || tag === 'ul') {

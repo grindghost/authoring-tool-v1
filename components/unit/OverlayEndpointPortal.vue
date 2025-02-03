@@ -184,7 +184,7 @@
   .text-accent {
     /* Define your accent color if needed */
     font-family: var(--theme-font) !important;
-    color: var(--color-theme-accent);
+    color: var(--color-theme-button-hover);
   }
   
   .file-size {
@@ -195,6 +195,7 @@
   .download-button {
     float: left;
     margin-top: 14px;
+    width: fit-content;
   }
   
   .image-container {

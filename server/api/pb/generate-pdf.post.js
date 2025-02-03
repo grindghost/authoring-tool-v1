@@ -91,6 +91,10 @@ export default defineEventHandler(async (event) => {
       // Remove emojis, trim, and clean text
       const noEmojisAnswer = emojiStrip(plainTextAnswer).trim();
       const cleanedAnswer = cleanText(noEmojisAnswer); // Clean the text
+
+      console.log(`Plain answer for activityId ${activityId}: ${plainTextAnswer}`);
+
+      console.log(`Answer for activityId ${activityId}: ${cleanedAnswer}`);
     
       // Map the activityId to the corresponding cleaned answer
       formData[activityId] = cleanedAnswer;

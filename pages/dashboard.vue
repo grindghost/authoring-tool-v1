@@ -135,6 +135,14 @@ function onProjectCreated(newProjectId) {
 }
 
 function editProject(projectId) {
+
+  // Verify if the project exists in the projectStore.projects array
+  const project = projectStore.projects.find((p) => p.id === projectId);
+  if (!project) {
+    console.error(`Project with ID ${projectId} not found in the projectStore.projects array.`);
+    return;
+  }
+
   router.push(`/editor/${projectId}`);
 }
 </script>

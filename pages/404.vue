@@ -1,0 +1,22 @@
+
+<template>
+ <main class="flex items-center justify-center h-screen">
+   <article class="max-w-md text-center">
+     <h1 class="text-5xl font-bold mb-4">404</h1>
+     <p class="text-gray-500 mb-4">Ooops, cette page n'existe pas...</p>
+     <NuxtLink
+       to="/dashboard"
+       class="inline-block py-2 px-4 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+     >
+       Tableau de bord
+     </NuxtLink>
+   </article>
+ </main>
+</template>
+
+<script setup>
+useHead(() => ({
+ status: 404,
+ title: "Page not found",
+}));
+</script>

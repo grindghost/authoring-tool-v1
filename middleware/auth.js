@@ -12,5 +12,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
     console.log("Redirecting to login...");
     return navigateTo("/");
   }
+
   });
   

@@ -530,13 +530,14 @@ import { BiCheckCircle, HiDownload, FaRegularCopy } from "oh-vue-icons/icons";
 
 import { isBefore, set, startOfDay } from "date-fns";
 import ProjectUpdateOverlay from '~/components/ProjectUpdateOverlay.vue';
+import { error } from 'pdf-lib';
 
 
 // Register the icons
 addIcons(BiCheckCircle, HiDownload, FaRegularCopy);
 
 definePageMeta({
-  middleware: ["auth"],
+  middleware: ['auth'] // Keep auth first
 });
 
 // const { user } = useUser();
@@ -895,50 +896,52 @@ function openEditor(fieldName) {
   showQuillOverlay.value = true;
 }
 
-
-
 // Vue Lifecycle Hooks
 onMounted(async () => {
 
+  // Logic for when the page is refreshed or accesd directly...
   if (status.value === "authenticated") {
       if (projectStore.projectsLoaded == false) {
-        // await projectStore.fetchProjects(data.value.user.userId);
         await projectStore.fetchProjects();
+
+        // Verify that the project (from the id in the query param) exist in the projects list
+        const projectId = route.params.id;
+
+        const selectedProject = projectStore.projects.find((p) => p.id === projectId);
+        if (!selectedProject) {
+          
+          // throw a 404 error
+          navigateTo("/404", { replace: true });
+
+          // router.push('/dashboard');
+          return;
+        }
+
+        // If the project exist, select the first activity by default
         selectActivity(Object.entries(project.value?.activities)[0][0]); 
         projectStore.stopLoading();  
       }      
     }
 
     
-  // Wait for the DOM to render
+    // Wait for the DOM to render
     await nextTick();
     if (process.client) {
-    const firstThumbnail = document.querySelector('.activity-sidebar .thumbnail');
-    if (firstThumbnail) {
-      firstThumbnail.click();
+      const firstThumbnail = document.querySelector('.activity-sidebar .thumbnail');
+      if (firstThumbnail) {
+        firstThumbnail.click();
+      }
+      // Set the current project ID
+      projectStore.currentProject = project;
+            
+      // Initialize the scaler for the specific container
+      const container = ref.scalerContainer;
+      initializeContainerScaler(scalableContainer.value);
     }
-
-
-    // Set the current project ID
-    projectStore.currentProject = project;
-    // console.log('currentProjectId:', projectStore.currentProject);
-
-    const container = ref.scalerContainer;
-    
-    // Initialize the scaler for the specific container
-    initializeContainerScaler(scalableContainer.value);
-
-    // Uncomment here
-    // adjustIframeSize();
-    // window.addEventListener('resize', adjustIframeSize); // Adjust on window resize
-  }
 
 })
 
 
-// Clean up the event listener when the component is unmounted
-onUnmounted(() => {
-});
 </script>
 
 <style scoped>

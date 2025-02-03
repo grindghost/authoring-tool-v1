@@ -75,7 +75,7 @@
       quill.clipboard.addMatcher(Node.TEXT_NODE, (node, delta) => {
         const plainText = quill.getText(); // Get current plain text
         const currentLength = plainText.trim().length; // Count existing characters
-        const maxAllowed = store.unitProfile.activity.maxCharAllowed;
+        const maxAllowed = store.unitProfile.activity.maxCharactersAllowed;
 
         if (store.unitProfile.activity.useCharactersLimit) {
           const pastedText = delta.ops.map(op => op.insert).join(''); // Extract pasted text
@@ -98,10 +98,10 @@
         const plainText = quill.getText(); // Get plain text content
         const currentLength = plainText.trim().length; // Trim to remove trailing newline characters
 
-        if (store.unitProfile?.activity?.useCharactersLimit && currentLength > store.unitProfile?.activity?.maxCharAllowed) {
+        if (store.unitProfile?.activity?.useCharactersLimit && currentLength > store.unitProfile?.activity?.maxCharactersAllowed) {
           // Revert to the last valid state
           quill.root.innerHTML = lastValidContent;
-          quill.setSelection(store.unitProfile.activity.maxCharAllowed); // Adjust selection to the limit
+          quill.setSelection(store.unitProfile.activity.maxCharactersAllowed); // Adjust selection to the limit
         } else {
           lastValidContent = quill.root.innerHTML; // Update the last valid state
           emit('update:content', quill.root.innerHTML);

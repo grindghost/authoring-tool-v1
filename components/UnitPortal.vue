@@ -1,7 +1,9 @@
 <script setup>
-    
+    import { OhVueIcon, addIcons } from "oh-vue-icons";
+    import { FaBook } from "oh-vue-icons/icons";
     import { useAppStateStore } from '/stores/appState';
-    
+    addIcons(FaBook);
+
     const store = useAppStateStore();
 
     const props = defineProps({
@@ -98,22 +100,24 @@ const applyCustomTheme = (customTheme) => {
     }
   });
 
-  const charCount = computed(() => {    
+
+  const maximumChar = computed(() => {    
     if (store.unitProfile?.activity?.useCharactersLimit == true) {  
-        return "";
+      return store.unitProfile?.activity?.maxCharactersAllowed
     } else {
-        store.unitProfile?.locale?.editorview?.charCount;
+        ""
     }
   });
 
-  const allowedChar = computed(() => {
+  const charCountPhrase = computed(() => {
     if (store.unitProfile?.activity?.useCharactersLimit == true) {
-      return " / " + store.unitProfile?.activity?.maxCharactersAllowed  + " " + (store.unitProfile?.locale?.editorView?.charCount || "") + " " + (store.unitProfile?.locale?.editorView?.
+      return (store.unitProfile?.locale?.editorView?.charCount || "") + " " + (store.unitProfile?.locale?.editorView?.
       allowedChar || "");
     }  else {
-        return "";
+        return (store.unitProfile?.locale?.editorView?.charCount || "");
     }
 });
+
 
 // Watch the `answer` ref from the store and update `isAnswerEmpty`
 watch(() => store.editorContent, (newAnswer) => {
@@ -124,6 +128,10 @@ watch(() => store.editorContent, (newAnswer) => {
 
 const handleSubmit = () => {
     store.submitEditor();
+}
+
+const handleTopBarClick = () => {
+   window.open('https://monjournaldebord.ca', '_blank');
 }
 
 const handleRestoreDefaultText = () => {
@@ -139,6 +147,7 @@ const handleRestoreDefaultText = () => {
 
 
 <template>
+
     <!-- Main container -->
     <div class="wrapper" :class="`theme-${computedTheme}`">  
 
@@ -152,6 +161,18 @@ const handleRestoreDefaultText = () => {
             <UnitOverlayEndpointPortal v-else-if="store.currentOverlay === 'isEndpoint'" />
         </div>
         </transition>
+
+    <!-- Top bar -->
+    <div 
+      class="top-bar noselect"
+      :class="store.overlayVisible ? 'transparent' : ''"
+      @click="handleTopBarClick"
+    >
+        <OhVueIcon name="fa-book" />
+        <span>
+          Mon journal de bord
+        </span>
+    </div>
     
     <!-- Editor container -->
     <div class="acitivity-container" :class="store.overlayVisible ? 'transparent' : ''">
@@ -164,12 +185,27 @@ const handleRestoreDefaultText = () => {
 
             <div class="maxchar">
             
-            <span class="count">
-                <strong>{{ answerLength }}</strong>
-                {{ charCount }}
-            </span>
-            
-            {{ allowedChar }}
+              <!-- <span class="count">
+                  <strong style="margin-right: 3px;">{{ answerLength }}</strong>
+              </span>
+              <span class="allowedChar"> 
+                {{ allowedChar }} 
+              </span> -->
+
+
+              <span class="count">
+                  <strong>{{ answerLength }}</strong>
+              </span>
+              <span v-if="store.unitProfile?.activity?.useCharactersLimit">
+                /
+              </span>
+              <span>
+                {{ maximumChar }}
+              </span>
+              <span :class="store.unitProfile?.activity?.useCharactersLimit ? 'allowedChar' : ''"> 
+                {{ charCountPhrase }} 
+              </span>
+
             </div>
 
             <div class="options-container">
@@ -213,32 +249,34 @@ const handleRestoreDefaultText = () => {
     position: fixed; /* Changed to fixed */
   }
 
+  .top-bar {
+    position: fixed;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    align-items: center;
+    background-color: #051424;
+    color: white;
+    width: 100%;
+    height: 40px;
+    cursor: pointer;
+  }
+
   .acitivity-container {
     border-radius: 8px;
     box-shadow: 0 0 2px 1px rgba(0,0,0,.17);
     background-color: white;
     width: 100%;
     height: 100dvh;
-    max-width: 796px;
+    max-width: 900px;
     margin: 0;
+    margin-top: 2.3rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
-
-  /* .overlays-container {
-    width: 100%;
-    height: 100%;
-    min-height: 100vh;
-    z-index: 3000;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    visibility: visible;
-    background: var(--color-theme-overlays-gradient);   
-  } */
 
 
   .overlays-container {
@@ -288,13 +326,19 @@ const handleRestoreDefaultText = () => {
     font-family: var(--theme-font) !important;
   }
 
-  span .count {
+  
+  .count {
+    font-family: var(--theme-font) !important;
+  }
+
+  .allowedChar {
     font-family: var(--theme-font) !important;
   }
 
   .maxchar {
     font-size: 14px;
     display: flex;
+    gap: 0.15rem;
     flex-direction: row;
     font-family: var(--theme-font) !important;
   }
@@ -339,7 +383,16 @@ const handleRestoreDefaultText = () => {
   opacity: 0;
 }
 
+@media only screen and (max-width: 600px) {
+    .allowedChar {
+      display: none;
+    }
 
+    .options-container {
+      display: none;
+    }
+
+  }
 
 </style>
     

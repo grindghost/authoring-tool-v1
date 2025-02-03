@@ -766,12 +766,10 @@ function selectActivity(activityKey) {
   accordion.value.project = false;
   accordion.value.activity = true;
 
-  // Uncomment here...
-  // iframe.value.style.border = `1px solid #e3e0e0`;
-  updateIframeSrc(); // Update iframe src on activity selection
+  updateActivityContainer(); // Update iframe src on activity selection
 }
 
-async function updateIframeSrc() {
+async function updateActivityContainer() {
 
   // New query parameter for the language (to give context to the app, before the project profile is retrieved)
   const token = selectedActivity.value.token;
@@ -799,7 +797,7 @@ watch(project, (newValue, oldValue) => {
     showAlert.value = true;
   }
   
-  updateIframeSrc();
+  updateActivityContainer();
 
 }, { deep: true });
 
@@ -827,26 +825,6 @@ function cancelDelete() {
   showDeleteProjectOverlay.value = false;
 }
 
-/**
- * Adjusts the size of the iframe dynamically based on the container's width
- * and a predefined aspect ratio. This function is executed on the client side
- * and updates the height of the iframe's container proportionally. It also
- * sets a border style for the iframe after a delay.
- */
-function adjustIframeSize() {
-  if (process.client) {
-    nextTick(() => {
-      const containerWidth = iframeContainer.value.offsetWidth;
-      const proportionalHeight = containerWidth * ASPECT_RATIO;
-
-      setTimeout(() => {
-        iframe.value.style.border = `0px solid #e3e0e0`;
-      }, 1500);
-
-      iframeContainer.value.style.height = `${proportionalHeight}px`;
-    });
-  }
-}
 
 /**
  * Saves the current state of the selected activity back into the project's activities array.

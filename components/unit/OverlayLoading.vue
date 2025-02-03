@@ -64,10 +64,10 @@
     font-size: 50px;
   }
 
-@media only screen and (max-width: 600px) {
-    .text-wrapper {
-      margin: 0 2.2rem;
+  @media only screen and (max-width: 600px) {
+      .text-wrapper {
+        margin: 0 2.2rem;
+      }
     }
-  }
 
 </style>

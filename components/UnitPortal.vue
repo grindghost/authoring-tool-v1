@@ -167,6 +167,7 @@ const handleRestoreDefaultText = () => {
       class="top-bar noselect"
       :class="store.overlayVisible ? 'transparent' : ''"
       @click="handleTopBarClick"
+      style="width:130%; margin-top: -1rem; padding-top: 1rem; height: 55px;"
     >
         <OhVueIcon name="fa-book" />
         <span>

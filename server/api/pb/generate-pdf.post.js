@@ -77,7 +77,11 @@ export default defineEventHandler(async (event) => {
       const noBOM = text.replace(/^\uFEFF/, '');
 
       // Remove non-printable ASCII characters (if any)
-      return noBOM.replace(/[^\x20-\x7E\n\r]/g, '');
+      // return noBOM.replace(/[^\x20-\x7E\n\r]/g, '');
+
+      // Remove non-printable Unicode characters (control characters)
+      return noBOM.replace(/[^\P{C}\n\r\t]/gu, ''); // Removes control chars but keeps \n, \r, \t
+
     };
 
 

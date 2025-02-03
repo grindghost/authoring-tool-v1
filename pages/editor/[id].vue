@@ -466,7 +466,7 @@
         <div class="overlay-content" @click.stop>
           <OhVueIcon name="bi-check-circle" class="success-icon" scale="3" animation="pulse"/>
           <h3>Votre projet a bien été sauvegardé!</h3>
-          <div class="overlay-buttons">
+          <div class="overlay-buttons" style="margin-top: 1rem !important;">
             <button class="btn bg-primary rounded-md text-white"  @click="closeSaveOverlay">OK</button>
           </div>
         </div>

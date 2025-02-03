@@ -112,7 +112,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 1.8rem;
+    gap: 2.5rem;
     opacity: 0;
     cursor: pointer;
   }
@@ -139,6 +139,7 @@
     align-items: flex-start;
     justify-content: center;
     gap: 1.8rem;
+
   }
   
   .top {
@@ -208,6 +209,7 @@
     opacity: 0;
     background-color: rgb(255, 255, 255);
     box-shadow: 0px 0px 10px 11px rgba(0,0,0,.17);
+    
   }
   
   .cover-image {

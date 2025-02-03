@@ -509,29 +509,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, onBeforeMount } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import  DOMPurify from 'dompurify';
 import { useRouter, useRoute } from 'vue-router'
 import { useProjects } from '~/stores/projects'
 import { useProjectModelStore } from '~/stores/projectModel'
-
-import { useAppStateStore } from '/stores/appState';
-const appStateStore = useAppStateStore();
-
-import { initializeContainerScaler } from '~/utils/scaler2';
-const scalableContainer = ref(null); // Reference to the container to be scaled
-
-// import { useUser } from 'vue-clerk';
-const { status, data } = useAuth();
-
+import { initializeContainerScaler } from '~/utils/editorContainerScaler';
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { BiCheckCircle, HiDownload, FaRegularCopy } from "oh-vue-icons/icons";
-
-
 import { isBefore, set, startOfDay } from "date-fns";
 import ProjectUpdateOverlay from '~/components/ProjectUpdateOverlay.vue';
-import { error } from 'pdf-lib';
+import { useAppStateStore } from '/stores/appState';
 
+const appStateStore = useAppStateStore();
+const scalableContainer = ref(null); // Reference to the container to be scaled
+const { status, data } = useAuth();
 
 // Register the icons
 addIcons(BiCheckCircle, HiDownload, FaRegularCopy);

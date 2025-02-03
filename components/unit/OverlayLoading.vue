@@ -1,7 +1,9 @@
   <template>
     <div class="overlay-content">
-      <fa v-if="isMounted" :icon="['fas', 'spinner']" class="fa-pulse icon" />
-      <p v-html="statusMessage"></p>
+        <fa v-if="isMounted" :icon="['fas', 'spinner']" class="fa-pulse icon" />
+      <div class="text-wrapper">
+          <p v-html="statusMessage"></p>
+      </div>
     </div>
   </template>
   
@@ -36,27 +38,36 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 3.5rem;
-    color: white;
+    justify-content: center;
+    gap: 1.8rem;
     background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .text-wrapper {
+    margin: 0 auto;
+    max-width: 450px;
+    /* width: 100%; */
+  }
+
+  p {
+    font-size: 1.3rem; 
+    font-weight: 300; 
+    line-height: 140%; 
+    text-align: center;
+    font-family: var(--theme-font) !important; 
+    color: #fff;
   }
   
   .icon {
     color: #fff;
     font-size: 50px;
-    margin-top: 30px;
-    margin-bottom: -20px;
   }
 
-p {
-  font-size: 1.3rem; 
-  font-weight: 300; 
-  line-height: 140%; 
-  white-space: pre;
-  text-align: center; 
-  font-family: var(--theme-font) !important;
-}
+@media only screen and (max-width: 600px) {
+    .text-wrapper {
+      margin: 0 2.2rem;
+    }
+  }
 
 </style>

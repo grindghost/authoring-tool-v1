@@ -21,7 +21,7 @@ const projectStore = useProjects();
         <NuxtLink :to="status === 'authenticated' ? '/dashboard' : '/'" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
           <OhVueIcon name="fa-book" />
           <span>Mon journal de bord</span>
-          <div class="badge badge-primary badge-outline">v1.1</div>  
+          <div class="badge badge-primary badge-outline max-sm:hidden">v1.1</div>  
           <span class="border-l-2 border-gray-200 mx-4 pl-5 font-medium text-sm"> {{ projectStore.currentProject?.name }} </span>
         </NuxtLink>
         <!-- <span class="border-l-2 border-gray-200 mx-2 pl-5">{{ authStore.currentProject?.name }}</span> -->

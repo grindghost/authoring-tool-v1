@@ -401,9 +401,9 @@
         </div>
 
         </div>
-        <div class="relative border border-gray-200 rounded-md inline-block p-4">
+        <div class="relative border border-gray-200 rounded-md inline-block p-4 border-l-8 primary">
           <a
-            class="link break-all text-[0.7rem] leading-1 text-gray-500 inline-block pr-14 text-primary"
+            class="link break-all text-[0.7rem] leading-1 text-gray-400 inline-block pr-14 decoration-white"
             :href="iframeSrc"
             target="_blank"
           >

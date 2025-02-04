@@ -84,7 +84,6 @@ export default defineEventHandler(async (event) => {
 
     };
 
-
     // Populate formData with the most recent answers per activity
     for (const [activityId, event] of Object.entries(latestEvents)) {
       const decryptedContent = await decryptContent(event.answer); // Decrypt the content

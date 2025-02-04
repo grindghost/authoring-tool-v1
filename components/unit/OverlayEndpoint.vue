@@ -8,7 +8,7 @@
   
         <div class="bottom">
           <p class="file-info">
-            <span class="text-accent">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span>
+            <span class="filename">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span>
             <br />
             <span class="file-size">~{{ pdfFileSize }}</span>
           </p>
@@ -141,18 +141,18 @@ import { useAppStateStore } from '/stores/appState';
   }
   
   .file-info {
-    line-height: 160%;
-    margin-top: auto;
+    line-height: 114%;
     font-family: var(--theme-font) !important;
   }
   
-  .text-accent {
+  .filename {
     /* Define your accent color if needed */
     font-family: var(--theme-font) !important;
     color: var(--color-theme-accent);
   }
   
   .file-size {
+    line-height: 2;
     font-size: 16px;
     font-family: var(--theme-font) !important;
   }

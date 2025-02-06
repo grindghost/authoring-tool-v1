@@ -521,6 +521,8 @@ import { isBefore, set, startOfDay } from "date-fns";
 import ProjectUpdateOverlay from '~/components/ProjectUpdateOverlay.vue';
 import { useAppStateStore } from '/stores/appState';
 
+const config = useRuntimeConfig();
+
 const appStateStore = useAppStateStore();
 const scalableContainer = ref(null); // Reference to the container to be scaled
 const { status, data } = useAuth();
@@ -767,7 +769,8 @@ async function updateActivityContainer() {
   const token = selectedActivity.value.token;
   const langParam = project.value.lang;
 
-  iframeSrc.value = `https://monjournaldebord.ca/portal/?token=${encodeURIComponent(token)}&lang=${langParam}`;
+  // iframeSrc.value = `https://monjournaldebord.ca/portal/?token=${encodeURIComponent(token)}&lang=${langParam}`;
+  iframeSrc.value = `${config.public.NEXTAUTH_URL}/portal/?token=${encodeURIComponent(token)}&lang=${langParam}`;
 }
 
 

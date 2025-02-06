@@ -34,6 +34,7 @@ const toolbarOptions = [
     [{ direction: 'rtl' }],
     [{ color: [] }, { background: [] }],
     [{ align: [] }],
+    ['code-block']
   ];
 
 function save() {

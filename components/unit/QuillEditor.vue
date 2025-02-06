@@ -234,5 +234,13 @@ function setQuillPlaceholderText(placeholderText) {
       overflow-y: scroll;
       font-family: var(--theme-font) !important;
   }
+
+  /* Quill editor code block overrides */
+  .ql-snow .ql-editor .ql-code-block-container {
+    background-color: #f4f6f8 !important;
+    color: black !important;
+    overflow: visible;
+  }
+
   </style>
   

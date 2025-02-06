@@ -2,7 +2,7 @@
     <section class="pt-24 lg:pt-40 pb-20 bg-white">
         <div class="px-6 mx-auto max-w-7xl">
             <div class="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
-                <h1 class="mb-8 text-5xl font-extrabold leading-none tracking-tight text-gray-900 md:text-6xl">
+                <h1 class="mb-8 text-5xl font-extrabold leading-none tracking-tight text-gray-900 md:text-7xl md:mb-12">
                     <span>Supporter</span> 
                     <span class="block w-full py-2 text-primary bg-clip-text leading-12">
                         l'apprentissage

@@ -107,6 +107,27 @@ const applyCustomTheme = (customTheme) => {
     }
   });
 
+  // 
+
+  const maximumChar = computed(() => {    
+    if (store.unitProfile?.activity?.useCharactersLimit == true) {  
+      return store.unitProfile?.activity?.maxCharactersAllowed
+    } else {
+        ""
+    }
+  });
+
+  const charCountPhrase = computed(() => {
+    if (store.unitProfile?.activity?.useCharactersLimit == true) {
+      return (store.unitProfile?.locale?.editorView?.charCount || "") + " " + (store.unitProfile?.locale?.editorView?.
+      allowedChar || "");
+    }  else {
+        return (store.unitProfile?.locale?.editorView?.charCount || "");
+    }
+  });
+
+  // 
+
   const charCount = computed(() => {    
     if (store.unitProfile?.activity?.useCharactersLimit == true) {  
         return "";
@@ -171,13 +192,26 @@ const handleRestoreDefaultText = () => {
         <div class="footer noselect">
 
             <div class="maxchar">
-            
-            <span class="count">
+
+              <span class="count">
+                  <strong>{{ answerLength }}</strong>
+              </span>
+              <span v-if="store.unitProfile?.activity?.useCharactersLimit">
+                /
+              </span>
+              <span>
+                {{ maximumChar }}
+              </span>
+              <span :class="store.unitProfile?.activity?.useCharactersLimit ? 'allowedChar' : ''"> 
+                {{ charCountPhrase }} 
+              </span>
+
+            <!-- <span class="count">
                 <strong>{{ answerLength }}</strong>
                 {{ charCount }}
             </span>
             
-            {{ allowedChar }}
+            {{ allowedChar }} -->
             </div>
 
             <div class="options-container">
@@ -271,13 +305,18 @@ const handleRestoreDefaultText = () => {
     font-family: var(--theme-font) !important;
   }
 
-  span .count {
+  .count {
+    font-family: var(--theme-font) !important;
+  }
+
+  .allowedChar {
     font-family: var(--theme-font) !important;
   }
 
   .maxchar {
     font-size: 14px;
     display: flex;
+    gap: 0.15rem;
     flex-direction: row;
     font-family: var(--theme-font) !important;
   }

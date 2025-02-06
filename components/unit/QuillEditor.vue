@@ -1,6 +1,5 @@
 <template>
     <div v-if="isClient" class="quill-container">
-      <!-- <div class="bottom-gradient"></div> -->
       <div ref="editorContainer" class="ql-container ql-snow"></div>
     </div>
   </template>
@@ -39,6 +38,7 @@
   ];
   
   onMounted(async () => {
+
     isClient.value = true;
   
     if (isClient.value) {
@@ -111,6 +111,24 @@
   
       setTimeout(() => {
         applyHeaderStyles();
+
+        // Logic to add a mask to the top of the editor, when overflo
+        const container = document.querySelector(".ql-container");
+        const editorZone = document.querySelector(".ql-editor");
+
+        const updateMask = () => {
+          if (editorZone.scrollTop > 0) {
+            container.style.webkitMaskImage = "linear-gradient(to top, black 20%, transparent 100%)";
+            container.style.maskImage = "linear-gradient(to top, black 20%, transparent 100%)";
+          } else {
+            container.style.webkitMaskImage = "none";
+            container.style.maskImage = "none";
+          }
+        };
+
+        editorZone.addEventListener("scroll", updateMask);
+        updateMask(); // Initialize on mount
+
       }, 1500);
 
       //}, 1000)
@@ -118,8 +136,9 @@
   });
   
   watch(() => props.content, (newContent) => {    
-    if (quill && newContent !== quill.root.innerHTML) {
-      quill.root.innerHTML = newContent; // Set the raw HTML directly
+    if (quill && newContent !== quill.root.innerHTML) {      
+      // quill.root.innerHTML = newContent; // Set the raw HTML directly
+      quill.clipboard.dangerouslyPasteHTML(newContent);
       lastValidContent = newContent; // Update the last valid state
     }
   });
@@ -205,15 +224,13 @@ function setQuillPlaceholderText(placeholderText) {
     /* Add a fading effect toward the bottom */
     -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
     mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-  
   }
+  
 
   .quill-container {
     position: relative;
-    
     display: flex;
     flex-direction: column;
-    
     height: 100%;
     margin: 10px;
     margin-bottom: 18px;
@@ -226,7 +243,6 @@ function setQuillPlaceholderText(placeholderText) {
       border-left: 0px solid #ccc !important;
       border-bottom: 1px solid #ccc !important;
       padding-bottom: 16px !important;
-
   }
   .ql-editor {
       font-size: larger;

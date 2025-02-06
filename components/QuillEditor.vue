@@ -82,22 +82,32 @@ watch(
   
   <style scoped>
 
+
   .wrapper {
     height: auto;
   }
 
-  .ql-toolbar.ql-snow + .ql-container.ql-snow {
+  .ql-container {
     height: auto;
+    height: 100%;
+    overflow-y: scroll;  
   }
 
   .quill-editor {
+    position: relative;
+    height: 100%;
+    margin: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     border: 1px solid #ccc; 
     border-radius: 6px;
     padding-bottom: 0.5rem;
-    min-height: 400px;
+    overflow-y: scroll;
+    min-height: 500px;
+    max-height: 500px;
   }
   
   .editor-buttons {

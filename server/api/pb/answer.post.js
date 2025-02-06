@@ -40,10 +40,16 @@ export default defineEventHandler(async (event) => {
 
     // Step 3: Sanitize and encrypt the content
     const sanitizedData = sanitizeHtml(data, {
-      allowedTags: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'br', 'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's'],
+      allowedTags: [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'br',
+        'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's', 'div',
+      ],
       allowedAttributes: {
-        '*': ['class'], // Allow 'class' attribute on all tags
-        'li': ['data-list'] // Allow 'data-list' attribute only on 'li' tags
+        '*': ['class'],
+        'li': ['data-list'],
+      },
+      allowedClasses: {
+        'div': ['ql-code-block'],
       }
     });
     

@@ -211,10 +211,20 @@ export const useAppStateStore = defineStore('app', () => {
     const timeDiff = (endTime.value - startTime.value) / 1000;
     timeElapsed.value = Math.round(timeDiff);
 
-    console.log(timeDiff);
+    // console.log(timeDiff);
     
     // Sanitize the content on the client
-    const sanitizedContent = DOMPurify.sanitize(editorContent.value);
+    const sanitizedContent = DOMPurify.sanitize(editorContent.value, {
+      ALLOWED_TAGS: [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'br',
+        'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's',
+        'div'
+      ],
+      ALLOWED_ATTR: ['class', 'id', 'style', 'data-list'],
+      ALLOWED_CLASSES: {
+        'div': ['ql-code-block'] // ✅ Allow class 'ql-code-block' on divs
+      }
+    });
 
     // Reset the current editor content with the sanitized value (to make sure...)
     editorContent.value = sanitizedContent;

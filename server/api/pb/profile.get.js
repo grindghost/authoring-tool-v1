@@ -160,14 +160,16 @@ export default defineEventHandler(async (event) => {
     const sanitizedContent = sanitizeHtml(decryptedContent, {
       allowedTags: [
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'br',
-        'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's',
+        'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's', 'div',
       ],
       allowedAttributes: {
         '*': ['class'],
         'li': ['data-list'],
       },
+      allowedClasses: {
+        'div': ['ql-code-block'],
+      }
     });
-
     UnitProfile['history'] = sanitizedContent;
 
     }

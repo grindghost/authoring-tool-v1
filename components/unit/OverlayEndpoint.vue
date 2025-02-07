@@ -8,7 +8,9 @@
   
         <div class="bottom">
           <p class="file-info">
-            <span class="filename">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span>
+            <!-- <span class="filename">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span> -->
+            <span class="filename">journal_de_bord.pdf</span>
+
             <br />
             <span class="file-size">~{{ pdfFileSize }}</span>
           </p>
@@ -54,6 +56,7 @@ import { useAppStateStore } from '/stores/appState';
 
     // Get the pdf infos from the unt profile, in the project profile
     const { pdfCoverImgUrl, pdfFilename, pdfFileSize } = appStore.unitProfile.project.profile;
+  
 
   const handleClick = () => {
       appStore.downloadFilledPdf();
@@ -146,9 +149,11 @@ import { useAppStateStore } from '/stores/appState';
   }
   
   .filename {
-    /* Define your accent color if needed */
     font-family: var(--theme-font) !important;
-    color: var(--color-theme-accent);
+    font-weight: 600;
+    font-size: 1.2rem;
+    /* color: var(--color-theme-accent); */
+    color: rgba(255, 255, 255, 0.381)
   }
   
   .file-size {

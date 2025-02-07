@@ -19,7 +19,8 @@
           <!-- Bottom part with the text -->
           <div class="bottom">
             <p class="file-info">
-              <span class="text-accent">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span>
+              <!-- <span class="text-accent">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span> -->
+              <span class="filename">journal_de_bord.pdf</span>
               <br />
               <span class="file-size">~{{ pdfFileSize }}</span>
             </p>
@@ -179,6 +180,13 @@
     margin-top: auto;
     font-weight: 500;
     font-family: var(--theme-font) !important;
+  }
+
+  .filename {
+    font-family: var(--theme-font) !important;
+    font-size: 1.3rem;
+    /* color: var(--color-theme-accent); */
+    color: rgba(255, 255, 255, 0.381)
   }
   
   .text-accent {

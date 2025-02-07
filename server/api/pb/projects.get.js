@@ -52,6 +52,22 @@ export default defineEventHandler(async (event) => {
       sort: 'created',
     });
 
+
+    // Iterate through projects and fetch history count for each
+    for (let project of userProjects.items) {
+      try {
+        const historyRecords = await pb.collection('History').getList(1, 1, {
+          filter: `courseId="${project.id}"`,
+        });
+
+        project.historyCount = historyRecords.totalItems; // Attach count to project
+        console.log(`Fetched history count for project ${project.id}: ${project.historyCount}`);
+      } catch (err) {
+        console.error(`Error fetching history count for project ${project.id}:`, err.message);
+        project.historyCount = 0; // Default to 0 if an error occurs
+      }
+    }
+    
     // Preprocess each record to filter expanded fields
     const sanitizedProjects = userProjects.items.map((record) => {
       if (record.expand?.author) {

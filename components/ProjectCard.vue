@@ -1,14 +1,18 @@
 <script setup>
 import { useProjects } from '~/stores/projects'; // Adjust import based on your structure
 import { OhVueIcon, addIcons } from "oh-vue-icons";
-import { MdDeleteforeverRound, BiPersonCircle, IoCalendarOutline, CoCalendar } from "oh-vue-icons/icons";
+import { MdWarningamberRound, MdCalendarmonthRound, MdVisibilityoff, HiStatusOnline, MdDeleteforeverRound, BiPersonCircle, IoCalendarOutline, CoCalendar } from "oh-vue-icons/icons";
+
+
+import { isBefore, set, startOfDay } from "date-fns";
+
 import { computed } from "vue";
 
 const projectStore = useProjects();
 const router = useRouter();
 
 // Register the icons
-addIcons(MdDeleteforeverRound, BiPersonCircle, IoCalendarOutline, CoCalendar);
+addIcons(MdDeleteforeverRound, BiPersonCircle, IoCalendarOutline, CoCalendar, MdVisibilityoff, HiStatusOnline, MdWarningamberRound, MdCalendarmonthRound);
 
 const emit = defineEmits(['deleteProject']);
 
@@ -32,12 +36,40 @@ function editProject() {
 }
 
 const projectName = computed(() => {
-const maxLength = 20; // Define the max length for the truncated text
+const maxLength = 30; // Define the max length for the truncated text
 const text = props.project.profile.name || '';
 
 return text.length > maxLength 
 ? text.substring(0, maxLength) + '...' 
 : text;
+});
+
+const historyCount = computed(() => {
+  const count = props.project.historyCount || 0;
+  return count;
+});
+
+const isPublished = computed(() => {
+  return props.project.profile.published;
+})
+
+const formattedExpirationDate = computed(() => {
+
+  if (!props.project.profile.useExpirationDate) return 'N/A';
+
+  const date = props.project.profile.expirationDate;
+  return date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+})
+
+const isDateExpired = computed(() => {
+
+  if (!props.project.profile.useExpirationDate) return false;
+
+  if (!props.project.profile.expirationDate) return false; // If no date is selected, it's not expired
+  const today = startOfDay(new Date()); // Get today's date at the start of the day
+  const selectedDate = new Date(props.project.profile.expirationDate);
+  console.log(selectedDate, today);
+  return isBefore(selectedDate, today); // Check if the selected date is before today
 });
 
 const author = computed(() => { 
@@ -62,8 +94,14 @@ return date.toLocaleDateString('fr-FR', options);
 
 
 <template>
-    <div class="card bg-base-100 rounded-md cursor-pointer shadow-md hover:shadow-xl transition-all duration-200">
-      
+    <div class="card bg-base-100 rounded-md cursor-pointer shadow-md hover:shadow-xl transition-all duration-200" :class="{ 'opacity-50 grayscale': isDateExpired }" >
+
+      <!-- Small circle in top-left corner -->
+      <div v-if="isDateExpired" class="absolute top-3 left-3 w-8 h-8 bg-white rounded-full z-20 shadow-lg flex justify-center items-center">
+        <OhVueIcon name="md-visibilityoff" />
+      </div>
+
+
       <figure class="overflow-hidden">
 
         <img 
@@ -83,22 +121,40 @@ return date.toLocaleDateString('fr-FR', options);
    
       </figure>
       <div class="card-body p-4 gap-0">
-        <h2 class="card-title text-lg font-semibold mb-1 leading-tight">
+        <h2 class="card-title text-lg font-semibold mb-2 leading-tight">
           {{ projectName }}
-          
         </h2>
-        <h3 class="text-sm  text-gray-300 font-semibold mb-1 flex gap-1">
+        <!-- <div class="text-sm  text-gray-300 leading-3 font-semibold flex gap-1 items-center">
           <OhVueIcon name="bi-person-circle" />
           <span>{{ author }}</span>
-        </h3>
-        <p class="text-sm  text-gray-300 font-semibold mb-4 flex gap-1">
-          <OhVueIcon name="co-calendar" fill="blue" />
-          <span>{{ createdAt }}</span> 
-        </p>
-        <p class="text-sm text-gray-500 mb-4">
+        </div> -->
+
+        <div class="text-sm  text-gray-300 leading-3 font-semibold flex gap-1 items-center mb-1">
+          <OhVueIcon :name="isPublished ?'hi-status-online' : 'md-warningamber-round'" :class="isPublished ? 'text-primary' : 'text-gray-300 mb-0.5'"
+          />
+          <span :class="isPublished ? 'text-primary' : 'text-gray-300'">{{ isPublished ? "Publié" : "Brouillon"  }}</span>
+        </div>
+
+        <div class="text-sm  text-gray-300 font-semibold mb-4 flex gap-1">
+          <OhVueIcon name="md-calendarmonth-round" />
+          <!-- <span>{{ createdAt }}</span>  -->
+          <span>{{ formattedExpirationDate }}</span> 
+
+        </div>
+        <!-- <p class="text-sm text-gray-500 mb-4">
           {{ description }}
-        </p>
-        <div class="card-actions flex justify-between">
+        </p> -->
+        
+        <!-- Progress Bar -->
+      <div class="flex justify-center items-center">
+        <div class="w-full bg-gray-200 rounded-full h-1.5 mr-3 dark:bg-gray-700">
+          <div class="bg-green-500 h-1.5 rounded-full dark:bg-green-500" :style="{ width: (historyCount / 100)*100 + '%' }"></div>
+        </div>
+        <p class="text-xs scale-x-95 tracking-tighter">{{ historyCount }}/100</p>
+      </div>
+
+
+        <div class="card-actions flex justify-between mt-auto">
           <button @click.stop="editProject" class="btn bg-primary rounded-md text-white">Modifier</button>
           <button @click.stop="deleteProject" class="btn bg-white rounded-md">
             <OhVueIcon name="md-deleteforever-round" />

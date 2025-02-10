@@ -148,6 +148,7 @@ function editProject(projectId) {
 </script>
 
 <template>
+
   <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50 wrapper">
     <PricingSectionAlternate />
   </div>

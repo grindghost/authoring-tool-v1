@@ -14,7 +14,7 @@
 
                     <!-- Aidez vos apprenants à transformer leurs réflexions en un document enrichissant qui accompagne chaque étape de leur formation. -->
                 </p>
-                <img src="assets/explainer.png" class="mb-3" alt="">
+                <!-- <img src="assets/explainer.png" class="mb-3" alt=""> -->
                 <div class="mb-4 space-x-0 md:space-x-2 md:mb-8">
                     <a href="#pricing" class="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg text-white bg-primary rounded-lg sm:w-auto sm:mb-0 hover:bg-secondary">
                         Débuter

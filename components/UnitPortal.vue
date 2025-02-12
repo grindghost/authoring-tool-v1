@@ -131,7 +131,8 @@ const handleSubmit = () => {
 }
 
 const handleTopBarClick = () => {
-   window.open('https://monjournaldebord.ca', '_blank');
+   // window.open('https://monjournaldebord.ca', '_blank');
+   return;
 }
 
 const handleRestoreDefaultText = () => {

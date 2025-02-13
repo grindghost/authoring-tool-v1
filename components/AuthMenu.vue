@@ -16,10 +16,21 @@ const navigateToProjectsDashboard = async() => {
   router.push({ path: "/dashboard" })
 }
 
+const handleSignOut = async () => {
+  try {
+        projectStore.startLoading();
+        await signOut();
+    } catch (error) {  
+        console.error("Github logout error:", error);
+    } finally {
+        projectStore.stopLoading();
+    }
+}
+
 const solutions = [
   { name: 'Tableau de bord', fn: navigateToProjectsDashboard },
   { name: 'Mon abonnement', fn: navigateToStripeDashboard },
-  { name: 'Déconnexion', fn: signOut },
+  { name: 'Déconnexion', fn: handleSignOut },
 ]
 
 </script>

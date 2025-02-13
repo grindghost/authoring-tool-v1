@@ -3,11 +3,31 @@
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { FaBook } from "oh-vue-icons/icons";
 import { useProjects } from "~/stores/projects";
+import { useRouter, useRoute } from "vue-router";
+
 
 addIcons(FaBook);
 
-const { status, signIn } = useAuth()
+const { status, signIn } = useAuth();
+const router = useRouter();
+const route = useRoute();
+
 const projectStore = useProjects();
+
+const handleSignIn = () => {
+    // signIn("github"); // Replace "github" with your provider name
+    router.push("/login");
+  };
+
+const handleLogoClick = () => {
+  const currentPage = route.name;
+  if (status === "authenticated" && currentPage !== "dashboard") {
+    return "/dashboard";
+  } else {
+    return "/";
+  }
+
+}
 
 </script>
 
@@ -18,7 +38,7 @@ const projectStore = useProjects();
     
     <div class="navbar bg-base-100 shadow fixed z-50">
       <div class="flex-1">
-        <NuxtLink :to="status === 'authenticated' ? '/dashboard' : '/'" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
+        <NuxtLink :to="status === 'authenticated' && route.name !== 'dashboard' ? '/dashboard' : '/'" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
           <OhVueIcon name="fa-book" />
           <span>Mon journal de bord</span>
           <div class="badge badge-primary badge-outline max-sm:hidden">v1.1</div>  
@@ -29,7 +49,7 @@ const projectStore = useProjects();
 
       <div class="right-4 absolute">
       <AuthMenu v-if="status === 'authenticated'" />
-      <button v-else @click="() => signIn('github', { callbackUrl: '/dashboard' })">Sign In</button>
+      <button v-else @click="handleSignIn">{{ route.name !== "login" ? "Connexion" : "" }}</button>
     </div>
 
     </div>
@@ -38,5 +58,7 @@ const projectStore = useProjects();
     <NuxtPage />
     <!-- Content -->
   
+    <Footer />
+
   </div>
 </template>

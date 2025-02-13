@@ -38,6 +38,10 @@
   <script setup>
   import { useAuth } from "@/composables/useAuth";
   import { ref } from "vue";
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
+
   
   const { session, signIn } = useAuth();
   const text = ref("Get started");
@@ -45,7 +49,8 @@
   const callbackUrl = "/dashboard"; // Change to your callback URL
   
   const handleSignIn = () => {
-    signIn("github"); // Replace "github" with your provider name
+    // signIn("github"); // Replace "github" with your provider name
+    router.push("/login");
   };
   </script>
   

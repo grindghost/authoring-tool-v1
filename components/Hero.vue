@@ -2,7 +2,7 @@
     <section class="pt-24 lg:pt-40 pb-20 bg-white">
         <div class="px-6 mx-auto max-w-7xl">
             <div class="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
-                <h1 class="mb-8 text-5xl font-extrabold leading-none tracking-tight text-gray-900 md:text-7xl lg:text-10xl md:mb-12">
+                <h1 class="mb-8 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-7xl lg:text-10xl md:mb-12">
                     <span>Supporter</span> 
                     <span class="block w-full py-2 text-primary bg-clip-text leading-12">
                         l'apprentissage
@@ -10,7 +10,7 @@
                     <span>une réflexion à la fois</span>
                 </h1>
                 <p class="px-0 mb-8 text-lg text-gray-600 md:text-xl lg:px-24">
-                    Transformez vos PDF interactifs en unités de réflexion dynamiques et offrez aux apprenants un document personnalisé de leurs propres réponses.
+                    Transformez vos PDF interactifs en unités de réflexion dynamiques et offrez à vos apprenants un document personnalisé de leurs propres réponses.
 
                     <!-- Aidez vos apprenants à transformer leurs réflexions en un document enrichissant qui accompagne chaque étape de leur formation. -->
                 </p>

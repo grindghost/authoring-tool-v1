@@ -5,8 +5,8 @@ const { status, signIn, signOut } = useAuth()
 
 <template>
     <Hero />
-    <!-- <Problem /> -->
+    <!-- <problem /> -->
     <RoadmapSection />
-    <PricingSection />
+    <!-- <PricingSection /> -->
     <!-- <FeaturesAccordion /> -->
 </template>

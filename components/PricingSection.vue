@@ -36,14 +36,14 @@ const buttonText = computed(() => {
   <section class="bg-gray-100 py-24 px-8" id="pricing">
     <div class="text-center mb-20">
       <p class="font-medium text-primary mb-8">Tarifs</p>
-      <h2 class="font-extrabold text-4xl lg:text-6xl tracking-tight mb-12 md:mb-12">
+      <h2 class="font-extrabold text-4xl lg:text-4=5xl tracking-tight mb-8 md:mb-8">
         Facilitez la réflexion personnelle sur les apprentissages
       </h2>
 
       <p
         class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600"
       >
-      Nos tarifs vous permettrons d'offrir un outil unique pour structurer les réflexions, consolider les idées et éclairer la progression éducative.
+      Nos prix vous permettrons d'offrir un outil unique à vos apprenants; pour consolider leur idées et éclairer leur progression éducative.
       </p>
 
       <!-- Yearly toggle -->
@@ -92,7 +92,7 @@ const buttonText = computed(() => {
           <div class="flex items-baseline gap-2 text-primary">
             <p class="text-5xl font-extrabold">${{ tier.price }}</p>
             <span class="text-xs uppercase font-semibold text-base-content/60">
-              CA/mois
+               {{ yearlyEnabled ? 'CA/année' : 'CA/mois' }} 
             </span>
           </div>
 

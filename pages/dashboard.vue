@@ -23,8 +23,6 @@ const { status, data } = useAuth();
 const router = useRouter();
 const projectStore = useProjects();
 
-
-
 // Fetch projects on component mount
 onMounted(async () => {
   

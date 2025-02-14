@@ -58,7 +58,7 @@ const handleLogoClick = () => {
     <NuxtPage />
     <!-- Content -->
   
-    <Footer />
+    <!-- <Footer /> -->
 
   </div>
 </template>

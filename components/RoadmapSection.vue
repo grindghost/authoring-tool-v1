@@ -1,8 +1,8 @@
 <template>
-    <section class="bg-white py-12 px-6 lg:py-16 lg:px-12">
+    <section class="rounded-md py-12 px-6 lg:py-16 lg:px-12 relative before:absolute before:inset-0 before:-z-10 before:bg-slate-300/60 before:rounded-lg">
       <div class="max-w-7xl mx-auto">
         <!-- Title -->
-        <h2 class="text-2xl md:text-3xl font-bold text-center mb-8">Roadmap & Fonctionnalités à venir</h2>
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-8">Roadmap & Fonctionnalités</h2>
   
         <!-- Features Grid -->
         <ul

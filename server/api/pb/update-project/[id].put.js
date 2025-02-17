@@ -1,4 +1,5 @@
 import { pb } from '~/server/plugins/pocketbase' // Import Pocketbase instance
+import { encryptContent } from '~/server/utils/services'
 import { getServerSession } from '#auth';
 
 export default defineEventHandler(async (event) => {
@@ -36,6 +37,21 @@ export default defineEventHandler(async (event) => {
     if (project.author !== userId) {
       throw createError({ statusCode: 403, message: 'Unauthorized to edit this project' })
     }
+
+    // Re-encrypt the token for each activity
+    for (const [key, value] of Object.entries(body.profile.activities)) {
+      const token = {
+        project: id,
+        exercice: key,
+        source: process.env.NUXT_PUBLIC_ALLOWED_SOURCE,
+      };
+      // Encrypt the token
+      const encryptedToken = await encryptContent(JSON.stringify(token));
+
+      // Update the token for the activity
+      body.profile.activities[key].token = encryptedToken;
+    }
+
 
     // Update the project with the new profile data
     const updatedProject = await pb.collection('Projects').update(id, {

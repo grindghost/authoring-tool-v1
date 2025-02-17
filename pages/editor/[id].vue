@@ -835,6 +835,10 @@ function saveProject() {
   const projectId = route.params.id;
   const updatedProject = project.value;
 
+  // for each activity in the project, update the activity
+
+  console.log('Updated project:', updatedProject);
+
   projectStore.saveProject(projectId, updatedProject).then(() => {
     setTimeout(() => {
     showSaveOverlay.value = true; // Show the save confirmation overlay
@@ -844,7 +848,6 @@ function saveProject() {
     }, 1000)
   }, 200);
   });
-
 }
 
 function saveQuillContent(html) {

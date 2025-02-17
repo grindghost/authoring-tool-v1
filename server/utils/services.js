@@ -2,6 +2,8 @@ import CryptoJS from 'crypto-js'
 import { randomBytes } from 'crypto';
 import * as cheerio from 'cheerio';
 
+const BACKPACK_TOKEN_LENGTH = 64;
+
 export const generateUniqueID = (idLength) => {
   return randomBytes(Math.ceil(idLength / 2)) // Generate enough random bytes
     .toString('hex') // Convert bytes to hexadecimal string
@@ -29,14 +31,14 @@ export const createNewUser = async (pb) => {
     console.log(`Current collection: ${currentCollection}`);
 
     // Step 2: Generate a new backpack ID
-    let newBackpackId = generateUniqueID(15); // Generate a unique ID
+    let newBackpackId = generateUniqueID(BACKPACK_TOKEN_LENGTH); // Generate a unique ID
 
     // Add 'dev-' prefix if in development mode
     if (process.env.NODE_ENV === 'development') {
       newBackpackId = `dev-${newBackpackId}`;
       
       // Ensure the length of the final ID is exactly 15 characters
-      newBackpackId = newBackpackId.slice(0, 15); // Truncate to 15 chars
+      newBackpackId = newBackpackId.slice(0, BACKPACK_TOKEN_LENGTH); // Truncate to 15 chars
     }
 
     // Step 3: Encrypt the new backpack ID
@@ -45,7 +47,8 @@ export const createNewUser = async (pb) => {
 
     // Step 4: Store the new user data in the 'backpacks' collection
     await pb.collection('Backpacks').create({
-      id: newBackpackId,
+      // id: newBackpackId,
+      token: newBackpackId,
       creationDate: creationDate,
       collection: currentCollection,
     });
@@ -68,15 +71,15 @@ export const validateOrCreateUser = async (pb, backpackId, req) => {
       const decryptedbackpackId = await decryptContent(backpackId, secretKey);
 
       // Validate the decrypted key
-      if (!decryptedbackpackId || decryptedbackpackId.length < 15) {
+      if (!decryptedbackpackId || decryptedbackpackId.length < BACKPACK_TOKEN_LENGTH) {
         console.log(decryptedbackpackId.length)
         throw new Error('Invalid user key format');
       }
 
       // Step 2: Check if the user exists in Pocketbase
       try {
-        const user = await pb.collection('Backpacks').getFirstListItem(`id = '${decryptedbackpackId}'`);
-        // If the user exists, return the decrypted key
+        const user = await pb.collection('Backpacks').getFirstListItem(`token = '${decryptedbackpackId}'`);
+        // If the backpack with the given token exists, return the decrypted token
         return { valid: true, backpackId, decryptedbackpackId };
       } catch (error) {
         // If user doesn't exist, create a new one

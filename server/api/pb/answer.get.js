@@ -2,7 +2,7 @@
 
 import { getCookie, setCookie, createError } from 'h3';
 import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit'; // Import Pocketbase instance
-import { validateOrCreateUser, decryptContent } from '~/server/utils/authPB'; // Use adapted helper methods
+import { validateOrCreateUser, decryptContent } from '~/server/utils/services'; // Use adapted helper methods
 import sanitizeHtml from 'sanitize-html';
 
 export default defineEventHandler(async (event) => {

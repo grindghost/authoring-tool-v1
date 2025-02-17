@@ -4,7 +4,7 @@ import { pb } from '~/server/plugins/pocketbase';
 import { PDFDocument } from 'pdf-lib';
 import fs from 'fs';
 import path from 'path';
-import { decryptContent, encryptContent } from '~/server/utils/auth';
+import { decryptContent, encryptContent } from '~/server/utils/services';
 import { getServerSession } from '#auth';
 
 export default defineEventHandler(async (event) => {

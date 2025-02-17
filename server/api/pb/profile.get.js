@@ -2,7 +2,7 @@
 
 import { getCookie, setCookie, createError } from 'h3';
 import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit';
-import { validateOrCreateUser, decryptContent } from '~/server/utils/authPB';
+import { validateOrCreateUser, decryptContent } from '~/server/utils/services';
 import sanitizeHtml from 'sanitize-html';
 
 export default defineEventHandler(async (event) => {
@@ -66,7 +66,6 @@ export default defineEventHandler(async (event) => {
 
     if (!project || !exercice || !source || source !== process.env.NUXT_PUBLIC_ALLOWED_SOURCE) {
       UnitProfile.message = 'Token validation failed';
-      stream.end();
       return UnitProfile;
     } 
 

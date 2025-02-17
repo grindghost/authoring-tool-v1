@@ -2,7 +2,7 @@ import { PDFDocument } from 'pdf-lib';
 import emojiStrip from 'emoji-strip';
 import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit'; // Import Pocketbase instance
 import { getCookie, setCookie, createError, readBody, getMethod, setResponseHeaders } from 'h3';
-import { validateOrCreateUser, decryptContent, convertQuillHtmlToText } from '~/server/utils/authPB';
+import { validateOrCreateUser, decryptContent, convertQuillHtmlToText } from '~/server/utils/services';
 
 export default defineEventHandler(async (event) => {
   // Set CORS headers

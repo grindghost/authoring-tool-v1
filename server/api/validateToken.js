@@ -1,5 +1,5 @@
 // server/api/validate-token.js
-import { decryptContent } from '~/server/utils/authPB';
+import { decryptContent } from '~/server/utils/services';
 import { useRuntimeConfig } from '#imports';
 
 export default defineEventHandler(async (event) => {

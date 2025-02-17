@@ -1,6 +1,6 @@
 <!-- components/Footer.vue -->
 <template>
-    <footer class="bg-gray-900 text-gray-300 relative">
+    <footer class="bg-gray-900 text-gray-300 relative bottom-0">
       <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Company Info -->

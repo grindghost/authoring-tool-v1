@@ -1,6 +1,6 @@
 import { getCookie, setCookie, readBody } from 'h3';
 import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit';
-import { encryptContent, decryptContent, validateOrCreateUser } from '~/server/utils/authPB';
+import { encryptContent, decryptContent, validateOrCreateUser } from '~/server/utils/services';
 import sanitizeHtml from 'sanitize-html'; 
 
 export default defineEventHandler(async (event) => {

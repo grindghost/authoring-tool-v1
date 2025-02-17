@@ -91,6 +91,7 @@ export const validateOrCreateUser = async (pb, backpackId, req) => {
         };
       }
     } else {
+      
       // If no valid backpackId is provided or it's the default, create a new user
       const newEncryptedbackpackId = await createNewUser(pb);
       const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);

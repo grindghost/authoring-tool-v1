@@ -40,7 +40,7 @@ const handleLogoClick = () => {
       <div class="flex-1">
         <NuxtLink :to="status === 'authenticated' && route.name !== 'dashboard' ? '/dashboard' : '/'" class="btn btn-ghost hover:bg-transparent normal-case text-xl">
           <OhVueIcon name="fa-book" />
-          <span>Mon journal de bord</span>
+          <span class="tracking-tight md:tracking-normal">Mon journal de bord</span>
           <div class="badge badge-primary badge-outline max-sm:hidden">v1.1</div>  
           <span class="border-l-2 border-gray-200 mx-4 pl-5 font-medium text-sm"> {{ projectStore.currentProject?.name }} </span>
         </NuxtLink>
@@ -54,11 +54,12 @@ const handleLogoClick = () => {
 
     </div>
     
+    
     <!-- Content -->
     <NuxtPage />
     <!-- Content -->
   
-    <!-- <Footer /> -->
+    <Footer />
 
   </div>
 </template>

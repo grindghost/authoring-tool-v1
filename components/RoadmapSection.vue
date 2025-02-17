@@ -1,18 +1,20 @@
 <template>
-    <section class="rounded-md py-12 px-6 lg:py-16 lg:px-12 relative before:absolute before:inset-0 before:-z-10 before:bg-slate-300/60 before:rounded-lg">
+    <section class="py-12 px-6 lg:py-16 lg:px-12 relative bg-slate-200 bg-opacity-25">
       <div class="max-w-7xl mx-auto">
         <!-- Title -->
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-8">Roadmap & Fonctionnalités</h2>
   
         <!-- Features Grid -->
         <ul
-          class="grid gap-6 max-w-5xl m-auto sm:grid-cols-2 lg:grid-cols-3"
+          class="grid gap-0 sm:gap-4 max-w-5xl m-auto sm:grid-cols-2 lg:grid-cols-3"
         >
-          <li
-            v-for="(feature, index) in roadmapFeatures"
-            :key="index"
-            class="flex items-center gap-4 bg-base-100 p-4 rounded-lg shadow-md cursor-default hover:scale-105 hover:shadow-lg transition-all duration-300 ease-in-out"
-          >
+        <li
+          v-for="(feature, index) in roadmapFeatures"
+           :key="index"
+            class="flex items-center gap-4 bg-base-100 p-4 border-b-2 border-gray sm:border-none sm:rounded-lg shadow-md cursor-default 
+         first:rounded-t-lg last:rounded-b-lg last:border-none 
+         hover:border-none hover:rounded-lg hover:scale-105 hover:shadow-[0px_3px_16px_rgba(0,0,0,0.2)] transition-all duration-300 ease-in-out"
+>
             <!-- Checkmark -->
             <div
               class="flex items-center justify-center w-8 h-8 rounded-full border-2"

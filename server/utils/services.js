@@ -118,7 +118,71 @@ export const validateOrCreateUser = async (pb, backpackId, req) => {
   }
 };
 
+// ****************************************
+
 export const convertQuillHtmlToText = (quillHtml) => {
+  const $ = cheerio.load(quillHtml);
+  let result = '';
+
+  const listNumbering = { 0: 0, 1: 0, 2: 0, 3: 0 };
+
+  const getOrderedListBullet = (level, index) => {
+    const numberingStyles = ['1.', 'a.', 'i.'];
+    const styleIndex = level % numberingStyles.length;
+    return numberingStyles[styleIndex]
+      .replace('1', index + 1)
+      .replace('a', String.fromCharCode(97 + index))
+      .replace('i', toRoman(index + 1));
+  };
+
+  const toRoman = (num) => {
+    const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+    let roman = '';
+    for (let i in lookup) {
+      while (num >= lookup[i]) {
+        roman += i;
+        num -= lookup[i];
+      }
+    }
+    return roman;
+  };
+
+  const processElement = (el, indentLevel = 0) => {
+    const tag = $(el).prop('tagName') ? $(el).prop('tagName').toLowerCase() : '';
+
+    if (tag === 'h1' || tag === 'h2' || tag === 'h3' || tag === 'p') {
+      result += $(el).text().trim() + '\n\n';
+    } else if (tag === 'ol' || tag === 'ul') {
+      $(el).children().each((j, li) => {
+        const indent = $(li).attr('class')?.match(/ql-indent-(\d+)/);
+        const level = indent ? parseInt(indent[1]) : 0;
+
+        listNumbering[level] = (listNumbering[level] || 0) + 1;
+        for (let l = level + 1; l < 4; l++) listNumbering[l] = 0;
+
+        const bullet = tag === 'ol' 
+          ? getOrderedListBullet(level, listNumbering[level] - 1)
+          : '•';
+
+        result += '  '.repeat(level) + bullet + ' ' + $(li).text().trim() + '\n';
+      });
+      result += '\n';
+    } else if ($(el).hasClass('ql-code-block')) {
+      const codeText = $(el).text().split('\n').map(line => `  ${line}`).join('\n');
+      result += `\n${codeText}\n\n`;
+    } else {
+      $(el).children().each((_, child) => processElement(child, indentLevel));
+    }
+  };
+
+  $('body').children().each((_, el) => processElement(el));
+
+  return result;
+};
+
+
+// Backup version of the function
+export const convertQuillHtmlToText_V1 = (quillHtml) => {
   const $ = cheerio.load(quillHtml);
   let result = '';
   

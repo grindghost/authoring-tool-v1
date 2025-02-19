@@ -4,12 +4,12 @@ import { encryptContent, decryptContent, validateOrCreateUser } from '~/server/u
 import sanitizeHtml from 'sanitize-html'; 
 
 export default defineEventHandler(async (event) => {
-  const backpackId = getCookie(event, 'backpackId'); // Get the backpackId from cookies
-  const { token, data, date, timeElapsed } = await readBody(event); // Get the request body using readBody
+  const backpackId = getCookie(event, 'backpackId');
+  const { token, data, date, timeElapsed } = await readBody(event);
 
   console.log('Token received from the query:', token);
 
-  await ensureAuthenticated("Save answer"); // Ensure authentication before each request
+  await ensureAuthenticated("Save answer");
 
   try {
     // Step 1: Validate or create user...
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 500, message: 'Unable to validate user' });
     }
 
-    // Step 2: Update cookie if a new backpackId was create
+    // Step 2: Update cookie if a new backpackId was created
     if (validBackpackId !== backpackId) {
       setCookie(event, 'backpackId', validBackpackId, {
         httpOnly: true,
@@ -56,9 +56,13 @@ export default defineEventHandler(async (event) => {
     // Encrypt the answer
     const encryptedAnswer = await encryptContent(sanitizedData);
 
-    // Step 4: Save the new historic event in Pocketbase
-    const timestamp = new Date().toISOString(); // Format to ISO 8601
-    
+    // Step 4: Get the latest record or create a new one
+    const existingRecords = await pb.collection('history').getList(1, 1, {
+      filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}' && activityId = '${activityId}'`,
+      sort: '-date', // Sort by date (newest first)
+    });
+
+    const timestamp = new Date().toISOString();
     const historicEvent = {
       backpackId: decryptedbackpackId,
       courseId: projectId,  
@@ -68,21 +72,15 @@ export default defineEventHandler(async (event) => {
       timeElapsed: timeElapsed || 0,
     };
 
-    // Save the new historic event in the `history` collection
-    await pb.collection('history').create(historicEvent);
-
-    // Step 5: Fetch the last 3 historic events and delete older ones
-    const existingEvents = await pb.collection('History').getFullList(200, {
-      filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}' && activityId = '${activityId}'`,
-      sort: '-date', // Sort by date (newest first)
-    });
-
-    if (existingEvents.length > 3) {
-      const eventsToDelete = existingEvents.slice(3); // Keep only the last 3, delete the rest
-      for (const event of eventsToDelete) {
-        await pb.collection('history').delete(event.id);
-      }
+    if (existingRecords.items.length > 0) {
+      // Update the latest record
+      const latestRecord = existingRecords.items[0];
+      await pb.collection('history').update(latestRecord.id, historicEvent);
+    } else {
+      // Create a new record if none exists
+      await pb.collection('history').create(historicEvent);
     }
+
     return { message: 'Data saved successfully' };
   } catch (error) {
     console.error('Error in /answer endpoint:', error.message);

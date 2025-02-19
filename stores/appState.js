@@ -210,8 +210,6 @@ export const useAppStateStore = defineStore('app', () => {
     // Get the time difference
     const timeDiff = (endTime.value - startTime.value) / 1000;
     timeElapsed.value = Math.round(timeDiff);
-
-    // console.log(timeDiff);
     
     // Sanitize the content on the client
     const sanitizedContent = DOMPurify.sanitize(editorContent.value, {

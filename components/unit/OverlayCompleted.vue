@@ -36,15 +36,27 @@
       return appStore.unitProfile?.locale?.completedView;
     });
 
-    const { header, body, button } = locale.value;
+    // const { header, body, button } = locale.value;
+    // Don't destructure the values from the computed property, it will break the reactivity
+    const header = computed(() => {
+      return locale.value.header;
+    });
+
+    const body = computed(() => {
+      return locale.value.body;
+    });
+
+    const button = computed(() => {
+      return locale.value.button;
+    });
 
     const projectId = computed(() => {
       return appStore.unitProfile.project.id
-    })
+    });
 
     const activityId = computed(() => {
       return appStore.unitProfile?.activity?.activityTitle
-    })
+    });
 
     const handleClick = () => {
       appStore.hideOverlay();

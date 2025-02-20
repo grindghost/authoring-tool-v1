@@ -10,6 +10,13 @@
             required: true,
         },
     });
+    
+    // Watch for changes in the profile, reassign the value to the store
+    watch(() => props.profile, (newValue) => {
+      if (newValue) {
+        Object.assign(props.profile, newValue);
+      }
+    }, { deep: true });
 
     const isAnswerEmpty = ref(true);
     const answerLength = ref(0);
@@ -30,20 +37,10 @@
       return textContent.length === 0;
     };
 
-    // Watch for changes in the profile
-    watch(() => props.profile, (newValue) => {
-      if (newValue) {
-        Object.assign(props.profile, newValue);
-      }
-    }, { deep: true });
-
   const computedTheme = computed(() => {
 
-    // const useCustomTheme = store.unitProfile?.project?.profile?.useCustomTheme;
     const useCustomTheme = props.profile?.project?.profile?.useCustomTheme;
-    // const customTheme = store.unitProfile?.project?.profile?.customTheme;
     const customTheme = props.profile?.project?.profile?.customTheme;
-    // const theme = store.unitProfile?.project?.profile?.theme;
     const theme = props.profile?.project?.profile?.theme;
 
     if (!useCustomTheme) {

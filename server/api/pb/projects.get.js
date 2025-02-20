@@ -77,7 +77,26 @@ export default defineEventHandler(async (event) => {
       return record;
     });
 
-    return sanitizedProjects;
+
+    // Define the response object that will hold the fetched data (sanitizedprojects, global configs and locales)
+    let response = {}
+
+    // Query the Configs collection to fetch the record with the name == to "global"
+    const globalConfig = await pb.collection('Configs').getList(1, 1, {filter: `name="global"`});
+
+    // Query the Locales collection and fetch all records
+    const locales = await pb.collection('Locales').getList();
+
+    // Add the fetched data to the response object
+    response.projects = sanitizedProjects;
+    response.configs = globalConfig.items[0];
+
+    // Isolate the dict object from the locales.items, and put them in an array
+    response.locales = locales.items.map(locale => locale.dict);
+
+    return response;
+
+    // return sanitizedProjects;
   } catch (error) {
     console.error('Error fetching projects:', error.message);
     throw createError({ statusCode: 500, message: 'Failed to fetch projects' });

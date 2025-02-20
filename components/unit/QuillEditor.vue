@@ -5,6 +5,8 @@
   </template>
   
   <script setup>
+
+  // Version 1.0.0
   import { set } from 'date-fns';
   
   import { useAppStateStore } from '/stores/appState';
@@ -43,96 +45,98 @@
   
     if (isClient.value) {
 
-      const Quill = (await import('quill')).default;
+      try {   
+        const Quill = (await import('quill')).default;
 
-      // Fix: add some delay to allow the placeholder to hydrate
-      // setTimeout(() => {
+        // Fix: add some delay to allow the placeholder to hydrate
+        // setTimeout(() => {
+        
+          quill = new Quill(editorContainer.value, {
+            theme: 'snow',
+            placeholder: computedPlaceholder.value,
+            modules: {
+              toolbar: toolbarOptions,
+            },
+          });
+        
+        
 
-        quill = new Quill(editorContainer.value, {
-          theme: 'snow',
-          placeholder: computedPlaceholder.value,
-          modules: {
-            toolbar: toolbarOptions,
-          },
+        setTimeout(() => {
+          setQuillPlaceholderText(computedPlaceholder.value); 
+        }, 1000);
+
+        if (props.content) {
+          const delta = quill.clipboard.convert(props.content);
+          quill.setContents(delta, 'silent');
+          lastValidContent = quill.root.innerHTML; // Set initial valid content
+        }
+
+        // Add a custom matcher for text nodes when pasting text
+        quill.clipboard.addMatcher(Node.TEXT_NODE, (node, delta) => {
+          const plainText = quill.getText(); // Get current plain text
+          const currentLength = plainText.trim().length; // Count existing characters
+          const maxAllowed = store.unitProfile.activity.maxCharactersAllowed;
+
+          if (store.unitProfile.activity.useCharactersLimit) {
+            const pastedText = delta.ops.map(op => op.insert).join(''); // Extract pasted text
+            const allowedLength = maxAllowed - currentLength - 2;
+            console.log('Allowed length:', allowedLength);
+
+            if (allowedLength <= 0) {
+              return null; // Block the paste completely if already at the limit
+            }
+
+            if (pastedText.length > allowedLength) {
+              const trimmedText = pastedText.substring(0, allowedLength); // Trim excess characters
+              return { ops: [{ insert: trimmedText }] }; // Replace the delta with the trimmed text
+            }
+          }
+          return delta; // Allow paste as-is if below the limit
+        });
+    
+        quill.on('text-change', () => {
+          const plainText = quill.getText(); // Get plain text content
+          const currentLength = plainText.trim().length; // Trim to remove trailing newline characters
+
+          if (store.unitProfile?.activity?.useCharactersLimit && currentLength > store.unitProfile?.activity?.maxCharactersAllowed) {
+            // Revert to the last valid state
+            quill.root.innerHTML = lastValidContent;
+            quill.setSelection(store.unitProfile.activity.maxCharactersAllowed); // Adjust selection to the limit
+          } else {
+            lastValidContent = quill.root.innerHTML; // Update the last valid state
+            emit('update:content', quill.root.innerHTML);
+          }
         });
 
-      //}, 1000)
+    
+        setTimeout(() => {
+          applyHeaderStyles();
 
-      setTimeout(() => {
-        setQuillPlaceholderText(computedPlaceholder.value); 
-      }, 1000);
+          // Logic to add a mask to the top of the editor, when overflo
+          const container = document.querySelector(".ql-container");
+          const editorZone = document.querySelector(".ql-editor");
 
+          const updateMask = () => {
+            if (editorZone.scrollTop > 0) {
+              container.style.webkitMaskImage = "linear-gradient(to top, black 20%, transparent 100%)";
+              container.style.maskImage = "linear-gradient(to top, black 20%, transparent 100%)";
+            } else {
+              container.style.webkitMaskImage = "none";
+              container.style.maskImage = "none";
+            }
+          };
 
+          editorZone.addEventListener("scroll", updateMask);
+          updateMask(); // Initialize on mount
 
+        }, 1500);
 
-      if (props.content) {
-        const delta = quill.clipboard.convert(props.content);
-        quill.setContents(delta, 'silent');
-        lastValidContent = quill.root.innerHTML; // Set initial valid content
+        //}, 1000)
+      } catch (error) {
+        console.log('Error loading the editor:', error);
       }
-
-      // Add a custom matcher for text nodes when pasting text
-      quill.clipboard.addMatcher(Node.TEXT_NODE, (node, delta) => {
-        const plainText = quill.getText(); // Get current plain text
-        const currentLength = plainText.trim().length; // Count existing characters
-        const maxAllowed = store.unitProfile.activity.maxCharactersAllowed;
-
-        if (store.unitProfile.activity.useCharactersLimit) {
-          const pastedText = delta.ops.map(op => op.insert).join(''); // Extract pasted text
-          const allowedLength = maxAllowed - currentLength - 2;
-          console.log('Allowed length:', allowedLength);
-
-          if (allowedLength <= 0) {
-            return null; // Block the paste completely if already at the limit
-          }
-
-          if (pastedText.length > allowedLength) {
-            const trimmedText = pastedText.substring(0, allowedLength); // Trim excess characters
-            return { ops: [{ insert: trimmedText }] }; // Replace the delta with the trimmed text
-          }
-        }
-        return delta; // Allow paste as-is if below the limit
-      });
-  
-      quill.on('text-change', () => {
-        const plainText = quill.getText(); // Get plain text content
-        const currentLength = plainText.trim().length; // Trim to remove trailing newline characters
-
-        if (store.unitProfile?.activity?.useCharactersLimit && currentLength > store.unitProfile?.activity?.maxCharactersAllowed) {
-          // Revert to the last valid state
-          quill.root.innerHTML = lastValidContent;
-          quill.setSelection(store.unitProfile.activity.maxCharactersAllowed); // Adjust selection to the limit
-        } else {
-          lastValidContent = quill.root.innerHTML; // Update the last valid state
-          emit('update:content', quill.root.innerHTML);
-        }
-      });
-
-  
-      setTimeout(() => {
-        applyHeaderStyles();
-
-        // Logic to add a mask to the top of the editor, when overflo
-        const container = document.querySelector(".ql-container");
-        const editorZone = document.querySelector(".ql-editor");
-
-        const updateMask = () => {
-          if (editorZone.scrollTop > 0) {
-            container.style.webkitMaskImage = "linear-gradient(to top, black 20%, transparent 100%)";
-            container.style.maskImage = "linear-gradient(to top, black 20%, transparent 100%)";
-          } else {
-            container.style.webkitMaskImage = "none";
-            container.style.maskImage = "none";
-          }
-        };
-
-        editorZone.addEventListener("scroll", updateMask);
-        updateMask(); // Initialize on mount
-
-      }, 1500);
-
-      //}, 1000)
     }
+    
   });
   
   watch(() => props.content, (newContent) => {    

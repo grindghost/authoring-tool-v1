@@ -1,6 +1,6 @@
 <!-- components/Footer.vue -->
 <template>
-    <footer class="bg-gray-900 text-gray-300 relative bottom-0">
+    <footer class="bg-gray-900 text-gray-300 relative bottom-0" :class="projectStore.isLoading ? 'transparent' : ''">
       <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Company Info -->
@@ -58,4 +58,7 @@
   
   <script setup>
   // No additional setup needed for this component
+
+  import { useProjects } from '/stores/projects';
+  const projectStore = useProjects();
   </script>

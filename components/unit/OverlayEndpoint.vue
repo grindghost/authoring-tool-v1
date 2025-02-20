@@ -52,7 +52,23 @@ import { useAppStateStore } from '/stores/appState';
         return appStore.unitProfile.locale.endpointView;
     });
 
-    const { header, body, button } = locale.value;
+    // const { header, body, button } = locale.value;
+    // Don't destructure the values from the computed property, it will break the reactivity
+    const header = computed(() => {
+      return locale.value.header;
+    });
+
+    const body = computed(() => {
+      return locale.value.body;
+    });
+
+    const button = computed(() => {
+      return locale.value.button;
+    });
+
+    const projectId = computed(() => {
+      return appStore.unitProfile.project.id
+    });
 
     // Get the pdf infos from the unt profile, in the project profile
     const { pdfCoverImgUrl, pdfFilename, pdfFileSize } = appStore.unitProfile.project.profile;

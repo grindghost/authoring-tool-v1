@@ -29,7 +29,20 @@
       return appStore.unitProfile.locale.maintenanceView;
     });
 
-    const { header, body } = locale.value;
+    // const { header, body } = locale.value;
+    // Don't destructure the values from the computed property, it will break the reactivity
+    const header = computed(() => {
+      return locale.value.header;
+    });
+
+    const body = computed(() => {
+      return locale.value.body;
+    });
+
+
+    const projectId = computed(() => {
+      return appStore.unitProfile.project.id
+    })
 
     const handleClick = () => {
       window.open('https://monjournaldebord.ca', '_blank');

@@ -3,6 +3,8 @@ import { defineStore } from 'pinia';
 export const useProjects = defineStore('projects', {
   state: () => ({
     projects: [],
+    configs: null,
+    locales: [],
     currentProject: null,
     projectsLoaded: false,
     isLoading: false,
@@ -33,7 +35,9 @@ export const useProjects = defineStore('projects', {
                 credentials: 'include',
             });
             
-            this.projects = response;
+            this.projects = response.projects;
+            this.configs = response.configs;
+            this.locales = response.locales;
 
             // Flag projects as loaded
             this.projectsLoaded = true;

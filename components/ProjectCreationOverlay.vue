@@ -4,7 +4,7 @@
       <h3>Créer un nouveau projet</h3>
       
       <div class="p-4 bg-gray-100 rounded-md mt-2 mb-4 border-l-8 border-primary"> 
-      <ul class="max-w-md space-y-1 text-gray-500 list-insidetext-left w-full text-[0.9rem] leading-tight">
+      <ul class="max-w-md space-y-1 text-gray-500 list-inside text-left w-full text-[0.9rem] leading-tight">
         <li class="flex items-center">
             <svg :class="projectName ?  'text-green-500' : 'text-gray-500'" class="w-3.5 h-3.5 me-2 shrink-0 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
@@ -90,7 +90,7 @@ const emit = defineEmits(['close', 'projectCreated']);
 const handleFileUpload = async (event) => {
   pdfFile.value = event.target.files[0];
   projectStore.selectedFile = pdfFile.value;
-  
+
   if (pdfFile.value) {
     const hasTextFields = await checkForTextFields(pdfFile.value);
     if (!hasTextFields) {
@@ -168,7 +168,9 @@ const cancel = () => {
 const confirm = async () => {
   if (!pdfFile.value) return;
 
+  // hide overlay
   showOverlay.value = false;
+
   const newProjectId = await projectStore.createProject(
     projectName.value,
     projectDescription.value,
@@ -194,6 +196,7 @@ h2  {
 
 .overlay {
   position: fixed;
+  margin: 0px !important;
   top: 0;
   left: 0;
   width: 100%;

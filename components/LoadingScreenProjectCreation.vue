@@ -1,10 +1,12 @@
 <template>
   <transition name="fade">
     <div v-if="show" class="loading-overlay">
-      <PDFScanner 
-        v-if="pdfFile"
-        :selectedFile="pdfFile"
-      />
+      <transition name="fade">
+        <PDFScanner 
+          v-if="pdfFile"
+          :selectedFile="pdfFile"
+        />
+    </transition>
     </div>
   </transition>
 </template>
@@ -62,5 +64,16 @@ defineProps({
     font-size: 1.2rem;
     text-align: center;
   }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
+  }
+
+  .fade-enter, /* Set initial state of entering element */
+  .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+    opacity: 0;
+  }
+
   </style>
   

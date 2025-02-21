@@ -179,7 +179,7 @@ export const useProjects = defineStore('projects', {
         console.error('Failed to create project:', error);
       } finally {
         // this.stopLoading();
-        this.projectIsBeingCreated = false;
+        // this.projectIsBeingCreated = false;
       }
     },
 

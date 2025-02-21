@@ -152,7 +152,7 @@ function editProject(projectId) {
   <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50 wrapper">
     <PricingSectionAlternate />
   </div>
-  <div v-else class="p-6 space-y-8 pt-24 bg-slate-50 wrapper" :class="{ transparent: projectStore.isLoading }">
+  <div v-else class="p-6 space-y-8 pt-24 bg-slate-50 wrapper" :class="{ transparent: projectStore.isLoading || projectStore.projectIsBeingCreated }">
     
     <!-- <PDFScanner/> -->
 

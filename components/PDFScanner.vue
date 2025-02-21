@@ -3,6 +3,12 @@ import { ref, nextTick, computed } from "vue";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/build/pdf.worker";
 import { gsap } from "gsap";
+import { useProjects } from "~/stores/projects";
+import { OhVueIcon, addIcons } from "oh-vue-icons";
+import { BiInputCursorText, HiInformationCircle} from "oh-vue-icons/icons";
+
+// Register the icons
+addIcons(BiInputCursorText, HiInformationCircle);
 
 // Define props
 const props = defineProps({
@@ -13,6 +19,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['scan-complete']);
+
+const projectStore = useProjects();
 
 const pageContainer = ref(null);
 const detectedFields = ref([]);
@@ -317,6 +325,7 @@ const highlightTextFields = async (page, viewport, wrapper, pageNum, scaleFactor
 const handleNext = () => {
   // Add your logic for handling the next step
   console.log('Next step...');
+  projectStore.projectIsBeingCreated = false;
 };
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -327,13 +336,13 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   <div class="scanner-container">
     <!-- <input type="file" @change="handleFile" accept="application/pdf" /> -->
 
-    <div class="scanner-frame">
+    <div class="scanner-frame shadow-md">
       <div class="scanner-left">
         <div ref="pageContainer" class="page-wrapper shadow-md"></div>
       </div>
 
       <div class="scanner-right">
-        <h3 class="text-xl font-semibold mb-4">Detected Fields</h3>
+        <h3 class="text-xl font-semibold mb-4">Champs de formulaire</h3>
         <div class="fields-by-page">
           <div v-for="(fields, page) in fieldsByPage" :key="page" class="page-group">
             <h4 class="page-title">Page {{ page }}</h4>
@@ -345,21 +354,33 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                 @click="navigateToField(field)"
                 :class="{ 'disabled': !scanComplete }"
               >
+              <OhVueIcon name="bi-input-cursor-text" fill="#8d8d8d"  scale="0.9"/>
+
                 {{ field.name }}
               </li>
             </ul>
           </div>
         </div>
 
-        <div class="next-button-container">
+        <div class="next-button-container flex flex-row-reverse">
           <button
             @click="handleNext"
             :disabled="!scanComplete"
-            class="next-button"
+            class="btn bg-primary rounded-md text-white"
           >
             <div v-if="processingState === 'scanning'" class="spinner"></div>
-            <span v-else>{{ processingState === 'complete' ? 'Next' : 'Start' }}</span>
+            <span v-else>{{ processingState === 'complete' ? 'Suivant' : 'Commencer' }}</span>
           </button>
+
+          <div class="flex flex-row justify-center items-center">
+            <OhVueIcon name="hi-information-circle" class="text-primary"  scale="1.8" animation="flash" speed="slow"/>
+            <span class="text-xs text-gray-500 ml-3 mr-6 leading-[105%]">
+              Nous sommes en train d'extraire les infos. sur les champs de formulaire...
+            </span>
+            
+          </div>
+
+
         </div>
       </div>
     </div>
@@ -377,11 +398,11 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   width: 800px;
   height: 450px;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
   background: white;
-  border: 2px solid #ddd;
-  padding: 10px;
+  border-radius: 0.6rem;
+  /* padding: 10px; */
   box-sizing: border-box;
   margin: 20px auto;
   overflow: hidden;
@@ -393,17 +414,23 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f8f8;
+  background: #dee1e6;
   overflow: visible;
 }
 
 .scanner-right {
+  text-align: left;
   width: 45%;
   height: 100%;
-  padding: 10px;
+  /* padding: 40px 40px 20px 40px; */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+}
+
+h3 {
+  padding: 40px 40px 0px 40px;
 }
 
 .page-wrapper {
@@ -417,27 +444,35 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 .fields-by-page {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
+  /* padding: 12px; */
+  padding: 0px 50px 12px 50px;
+  /* background-color: #f5f6f8;
+  border-left: 0.6rem solid theme('colors.primary'); */
+  /* border-radius: 0.3rem; */
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+
 }
 
 .page-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .page-title {
   font-weight: 600;
   color: #4b5563;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.1rem;
 }
 
 .field-list {
-  padding-left: 1rem;
+  padding-left: 0rem;
 }
 
 .field-link {
   cursor: pointer;
   padding: 0.375rem 0.75rem;
-  margin: 0.25rem 0;
+  margin: 0rem 0;
   border-radius: 0.25rem;
   transition: all 0.2s ease;
   list-style: none;
@@ -455,6 +490,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 .next-button-container {
   margin-top: auto;
+  padding: 0px 25px 20px 20px;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
 }
@@ -478,6 +514,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 .next-button:disabled {
   background-color: #9ca3af;
+  background-color: #2563eb;
   cursor: not-allowed;
 }
 

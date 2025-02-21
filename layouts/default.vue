@@ -35,6 +35,7 @@ const handleLogoClick = () => {
   <div>
     <!-- Global loading screen -->
     <LoadingScreen :show="projectStore.isLoading" />
+    <LoadingScreenProjectCreation :show="projectStore.projectIsBeingCreated" />
     
     <div class="navbar bg-base-100 shadow fixed z-50">
       <div class="flex-1">

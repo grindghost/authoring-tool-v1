@@ -147,11 +147,15 @@ function editProject(projectId) {
 
 <template>
 
+  
+
   <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50 wrapper">
     <PricingSectionAlternate />
   </div>
   <div v-else class="p-6 space-y-8 pt-24 bg-slate-50 wrapper" :class="{ transparent: projectStore.isLoading }">
     
+    <!-- <PDFScanner/> -->
+
     <!-- New Project Button -->
     <div class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8" @click="showProjectCreationOverlay = true" v-if="!projectLimitReached">
       +

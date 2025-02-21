@@ -8,6 +8,8 @@ export const useProjects = defineStore('projects', {
     currentProject: null,
     projectsLoaded: false,
     isLoading: false,
+    projectIsBeingCreated: false,
+    selectedFile: null,
     statusMessage: 'Loading',
   }),
 
@@ -142,7 +144,8 @@ export const useProjects = defineStore('projects', {
 
     async createProject(projectName, projectDescription, pdfFile, pdfImage) {
               
-      this.startLoading();
+      // this.startLoading();
+      this.projectIsBeingCreated = true;
       
       this.statusMessage = 'Création du projet';
       
@@ -175,7 +178,8 @@ export const useProjects = defineStore('projects', {
       } catch (error) {
         console.error('Failed to create project:', error);
       } finally {
-        this.stopLoading();
+        // this.stopLoading();
+        this.projectIsBeingCreated = false;
       }
     },
 

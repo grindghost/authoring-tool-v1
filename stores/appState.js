@@ -268,7 +268,21 @@ export const useAppStateStore = defineStore('app', () => {
 
     if (answer) {
       // If the answer is found, return it
-      return answer.answer;
+
+      const sanitizedAnswer = DOMPurify.sanitize(answer.answer, {
+        ALLOWED_TAGS: [
+          'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'br',
+          'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's',
+          'div'
+        ],
+        ALLOWED_ATTR: ['class', 'id', 'style', 'data-list'],
+        ALLOWED_CLASSES: {
+          'div': ['ql-code-block'] // ✅ Allow class 'ql-code-block' on divs
+        }
+      });
+
+      return sanitizedAnswer;
+
     } else {
       // If the answer is not found, return null
       return null;
@@ -281,6 +295,18 @@ export const useAppStateStore = defineStore('app', () => {
       localStorage.setItem('virtualHistory', JSON.stringify([]));
     }
 
+    const sanitizedAnswer = DOMPurify.sanitize(answer, {
+      ALLOWED_TAGS: [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'br',
+        'ul', 'ol', 'li', 'b', 'i', 'u', 'strike', 'em', 'strong', 's',
+        'div'
+      ],
+      ALLOWED_ATTR: ['class', 'id', 'style', 'data-list'],
+      ALLOWED_CLASSES: {
+        'div': ['ql-code-block'] // ✅ Allow class 'ql-code-block' on divs
+      }
+    });  
+
     // Get the answers object from local storage
     const answers = JSON.parse(localStorage.getItem('virtualHistory'));
 
@@ -289,22 +315,98 @@ export const useAppStateStore = defineStore('app', () => {
 
     if (existingAnswer) {
       // If the answer is found, update it
-      existingAnswer.answer = answer;
+      existingAnswer.answer = sanitizedAnswer;
+      existingAnswer.activityId = activityId;
+      existingAnswer.projectId = projectId;
     } else {
       // If the answer is not found, add it to the answers array
-      answers.push({ projectId, activityId, answer });
+      answers.push({ projectId, activityId, sanitizedAnswer });
     }
 
     // Update the answers object in local storage
     localStorage.setItem('virtualHistory', JSON.stringify(answers));
   }
 
-  const handleDownloadFilledPdf = () => {
-    // Check if unitProfile has a key named "mockup" and is set to true
+  const handleDownloadFilledPdf = async() => {
+    // Check if unitProfile has a key "mockup" and is set to true
     if (unitProfile.value.mockup) {
-      console.log('Mockup mode...');
+
+      // Check the virtual history array in the local storage, and check if it exists, if not initialize it to an empty array
+      if (!localStorage.getItem('virtualHistory')) {
+        localStorage.setItem('virtualHistory', JSON.stringify([]));
+      }
+
+      // Decrypt the virtual history array from the local storage
+      // ...
+
+      // Get the virtual history array from the local storage
+      const virtualHistory = JSON.parse(localStorage.getItem('virtualHistory'));
+
+      // Filter the answers and create an array of the answers objects where the projectId matches the current project
+      const answers = virtualHistory.filter((a) => a.projectId === unitProfile.value.project.id);
+
+      const answersString = JSON.stringify(answers);
+
+      await downloadFilledPdfLocal(answersString);
+      return;
+    
+      // If not mockup, download the filled PDF with the answers from the database
+    } else {
+      await downloadFilledPdf();
+      return;
     }
   }
+
+  const downloadFilledPdfLocal = async (answers) => {
+
+    // Check if maintenance mode is enabled
+    if (isMaintenanceMode.value) {
+      return;
+    }
+    overlayVisible.value = true;
+    currentOverlay.value = 'loading';
+  
+    // Set the status message
+    statusMessage.value = statusStore.status[lang.value].downloadPDF;
+  
+    try {
+      // Send the request without the userId, as it's handled by the server
+      const response = await fetchFromApi('/pb/generate-pdf-local', 'POST', {
+        answers: answers,
+        pdfUrl: unitProfile.value.project.profile.pdfURL,
+      }, true);  // Pass true to indicate a binary response (PDF)
+  
+      if (response) {
+        // Extract filename from the unit profile
+        const filename = `${unitProfile.value["project"]["profile"]["pdfFilename"]}.pdf`;
+        
+        // Check if the current browser is Firefox (discover this on 11 december 2022)
+        let currentBrowser = Bowser.getParser(window.navigator.userAgent);
+  
+        if (currentBrowser.parsedResult.browser.name == "Firefox") {
+          const blob = new Blob([response], { type: 'application/pdf' });
+          var fileURL = await window.URL.createObjectURL(blob);
+          let tab = window.open();
+          tab.location.href = fileURL;
+        } else {
+          // Handle binary PDF data for other browsers
+          const blob = new Blob([response], { type: 'application/pdf' });
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to download filled PDF:', error);
+    }
+    // Reset the overlay to the endpoint
+    currentOverlay.value = 'isEndpoint';
+    return;
+  };
 
   const downloadFilledPdf = async () => {
 

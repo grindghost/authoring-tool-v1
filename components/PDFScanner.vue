@@ -1,21 +1,77 @@
 <script setup>
-import { ref, nextTick } from "vue";
+import { ref, nextTick, computed } from "vue";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/build/pdf.worker";
 import { gsap } from "gsap";
+
+// Define props
+const props = defineProps({
+  selectedFile: {
+    type: File,
+    required: true
+  }
+});
+
+const emit = defineEmits(['scan-complete']);
 
 const pageContainer = ref(null);
 const detectedFields = ref([]);
 const pdfData = ref(null);
 const scanComplete = ref(false);
+const processingState = ref('idle'); // 'idle', 'scanning', 'complete'
 const wrapperWidth = 400;
 const wrapperHeight = 450;
+
+
+onMounted(async () => {
+  await processFile(props.selectedFile);
+});
+
+// Watch for changes in the selectedFile prop
+// watch(() => props.selectedFile, async (newFile) => {
+//   if (newFile) {
+//     await processFile(newFile);
+//   }
+// }, { immediate: true });
+
+// Move file processing logic to separate function
+const processFile = async (file) => {
+  scanComplete.value = false;
+  processingState.value = 'scanning';
+  
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const arrayBuffer = reader.result;
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const binaryString = uint8Array.reduce((data, byte) => data + String.fromCharCode(byte), '');
+    pdfData.value = btoa(binaryString);
+    
+    await loadPDF(uint8Array);
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+// Rest of your component code remains the same...
+// (Keep all other functions and logic unchanged)
+
+// Computed property to group fields by page
+const fieldsByPage = computed(() => {
+  const grouped = {};
+  detectedFields.value.forEach(field => {
+    if (!grouped[field.page]) {
+      grouped[field.page] = [];
+    }
+    grouped[field.page].push(field);
+  });
+  return grouped;
+});
 
 const handleFile = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
   scanComplete.value = false;
+  processingState.value = 'scanning';
   const reader = new FileReader();
   reader.onload = async () => {
     const arrayBuffer = reader.result;
@@ -40,9 +96,12 @@ const loadPDF = async (data) => {
   }
   
   scanComplete.value = true;
-};
+  processingState.value = 'complete';
 
-// Previous script setup code remains the same until renderPage function...
+  // In your loadPDF function, after scanning is complete:
+  emit('scan-complete');
+  
+};
 
 const renderPage = async (pdf, pageNum, skipFieldDetection = false) => {
   const page = await pdf.getPage(pageNum);
@@ -99,13 +158,11 @@ const renderPage = async (pdf, pageNum, skipFieldDetection = false) => {
     await highlightTextFields(page, page.getViewport({ scale: scaleFactor }), wrapper, pageNum, scaleFactor, totalAnimationTime);
     await delay(500);
   } else {
-    // Just highlight fields without animation or detection
     const annotations = await page.getAnnotations();
     await highlightExistingFields(page, page.getViewport({ scale: scaleFactor }), wrapper, pageNum, scaleFactor);
   }
 };
 
-// Add new function to highlight existing fields
 const highlightExistingFields = async (page, viewport, wrapper, pageNum, scaleFactor) => {
   const annotations = await page.getAnnotations();
   const pageFields = detectedFields.value.filter(field => field.page === pageNum);
@@ -141,7 +198,7 @@ const navigateToField = async (field) => {
     }
 
     const pdf = await pdfjsLib.getDocument(bytes).promise;
-    await renderPage(pdf, field.page, true); // Added skipFieldDetection parameter
+    await renderPage(pdf, field.page, true);
 
     await nextTick();
     await delay(100);
@@ -166,8 +223,6 @@ const navigateToField = async (field) => {
     console.error("Error navigating to field:", error);
   }
 };
-
-// Rest of the component remains the same...
 
 const startScanAnimation = (wrapper, height) => {
   return new Promise((resolve) => {
@@ -206,12 +261,11 @@ const highlightTextFields = async (page, viewport, wrapper, pageNum, scaleFactor
     annot.subtype === "Widget" && annot.fieldType === "Tx"
   );
   
-  // Calculate timing for each field
   const delayPerField = totalAnimationTime / (textFields.length + 1);
   let currentDelay = 0;
   let fieldCount = 0;
 
-  const highlightPromises = textFields.map((annot, index) => {
+  for (const annot of textFields) {
     fieldCount++;
     const { rect, fieldName } = annot;
     const [x1, y1, x2, y2] = rect;
@@ -238,6 +292,7 @@ const highlightTextFields = async (page, viewport, wrapper, pageNum, scaleFactor
 
     wrapper.appendChild(highlight);
 
+    // Add field to detectedFields immediately before animation
     detectedFields.value.push({ 
       name: fieldName, 
       page: pageNum,
@@ -245,9 +300,8 @@ const highlightTextFields = async (page, viewport, wrapper, pageNum, scaleFactor
       position: { x, y, width, height }
     });
 
-    currentDelay += delayPerField;
-
-    return new Promise((resolve) => {
+    // Animate the highlight
+    await new Promise((resolve) => {
       gsap.to(highlight, {
         opacity: 1,
         duration: 0.5,
@@ -255,28 +309,23 @@ const highlightTextFields = async (page, viewport, wrapper, pageNum, scaleFactor
         onComplete: resolve
       });
     });
-  });
 
-  // Wait for all highlights to complete
-  await Promise.all(highlightPromises);
+    currentDelay += delayPerField;
+  }
 };
 
+const handleNext = () => {
+  // Add your logic for handling the next step
+  console.log('Next step...');
+};
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 </script>
 
 <template>
-
-<!-- Start -->
-<transition name="fade">
-      <div class="loading-overlay">
-        <div class="spinner"></div>
-        <p>hello...</p>
-
-        <!-- ... -->
   <div class="scanner-container">
-    <input type="file" @change="handleFile" accept="application/pdf" />
+    <!-- <input type="file" @change="handleFile" accept="application/pdf" /> -->
 
     <div class="scanner-frame">
       <div class="scanner-left">
@@ -284,65 +333,42 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       </div>
 
       <div class="scanner-right">
-        <h3>Detected Fields</h3>
-        <ul>
-          <li 
-            v-for="(field, index) in detectedFields" 
-            :key="index"
-            class="field-link"
-            @click="navigateToField(field)"
-            :class="{ 'disabled': !scanComplete }"
+        <h3 class="text-xl font-semibold mb-4">Detected Fields</h3>
+        <div class="fields-by-page">
+          <div v-for="(fields, page) in fieldsByPage" :key="page" class="page-group">
+            <h4 class="page-title">Page {{ page }}</h4>
+            <ul class="field-list">
+              <li 
+                v-for="field in fields" 
+                :key="`${field.page}-${field.index}`"
+                class="field-link"
+                @click="navigateToField(field)"
+                :class="{ 'disabled': !scanComplete }"
+              >
+                {{ field.name }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="next-button-container">
+          <button
+            @click="handleNext"
+            :disabled="!scanComplete"
+            class="next-button"
           >
-            {{ field.name }} (Page {{ field.page }})
-          </li>
-        </ul>
+            <div v-if="processingState === 'scanning'" class="spinner"></div>
+            <span v-else>{{ processingState === 'complete' ? 'Next' : 'Start' }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
-
-
-  <!-- end -->
-
-    </div>
-    </transition>
-
 </template>
 
 <style scoped>
-
-
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  
-  .spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid rgba(255, 255, 255, 0.2);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-/*  */
-
 .scanner-container {
+  margin-top: 60px;
   text-align: center;
   margin-top: 20px;
 }
@@ -376,6 +402,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   height: 100%;
   padding: 10px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .page-wrapper {
@@ -387,13 +415,33 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   transform: scale(0.8);
 }
 
+.fields-by-page {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.page-group {
+  margin-bottom: 1rem;
+}
+
+.page-title {
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.field-list {
+  padding-left: 1rem;
+}
+
 .field-link {
   cursor: pointer;
-  padding: 5px;
-  margin: 5px 0;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  padding: 0.375rem 0.75rem;
+  margin: 0.25rem 0;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
   list-style: none;
+  font-size: 0.875rem;
 }
 
 .field-link:hover {
@@ -403,5 +451,48 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 .field-link.disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.next-button-container {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.next-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.next-button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.next-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

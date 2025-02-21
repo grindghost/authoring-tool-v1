@@ -87,12 +87,10 @@ const errorOverlay = ref(false);
 const projectStore = useProjects();
 const emit = defineEmits(['close', 'projectCreated']);
 
-function cancelOverlay() {
-  emit('close');
-}
-
 const handleFileUpload = async (event) => {
   pdfFile.value = event.target.files[0];
+  projectStore.selectedFile = pdfFile.value;
+  
   if (pdfFile.value) {
     const hasTextFields = await checkForTextFields(pdfFile.value);
     if (!hasTextFields) {
@@ -100,6 +98,7 @@ const handleFileUpload = async (event) => {
       pdfFile.value = null; // Reset file if invalid
       return;
     }
+
     await extractFirstPageImage(pdfFile.value);
   }
 };
@@ -153,6 +152,10 @@ const extractFirstPageImage = async (file) => {
   };
   reader.readAsArrayBuffer(file);
 };
+
+function cancelOverlay() {
+  emit('close');
+}
 
 const closeErrorOverlay = () => {
   errorOverlay.value = false;

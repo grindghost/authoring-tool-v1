@@ -43,9 +43,9 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "dropdown",
         "value": "1",
         "options": {
-          "brio": "Bleu Brio",
-          "ul-red": "Rouge UL",
-          "ul-yellow": "Or UL"
+          "brio": "Primary (bleu)",
+          "ul-red": "Rouge",
+          "ul-yellow": "Jaune"
         },
         "editable": true,
         "excluded": false

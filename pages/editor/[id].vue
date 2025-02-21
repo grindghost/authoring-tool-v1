@@ -72,6 +72,10 @@ const language = computed(() => {
   return locale;
 });
 
+const configs = computed(() => {
+  return projectStore.configs;
+});
+
 const profile = computed(() => {    
 
     // Reset the app state
@@ -80,20 +84,32 @@ const profile = computed(() => {
     // Get the project from the projects store (with the profile key)
     const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id));
 
+    const projectId = route.params.id;
+    const activityId = selectedActivity.value.id;
+
+    const _history = computed(() => {
+      return appStateStore.getAnswerFromLocalStorage(projectId, activityId);
+    }).value;
+    
+    
     const _profile = {
-      configs: projectStore.configs.value,
+      configs: configs.value,
       project: currentProject.value,
       activity: selectedActivity.value,
       locale: language.value,
-              history: null,
-              message: null,
+      history: _history,
+      message: null,
+      mockup: true,
     }
 
     // Update app state synchronously
-    appStateStore.SetUnitStateOnArrival(_profile);
-      if (_profile.activity?.token) {
-        appStateStore.unitToken = _profile.activity.token;
-      }
+    setTimeout(() => {
+      appStateStore.SetUnitStateOnArrival(_profile);
+    }, 1000);
+    
+    if (_profile.activity?.token) {
+      appStateStore.unitToken = _profile.activity.token;
+    }
 
     return _profile;
 });
@@ -164,7 +180,7 @@ function saveProject() {
   const updatedProject = project.value;
 
   // for each activity in the project, update the activity
-  console.log('Updated project:', updatedProject);
+  // console.log('Updated project:', updatedProject);
 
   projectStore.saveProject(projectId, updatedProject).then(() => {
     setTimeout(() => {
@@ -193,11 +209,16 @@ function closeSaveOverlay() {
 }
 
 function selectActivity(activityKey) {
-  
+
   activeActivity.value = activityKey;
   selectedActivity.value = project.value.activities[activityKey] || {};
+  
+  // add the id in the selected activity
+  selectedActivity.value.id = activityKey;
+
   accordion.value.project = false;
   accordion.value.activity = true;
+
 }
 
 function saveQuillContent(html) {
@@ -679,9 +700,6 @@ if (status.value === "authenticated") {
       <!-- Middle Canvas (Iframe for PDF Preview) -->
       <div class="middle-canvas">
         <div class="browser-mockup with-url">
-
-        <!-- <pre>{{ JSON.stringify(profile, null, 2) }}</pre> -->
-
 
         <div ref="scalableContainer" class="scalable-container">
         <div class="custom-component">

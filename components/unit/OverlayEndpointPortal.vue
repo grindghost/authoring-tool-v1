@@ -19,8 +19,7 @@
           <!-- Bottom part with the text -->
           <div class="bottom">
             <p class="file-info">
-              <!-- <span class="text-accent">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span> -->
-              <span class="filename">journal_de_bord.pdf</span>
+              <span class="filename">{{ filename }}</span>
               <br />
               <span class="file-size">~{{ pdfFileSize }}</span>
             </p>
@@ -71,6 +70,10 @@
 
     const body = computed(() => {
       return locale.value.body;
+    });
+
+    const filename = computed(() => {
+      return locale.value.filename;
     });
 
     const button = computed(() => {

@@ -9,7 +9,7 @@
         <div class="bottom">
           <p class="file-info">
             <!-- <span class="filename">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span> -->
-            <span class="filename">journal_de_bord.pdf</span>
+            <span class="filename">{{ filename }}</span>
 
             <br />
             <span class="file-size">~{{ pdfFileSize }}</span>
@@ -62,6 +62,10 @@ import { useAppStateStore } from '/stores/appState';
       return locale.value.body;
     });
 
+    const filename = computed(() => {
+      return locale.value.filename;
+    });
+
     const button = computed(() => {
       return locale.value.button;
     });
@@ -75,7 +79,8 @@ import { useAppStateStore } from '/stores/appState';
   
 
   const handleClick = () => {
-      appStore.downloadFilledPdf();
+      // appStore.downloadFilledPdf();
+      appStore.handleDownloadFilledPdf();
   }
   
   function setCoverLoaded() {

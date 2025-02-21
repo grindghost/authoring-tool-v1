@@ -104,8 +104,6 @@ const applyCustomTheme = (customTheme) => {
     }
   });
 
-  // 
-
   const maximumChar = computed(() => {    
     if (store.unitProfile?.activity?.useCharactersLimit == true) {  
       return store.unitProfile?.activity?.maxCharactersAllowed
@@ -142,9 +140,6 @@ const applyCustomTheme = (customTheme) => {
     }
 });
 
-const editorContent = computed(() => {
-    return store.editorContent;
-})
 
 // Watch the `answer` ref from the store and update `isAnswerEmpty`
 watch(() => store.editorContent, (newAnswer) => {
@@ -160,6 +155,7 @@ const handleSubmit = () => {
 const handleRestoreDefaultText = () => {
     store.RestoreDefaultText();
 }
+
 
 
 </script>

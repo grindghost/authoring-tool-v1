@@ -110,6 +110,7 @@
 
     
         setTimeout(() => {
+
           applyHeaderStyles();
 
           // Logic to add a mask to the top of the editor, when overflo
@@ -125,15 +126,17 @@
               container.style.maskImage = "none";
             }
           };
-
-          editorZone.addEventListener("scroll", updateMask);
-          updateMask(); // Initialize on mount
+          
+          if (editorZone) {
+            editorZone.addEventListener("scroll", updateMask);
+            updateMask(); // Initialize on mount
+          }
 
         }, 1500);
 
         //}, 1000)
       } catch (error) {
-        console.log('Error loading the editor:', error);
+        // console.log('Error loading the editor:', error);
       }
     }
     
@@ -175,39 +178,53 @@ function setQuillPlaceholderText(placeholderText) {
   document.head.appendChild(style);
 }
 
+  watch(() => store.unitProfile?.locale, () => {
+    applyHeaderStyles();
+  });
+
+  // Get the text from the unit profile locales
+  const locale = computed (() => {
+      return store.unitProfile?.locale?.editorView;
+  });
+
+  const h1 = computed(() => locale.value?.toolbar?.h1 || 'H1');
+  const h2 = computed(() => locale.value?.toolbar?.h2 || 'H2');
+  const h3 = computed(() => locale.value?.toolbar?.h3 || 'H3');
+  const normal = computed(() => locale.value?.toolbar?.normal || 'Normal');
+
   // Function to apply localized header styles
   function applyHeaderStyles() {
 
-    const h1 = store.unitProfile?.localeDict?.editorView?.toolbar?.h1 || 'H1';
-    const h2 = store.unitProfile?.localeDict?.editorView?.toolbar?.h2 || 'H2';
-    const h3 = store.unitProfile?.localeDict?.editorView?.toolbar?.h3 || 'H3';
-    const normal = store.unitProfile?.localeDict?.editorView?.toolbar?.normal || 'Normal';
+    // const h1 = locale.value.toolbar?.h1 || 'H1';
+    // const h2 = locale.value.toolbar?.h2 || 'H2';
+    // const h3 = locale.value.toolbar?.h3 || 'H3';
+    // const normal = locale.value.toolbar?.normal || 'Normal';
   
     const style = document.createElement('style');
     style.innerHTML = `
       .ql-snow .ql-picker-options .ql-picker-item[data-value="1"]::before {
-        content: '${h1}' !important;
+        content: '${h1.value}' !important;
       }
       .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before {
-        content: '${h1}' !important;
+        content: '${h1.value}' !important;
       }
       .ql-snow .ql-picker-options .ql-picker-item[data-value="2"]::before {
-        content: '${h2}' !important;
+        content: '${h2.value}' !important;
       }
       .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before {
-        content: '${h2}' !important;
+        content: '${h2.value}' !important;
       }
       .ql-snow .ql-picker-options .ql-picker-item[data-value="3"]::before {
-        content: '${h3}' !important;
+        content: '${h3.value}' !important;
       }
       .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before {
-        content: '${h3}' !important;
+        content: '${h3.value}' !important;
       }
       .ql-snow .ql-picker-options .ql-picker-item:not([data-value])::before {
-        content: '${normal}' !important;
+        content: '${normal.value}' !important;
       }
       .ql-snow .ql-picker.ql-header .ql-picker-label:not([data-value])::before {
-        content: '${normal}' !important;
+        content: '${normal.value}' !important;
       }
       /* Re-apply the font to the editor content */
       .ql-editor * {

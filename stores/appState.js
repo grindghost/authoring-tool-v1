@@ -40,7 +40,7 @@ export const useAppStateStore = defineStore('app', () => {
   const resetAppState = () => {
     unitToken.value = '';
     unitProfile.value = null;
-    lang.value = 'fr';
+    // lang.value = 'fr';
     mode.value = '';
     editorContent.value = '<p></p>';
     statusMessage.value = '';
@@ -50,7 +50,7 @@ export const useAppStateStore = defineStore('app', () => {
     isLoading.value = true;
     isMaintenanceMode.value = false;
     isEndpoint.value = false;
-    // historyContent.value = null;
+    // historyContent.value = '<p></p>';
     overlayVisible.value = true;
     currentOverlay.value = 'loading';
   };
@@ -180,8 +180,20 @@ export const useAppStateStore = defineStore('app', () => {
     if (isMaintenanceMode.value) {
       return;
     }
+    
     overlayVisible.value = true;
     currentOverlay.value = 'loading';
+
+    // Check if the unitProfile contains a "mockup" key and is set to true
+    if (unitProfile.value.mockup) {
+      console.log('Submit from mockup mode...');
+
+      saveAnswerToLocalStorage(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
+      currentOverlay.value = 'completed';
+      // If the save was successful, set the mode to edition
+      mode.value = 'edition';
+      return;
+    }
 
     try {
       await saveToDatabase();
@@ -241,6 +253,58 @@ export const useAppStateStore = defineStore('app', () => {
       console.error("Failed to save the answer");
     }
   };
+
+  const getAnswerFromLocalStorage = (projectId, activityId) => {
+    // Check if local storage contains a answers object, if not create one
+    if (!localStorage.getItem('virtualHistory')) {
+      localStorage.setItem('virtualHistory', JSON.stringify([]));
+    }
+
+    // Get the answers object from local storage
+    const answers = JSON.parse(localStorage.getItem('virtualHistory'));
+
+    // Find the answer for the given projectId and activityId
+    const answer = answers.find((a) => a.projectId === projectId && a.activityId === activityId);
+
+    if (answer) {
+      // If the answer is found, return it
+      return answer.answer;
+    } else {
+      // If the answer is not found, return null
+      return null;
+    }
+  }
+
+  const saveAnswerToLocalStorage = (projectId, activityId, answer) => {
+    // Check if local storage contains a answers object, if not create one
+    if (!localStorage.getItem('virtualHistory')) {
+      localStorage.setItem('virtualHistory', JSON.stringify([]));
+    }
+
+    // Get the answers object from local storage
+    const answers = JSON.parse(localStorage.getItem('virtualHistory'));
+
+    // Find the answer for the given projectId and activityId
+    const existingAnswer = answers.find((a) => a.projectId === projectId && a.activityId === activityId);
+
+    if (existingAnswer) {
+      // If the answer is found, update it
+      existingAnswer.answer = answer;
+    } else {
+      // If the answer is not found, add it to the answers array
+      answers.push({ projectId, activityId, answer });
+    }
+
+    // Update the answers object in local storage
+    localStorage.setItem('virtualHistory', JSON.stringify(answers));
+  }
+
+  const handleDownloadFilledPdf = () => {
+    // Check if unitProfile has a key named "mockup" and is set to true
+    if (unitProfile.value.mockup) {
+      console.log('Mockup mode...');
+    }
+  }
 
   const downloadFilledPdf = async () => {
 
@@ -322,6 +386,11 @@ export const useAppStateStore = defineStore('app', () => {
     showCompletedOverlay,
     submitEditor,
     downloadFilledPdf,
+    handleDownloadFilledPdf,
+
+    getAnswerFromLocalStorage,
+    saveAnswerToLocalStorage,
+
     RestoreDefaultText,
   };
 });

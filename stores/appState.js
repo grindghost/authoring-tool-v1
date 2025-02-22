@@ -186,7 +186,8 @@ export const useAppStateStore = defineStore('app', () => {
 
     // Check if the unitProfile contains a "mockup" key and is set to true
     if (unitProfile.value.mockup) {
-      console.log('Submit from mockup mode...');
+
+      console.log(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
 
       saveAnswerToLocalStorage(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
       currentOverlay.value = 'completed';
@@ -320,7 +321,7 @@ export const useAppStateStore = defineStore('app', () => {
       existingAnswer.projectId = projectId;
     } else {
       // If the answer is not found, add it to the answers array
-      answers.push({ projectId, activityId, sanitizedAnswer });
+      answers.push({ projectId, activityId, answer: sanitizedAnswer });
     }
 
     // Update the answers object in local storage

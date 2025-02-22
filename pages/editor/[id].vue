@@ -76,6 +76,7 @@ const configs = computed(() => {
   return projectStore.configs;
 });
 
+
 const profile = computed(() => {    
 
     // Reset the app state
@@ -85,7 +86,9 @@ const profile = computed(() => {
     const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id));
 
     const projectId = route.params.id;
-    const activityId = selectedActivity.value.id;
+    const activityId = selectedActivity.value.id
+
+    // Get the selected activit
 
     const _history = computed(() => {
       return appStateStore.getAnswerFromLocalStorage(projectId, activityId);
@@ -105,6 +108,13 @@ const profile = computed(() => {
     // Update app state synchronously
     setTimeout(() => {
       appStateStore.SetUnitStateOnArrival(_profile);
+
+      // Make sure the activity id is set
+      if (!appStateStore.unitProfile.activity.id)  {
+        appStateStore.unitProfile.activity.id = activityId;
+      }
+
+      
     }, 1000);
     
     if (_profile.activity?.token) {
@@ -247,7 +257,7 @@ function openEditor(fieldName) {
 watch(project, (newVal) => {
   if (newVal) {
     // ...
-    // console.log('Project/profile updated:', profile.value);
+     console.log('Project/profile updated:', profile.value);
 
     if (!showProjectUpdateOverlay.value) {
       showAlert.value = true;

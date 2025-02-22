@@ -6,7 +6,7 @@
         </h2>
         
         <!-- Reduced max-width and gap sizes -->
-        <div class="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-6 max-w-2xl mx-auto">
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-6 max-w-2xl mx-auto">
           <a
             v-for="tool in tools"
             :key="tool.name"
@@ -49,6 +49,12 @@
       logo: '/logos/tailwind.png',
       link: 'https://tailwindcss.com',
       description: 'A utility-first CSS framework'
+    },
+    {
+      name: 'Auth.js',
+      logo: '/logos/authjs.png',
+      link: 'https://authjs.dev/',
+      description: 'Authentication for the Web'
     },
     {
       name: 'PocketBase',

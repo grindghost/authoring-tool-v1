@@ -146,12 +146,16 @@ return date.toLocaleDateString('fr-FR', options);
         </p> -->
         
         <!-- Progress Bar -->
-      <div class="flex justify-center items-center">
-        <div class="w-full bg-gray-200 rounded-full h-1.5 mr-3 dark:bg-gray-700">
-          <div class="bg-green-500 h-1.5 rounded-full dark:bg-green-500" :style="{ width: (historyCount / 100)*100 + '%' }"></div>
+        <div class="tooltip [--tooltip-color:#fff] tooltip-bottom" :data-tip="100 - historyCount + ' réponses restantes'">
+
+          <div class="flex justify-center items-center">
+            <div class="w-full bg-gray-200 rounded-full h-1.5 mr-3 dark:bg-gray-700">
+              <div class="bg-green-500 h-1.5 rounded-full dark:bg-green-500" :style="{ width: (historyCount / 100)*100 + '%' }"></div>
+            </div>
+            <p class="text-xs scale-x-95 tracking-tighter">{{ historyCount }}/100</p>
+          </div>
+
         </div>
-        <p class="text-xs scale-x-95 tracking-tighter">{{ historyCount }}/100</p>
-      </div>
 
 
         <div class="card-actions flex justify-between mt-auto">
@@ -177,6 +181,13 @@ return date.toLocaleDateString('fr-FR', options);
   
   img {
     display: block;
+  }
+
+  .tooltip::before {
+    @apply drop-shadow-lg;
+    border: 1px solid #e4e4e4;
+    /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); */
+
   }
 
   </style>

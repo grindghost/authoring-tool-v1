@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { CheckIcon } from '@heroicons/vue/20/solid'
+import { useProjects } from "~/stores/projects";
+
 const { status, signIn, data } = useAuth()
 const { checkout, tiers, navigateToStripeDashboard } = useStripe()
+
+const projectStore = useProjects();
 
 const yearlyEnabled = ref(false)
 const filteredTiers = computed(() => {
@@ -10,9 +14,14 @@ const filteredTiers = computed(() => {
   )
 })
 
+const handleNavigateToStripeDashboard = async() => {
+  projectStore.startLoading();
+  await navigateToStripeDashboard();
+}
+
 const handleBuyNow = async (lookupKey: string) => {
   if (data.value?.user?.isSubscribed) {
-    await navigateToStripeDashboard()
+    await handleNavigateToStripeDashboard();
   } else if (status.value === 'authenticated') {
     await checkout(lookupKey)
   } else {

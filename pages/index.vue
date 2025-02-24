@@ -1,9 +1,11 @@
 <script setup lang="ts">
-
+import { useProjects } from "~/stores/projects";
+const projectStore = useProjects();
 const { status, signIn, signOut } = useAuth()
 </script>
 
 <template>
+    <div :class="{ transparent: projectStore.isLoading || projectStore.projectIsBeingCreated }">
     <!-- Background pattern container with gradient -->
     <div class="fixed inset-0 z-[0]" 
             style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHBhdGggZD0iTSAyMCAwIEwgMCAwIDAgMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2U1ZTdlYiIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgICA8L3BhdHRlcm4+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPgo8L3N2Zz4='); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%)">
@@ -32,4 +34,5 @@ const { status, signIn, signOut } = useAuth()
     <RoadmapSection />
     <PricingSection />
     <!-- <FeaturesAccordion /> -->
+</div>
 </template>

@@ -16,6 +16,11 @@ const navigateToProjectsDashboard = async() => {
   router.push({ path: "/dashboard" })
 }
 
+const handleNavigateToStripeDashboard = async() => {
+  projectStore.startLoading();
+  await navigateToStripeDashboard();
+}
+
 const handleSignOut = async () => {
   try {
         projectStore.startLoading();
@@ -29,7 +34,7 @@ const handleSignOut = async () => {
 
 const solutions = [
   { name: 'Tableau de bord', fn: navigateToProjectsDashboard },
-  { name: 'Mon abonnement', fn: navigateToStripeDashboard },
+  { name: 'Mon abonnement', fn: handleNavigateToStripeDashboard },
   { name: 'Déconnexion', fn: handleSignOut },
 ]
 

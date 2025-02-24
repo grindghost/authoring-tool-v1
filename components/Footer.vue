@@ -17,7 +17,7 @@
           <div class="space-y-4">
             <h3 class="text-white text-lg font-semibold">Resources</h3>
             <div class="flex flex-col space-y-2">
-              <NuxtLink to="/blog" class="hover:text-white transition-colors">Blog</NuxtLink>
+              <NuxtLink to="/privacy-policy" class="hover:text-white transition-colors">Privacy Policy</NuxtLink>
               <NuxtLink to="/docs" class="hover:text-white transition-colors">Documentation</NuxtLink>
               <NuxtLink to="/support" class="hover:text-white transition-colors">Support</NuxtLink>
             </div>

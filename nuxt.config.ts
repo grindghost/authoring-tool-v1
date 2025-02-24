@@ -5,6 +5,10 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@sidebase/nuxt-auth', '@nuxt/image', '@pinia/nuxt'],
 
   app: {
+    pageTransition: {
+      name: 'page',
+      mode: 'in-out',
+    },
     head: {
       title: 'Mon journal de bord', // Default website title
       meta: [

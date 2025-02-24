@@ -37,15 +37,15 @@ export default defineEventHandler(async (event) => {
       }      
 
       // Find the file associated with this project in the Files collection
-      const fileRecords = await pb.collection('Files').getFullList({
-        filter: `projectId="${id}"`,
-      });
+      // const fileRecords = await pb.collection('Files').getFullList({
+      //   filter: `projectId="${id}"`,
+      // });
 
-      // Delete the file record(s) if they exist
-      for (const fileRecord of fileRecords) {
-        await pb.collection('Files').delete(fileRecord.id);
-        console.log(`File ${fileRecord.id} associated with project ${id} deleted successfully.`);
-      }
+      // // Delete the file record(s) if they exist
+      // for (const fileRecord of fileRecords) {
+      //   await pb.collection('Files').delete(fileRecord.id);
+      //   console.log(`File ${fileRecord.id} associated with project ${id} deleted successfully.`);
+      // }
 
       // Delete the project
       await pb.collection('Projects').delete(id);

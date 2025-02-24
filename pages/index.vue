@@ -30,6 +30,6 @@ const { status, signIn, signOut } = useAuth()
     />
 
     <RoadmapSection />
-    <!-- <PricingSection /> -->
+    <PricingSection />
     <!-- <FeaturesAccordion /> -->
 </template>

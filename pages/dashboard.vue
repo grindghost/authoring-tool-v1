@@ -6,6 +6,7 @@ import { da } from 'date-fns/locale';
 
 definePageMeta({
   middleware: ["auth"],
+  pageTransition: false,
 });
 
 const config = useRuntimeConfig();

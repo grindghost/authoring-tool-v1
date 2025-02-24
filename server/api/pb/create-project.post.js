@@ -174,6 +174,7 @@ export default defineEventHandler(async (event) => {
         maintenanceMode: false,
       },
       author: userId,
+      files: [fileRecord.id],
     });
 
 
@@ -202,9 +203,9 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Update the Files record with the new project ID
+    // Update the Files record with the new project ID (as a relation)
     await pb.collection('Files').update(fileRecord.id, {
-      projectId: project.id,
+      project: [project.id],
     });
 
     console.log(`Project ${project.id} created successfully.`);

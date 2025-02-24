@@ -22,7 +22,7 @@ const handleBuyNow = async (lookupKey: string) => {
 
 const buttonText = computed(() => {
   if (data.value?.user?.isSubscribed) {
-    return 'Commencez maintenant'
+    return 'Acheter maintenant'
   } else if (status.value === 'authenticated') {
     return 'Acheter maintenant'
   } else {
@@ -33,7 +33,7 @@ const buttonText = computed(() => {
 </script>
 
 <template>
-  <section class="bg-gray-100 py-24 px-8" id="pricing">
+  <section class="bg-slate-200 bg-opacity-25 pt-2 pb-24 px-8 relative" id="pricing">
     <div class="text-center mb-20">
       <p class="font-medium text-primary mb-8">Tarifs</p>
       <h2 class="font-extrabold text-4xl lg:text-4=5xl tracking-tight mb-8 md:mb-8">

@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <slot name="layout">
+  <slot name="layout">  
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

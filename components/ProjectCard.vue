@@ -2,11 +2,14 @@
 import { useProjects } from '~/stores/projects'; // Adjust import based on your structure
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { MdWarningamberRound, MdCalendarmonthRound, MdVisibilityoff, HiStatusOnline, MdDeleteforeverRound, BiPersonCircle, IoCalendarOutline, CoCalendar } from "oh-vue-icons/icons";
-
-
 import { isBefore, set, startOfDay } from "date-fns";
-
 import { computed } from "vue";
+
+const { status, data } = useAuth();
+const config = useRuntimeConfig();
+
+// Parse the tiers JSON string into an object
+const tiers = JSON.parse(config.public.NUXT_PUBLIC_TIERS);
 
 const projectStore = useProjects();
 const router = useRouter();
@@ -26,6 +29,16 @@ project: {
   required: true,
 },
 });
+
+const answersLimit = computed(() => {
+
+  const userPlan = data.value?.user?.plan;
+  if (userPlan) {
+    const plan = Object.values(tiers).find((tier) => tier.id === userPlan);
+    return plan.answersLimit;
+  }
+  return 50; // Default limit
+})
 
 async function deleteProject() {
   emit('deleteProject', props.project.id);
@@ -146,13 +159,13 @@ return date.toLocaleDateString('fr-FR', options);
         </p> -->
         
         <!-- Progress Bar -->
-        <div class="tooltip [--tooltip-color:#fff] tooltip-bottom" :data-tip="100 - historyCount + ' réponses restantes'">
+        <div class="tooltip [--tooltip-color:#fff] tooltip-bottom" :data-tip="answersLimit - historyCount + ' réponses restantes'">
 
           <div class="flex justify-center items-center">
             <div class="w-full bg-gray-200 rounded-full h-1.5 mr-3 dark:bg-gray-700">
-              <div class="bg-green-500 h-1.5 rounded-full dark:bg-green-500" :style="{ width: (historyCount / 100)*100 + '%' }"></div>
+              <div class="bg-green-500 h-1.5 rounded-full dark:bg-green-500" :style="{ width: (historyCount / answersLimit)*100 + '%' }"></div>
             </div>
-            <p class="text-xs scale-x-95 tracking-tighter">{{ historyCount }}/100</p>
+            <p class="text-xs scale-x-95 tracking-tighter">{{ historyCount }}/{{ answersLimit }}</p>
           </div>
 
         </div>

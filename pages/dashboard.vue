@@ -289,30 +289,51 @@ function cancelCourseIdChanges() {
       />
     </div>
 
-    <!-- Global Save Button for Course ID Changes -->
-    <div v-if="showSaveButton" class="sticky top-4 z-10 flex justify-center gap-3 mb-4">
-      <div class="bg-white p-3 rounded-lg shadow-lg flex gap-3">
-        <button 
-          class="btn btn-primary btn-sm text-white" 
-          @click="saveCourseIdChanges" 
-          :disabled="isUpdating"
-        >
-          <span v-if="isUpdating">Mise à jour...</span>
-          <span v-else>Enregistrer les modifications</span>
-        </button>
-        <button 
-          class="btn btn-outline btn-sm" 
-          @click="cancelCourseIdChanges" 
-          :disabled="isUpdating"
-        >
-          Annuler
-        </button>
+    <!-- Global Save Button for Course ID Changes - Alert Style -->
+    <div 
+      v-if="showSaveButton" 
+      class="alert-container fixed z-50 bottom-0 left-0 w-full pb-4 pt-0 h-64 flex items-end justify-end"
+    >
+      <div role="alert" class="alert bg-white shadow-lg mx-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 shrink-0 stroke-current animate-pulse text-primary"
+          fill="none"
+          viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div class="flex flex-col leading-5">
+          <span class="font-bold">Des changements ont été apportés.</span>
+          <span>Assurez-vous de sauvegarder vos modifications.</span>
+        </div>
+
+        <div class="flex gap-1">
+          <button 
+            class="btn bg-primary rounded-md text-white" 
+            @click="saveCourseIdChanges" 
+            :disabled="isUpdating"
+          >
+            <span v-if="isUpdating">Mise à jour...</span>
+            <span v-else>Enregistrer</span>
+          </button>
+          <button 
+            class="btn bg-slate-50 rounded-md text-black" 
+            @click="cancelCourseIdChanges" 
+            :disabled="isUpdating"
+          >
+            Annuler
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Projects Grouped by Course ID -->
     <div v-for="(projects, courseId) in filteredProjects" :key="courseId" class="space-y-4">
-      <div class="flex gap-2 items-center">
+      <div class="flex gap-1 items-center">
         <OhVueIcon name="fc-folder" scale="1.5" />
         <input
           v-model="editableCourseIds[courseId]"
@@ -359,8 +380,9 @@ function cancelCourseIdChanges() {
       v-if="showToast" 
       class="toast toast-bottom toast-right z-50"
     >
-      <div class="customToast animate-popup alert bg-white text-black shadow-md rounded-md">
+      <div class="customToast animate-popup alert bg-white text-black shadow-lg pr-8">
         <!-- <OhVueIcon name="bi-check-circle" class="text-primary" scale="2" animation="pulse"/> -->
+        <span class="text-2xl">👍</span> 
         <span>{{ toastMessage }}</span>
       </div>
     </div>
@@ -376,6 +398,11 @@ function cancelCourseIdChanges() {
 
 input {
   field-sizing: content;
+}
+
+.alert-container {
+  background: rgb(0,0,0);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 22%, rgba(0,0,0,0.6601234243697479) 100%);
 }
 
 /* Reuse styles */
@@ -404,8 +431,10 @@ input {
 }
 
 .customToast {
-  border-left: 0.5rem solid theme('colors.primary');
+  /* border-left: 0.5rem solid theme('colors.primary'); */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;

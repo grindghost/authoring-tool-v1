@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useProjects } from "~/stores/projects";
 import { da } from 'date-fns/locale';
+import { OhVueIcon, addIcons } from "oh-vue-icons";
+import { FcFolder } from "oh-vue-icons/icons";
+
+addIcons(FcFolder);
 
 definePageMeta({
   middleware: ["auth"],
@@ -20,13 +24,20 @@ const showDeleteProjectOverlay = ref(false);
 const selectedProjectId = ref(null);
 const projectLimitReached = ref(false); // Tracks if the user has reached the project limit
 
+// For course ID editing
+const editableCourseIds = reactive({});
+const originalCourseIds = reactive({});
+const showSaveButton = ref(false);
+const isUpdating = ref(false);
+const showToast = ref(false);
+const toastMessage = ref('');
+
 const { status, data } = useAuth();
 const router = useRouter();
 const projectStore = useProjects();
 
 // Fetch projects on component mount
 onMounted(async () => {
-  
   if (status.value === "authenticated") {
     // Get the subscription status
     const isSubscribed = data.value?.user?.isSubscribed;
@@ -44,9 +55,22 @@ onMounted(async () => {
       console.log("Initiating the projects fetch...");
       await projectStore.fetchProjects();
       checkProjectLimit();
+      
     }
+    initializeCourseIds();
   }
 });
+
+// Initialize the editable course IDs from the current projects
+function initializeCourseIds() {
+  const courses = {};
+  projectStore.projects.forEach((project) => {
+    const courseId = project.profile?.courseId || "Uncategorized";
+    courses[courseId] = courseId;
+    originalCourseIds[courseId] = courseId;
+  });
+  Object.assign(editableCourseIds, courses);
+}
 
 // Group projects by courseId
 const groupedProjects = computed(() => {
@@ -98,12 +122,12 @@ function checkProjectLimit() {
   const userPlan = data.value?.user?.plan;
   const currentProjects = projectStore.projects.length;
   const planLimits = {
-  [tiers.tier1.id]: tiers.tier1.limit,
-  [tiers.tier2.id]: tiers.tier2.limit,
-  [tiers.tier3.id]: tiers.tier3.limit,
-  [tiers.tier4.id]: tiers.tier1.limit,
-  [tiers.tier5.id]: tiers.tier2.limit,
-  [tiers.tier6.id]: tiers.tier3.limit,
+    [tiers.tier1.id]: tiers.tier1.limit,
+    [tiers.tier2.id]: tiers.tier2.limit,
+    [tiers.tier3.id]: tiers.tier3.limit,
+    [tiers.tier4.id]: tiers.tier1.limit,
+    [tiers.tier5.id]: tiers.tier2.limit,
+    [tiers.tier6.id]: tiers.tier3.limit,
   };
   projectLimitReached.value = currentProjects >= planLimits[userPlan];
 }
@@ -134,7 +158,6 @@ function onProjectCreated(newProjectId) {
 }
 
 function editProject(projectId) {
-
   // Verify if the project exists in the projectStore.projects array
   const project = projectStore.projects.find((p) => p.id === projectId);
   if (!project) {
@@ -144,19 +167,87 @@ function editProject(projectId) {
 
   router.push(`/editor/${projectId}`);
 }
+
+// Handle course ID input change
+function handleCourseIdChange(oldCourseId) {
+  const newCourseId = editableCourseIds[oldCourseId];
+  // Only show save button if there are actual changes
+  showSaveButton.value = Object.keys(editableCourseIds).some(key => 
+    editableCourseIds[key] !== originalCourseIds[key]
+  );
+}
+
+// Save updated course IDs
+async function saveCourseIdChanges() {
+  isUpdating.value = true;
+  
+  try {
+    const projectsToUpdate: any[] = [];
+    
+    // Collect all projects that need updating
+    Object.entries(editableCourseIds).forEach(([oldCourseId, newCourseId]) => {
+      if (oldCourseId !== newCourseId && groupedProjects.value[oldCourseId]) {
+        groupedProjects.value[oldCourseId].forEach(project => {
+          projectsToUpdate.push({
+            ...project,
+            profile: {
+              ...project.profile,
+              courseId: newCourseId
+            }
+          });
+        });
+      }
+    });
+    
+    if (projectsToUpdate.length > 0) {
+      // Call Pinia store method to update projects
+      console.log('Updating projects:', projectsToUpdate);
+      await projectStore.updateProjectsCourseIds(projectsToUpdate);
+      
+      // Update the original values after successful save
+      Object.keys(editableCourseIds).forEach(key => {
+        originalCourseIds[key] = editableCourseIds[key];
+      });
+      
+      // Refresh projects
+      await projectStore.fetchProjects();
+      initializeCourseIds();
+      
+      // Show success toast
+      toastMessage.value = 'Les identifiants de cours ont été mis à jour avec succès!';
+      showToast.value = true;
+      setTimeout(() => {
+        showToast.value = false;
+      }, 3000);
+    }
+  } catch (error) {
+    console.error('Error updating course IDs:', error);
+    toastMessage.value = 'Erreur lors de la mise à jour des identifiants de cours.';
+    showToast.value = true;
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  } finally {
+    isUpdating.value = false;
+    showSaveButton.value = false;
+  }
+}
+
+// Cancel editing and revert to original values
+function cancelCourseIdChanges() {
+  Object.keys(editableCourseIds).forEach(key => {
+    editableCourseIds[key] = originalCourseIds[key];
+  });
+  showSaveButton.value = false;
+}
 </script>
 
 <template>
-
-  
-
   <div v-if="!data?.user?.isSubscribed" class="p-6 space-y-8 pt-24 bg-slate-50 wrapper">
     <PricingSectionAlternate />
   </div>
-  <div v-else class="p-6 space-y-8 pt-24 bg-slate-50 wrapper" :class="{ transparent: projectStore.isLoading || projectStore.projectIsBeingCreated }">
+  <div v-else class="p-6 space-y-8 pt-24 pb-16 bg-slate-50 wrapper" :class="{ transparent: projectStore.isLoading || projectStore.projectIsBeingCreated }">
     
-    <!-- <PDFScanner/> -->
-
     <!-- New Project Button -->
     <div class="flex items-center justify-center cursor-pointer text-3xl text-gray-400 bg-white border border-dashed border-gray-300 rounded-lg hover:bg-gray-100 mb-8" @click="showProjectCreationOverlay = true" v-if="!projectLimitReached">
       +
@@ -198,16 +289,45 @@ function editProject(projectId) {
       />
     </div>
 
+    <!-- Global Save Button for Course ID Changes -->
+    <div v-if="showSaveButton" class="sticky top-4 z-10 flex justify-center gap-3 mb-4">
+      <div class="bg-white p-3 rounded-lg shadow-lg flex gap-3">
+        <button 
+          class="btn btn-primary btn-sm text-white" 
+          @click="saveCourseIdChanges" 
+          :disabled="isUpdating"
+        >
+          <span v-if="isUpdating">Mise à jour...</span>
+          <span v-else>Enregistrer les modifications</span>
+        </button>
+        <button 
+          class="btn btn-outline btn-sm" 
+          @click="cancelCourseIdChanges" 
+          :disabled="isUpdating"
+        >
+          Annuler
+        </button>
+      </div>
+    </div>
+
     <!-- Projects Grouped by Course ID -->
     <div v-for="(projects, courseId) in filteredProjects" :key="courseId" class="space-y-4">
-      <h2 class="text-xl font-medium">{{ courseId }}</h2>
+      <div class="flex gap-2 items-center">
+        <OhVueIcon name="fc-folder" scale="1.5" />
+        <input
+          v-model="editableCourseIds[courseId]"
+          class="text-xl font-medium bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1"
+          @input="handleCourseIdChange(courseId)"
+        />
+      </div>
+      
       <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <ProjectCard
-          v-for="project in projects"
-          :key="project.id"
+          v-for="(project, index) in projects"
+          :key="index"
           :project="project"
           :title="project.profile.name"
-          class="h-80"
+          class="h-80 animate-popup"
           @click="editProject(project.id)"
           @deleteProject="handleDeleteProject"
         />
@@ -233,6 +353,17 @@ function editProject(projectId) {
         </div>
       </div>
     </transition>
+
+    <!-- Toast Notification -->
+    <div 
+      v-if="showToast" 
+      class="toast toast-bottom toast-right z-50"
+    >
+      <div class="customToast animate-popup alert bg-white text-black shadow-md rounded-md">
+        <!-- <OhVueIcon name="bi-check-circle" class="text-primary" scale="2" animation="pulse"/> -->
+        <span>{{ toastMessage }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -241,6 +372,10 @@ function editProject(projectId) {
 .wrapper {
   height: 100%;
   min-height: 100dvh;
+}
+
+input {
+  field-sizing: content;
 }
 
 /* Reuse styles */
@@ -268,6 +403,9 @@ function editProject(projectId) {
   animation: fadeIn 0.5s ease-in-out forwards;
 }
 
+.customToast {
+  border-left: 0.5rem solid theme('colors.primary');
+}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;

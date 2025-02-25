@@ -101,7 +101,6 @@ export const useProjects = defineStore('projects', {
             body: { profile },
         });
 
-
           // Update projects state
           const projectIndex = this.projects.findIndex((p) => p.id === projectId);
           if (projectIndex >= 0) {
@@ -142,7 +141,7 @@ export const useProjects = defineStore('projects', {
       }
     },
 
-    async createProject(projectName, projectDescription, pdfFile, pdfImage) {
+    async createProject(projectName, projectDescription, pdfFile, pdfImage, courseId) {
               
       // this.startLoading();
       this.projectIsBeingCreated = true;
@@ -154,6 +153,7 @@ export const useProjects = defineStore('projects', {
           const formData = new FormData();
           formData.append('projectName', projectName);
           formData.append('projectDescription', projectDescription);
+          formData.append('courseId', courseId);
           formData.append('pdfFile', pdfFile);
 
           const pdfImageBlob = await fetch(pdfImage).then((res) => res.blob());
@@ -223,7 +223,45 @@ export const useProjects = defineStore('projects', {
         this.stopLoading();
       }
     },
-    
 
+    // Method to update course IDs for multiple projects
+    async updateProjectsCourseIds(projectsToUpdate) {
+
+      this.startLoading();
+      this.statusMessage = 'Mise à jour des projets';
+
+      try {
+        // Create an API endpoint to handle batch updates of projects
+        // For example: POST /api/projects/update-course-ids
+        const data = await $fetch('/api/pb/course-ids', {
+          method: 'POST',
+          body: {
+            projects: projectsToUpdate,
+          }
+        });
+        
+        // Update the local state with the updated projects
+        projectsToUpdate.forEach(updatedProject => {
+          const index = this.projects.findIndex(p => p.id === updatedProject.id);
+          if (index !== -1) {
+            this.projects[index] = {
+              ...this.projects[index],
+              profile: {
+                ...this.projects[index].profile,
+                courseId: updatedProject.profile.courseId
+              }
+            };
+          }
+        });
+        
+        return data;
+      } catch (error) {
+        console.error('Error updating project course IDs:', error);
+        throw error;
+      } finally {
+        this.stopLoading();
+      }
+    },
+    
   },
 });

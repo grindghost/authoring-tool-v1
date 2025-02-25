@@ -49,9 +49,9 @@ const handleLogoClick = () => {
       </div>
 
       <div class="right-4 absolute">
-      <AuthMenu v-if="status === 'authenticated'" />
-      <button v-else @click="handleSignIn">{{ route.name !== "login" ? "Connexion" : "" }}</button>
-    </div>
+        <AuthMenu v-if="status === 'authenticated'" />
+        <button v-else @click="handleSignIn">{{ route.name !== "login" ? "Connexion" : "" }}</button>
+      </div>
 
     </div>
     

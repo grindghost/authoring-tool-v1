@@ -58,7 +58,7 @@
                             <img 
                                 src="assets/hero.png" 
                                 alt="Dashboard preview" 
-                                class="w-full rounded-b-lg"
+                                class="w-full rounded-b-lg animate-appearFromRight"
                             >
                         </div>
                     </div>

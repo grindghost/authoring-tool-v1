@@ -4,28 +4,33 @@
       <h3>Créer un nouveau projet</h3>
       
       <div class="p-4 bg-gray-100 rounded-md mt-2 mb-4 border-l-8 border-primary"> 
-      <ul class="max-w-md space-y-1 text-gray-500 list-inside text-left w-full text-[0.9rem] leading-tight">
-        <li class="flex items-center">
-            <svg :class="projectName ?  'text-green-500' : 'text-gray-500'" class="w-3.5 h-3.5 me-2 shrink-0 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+        <ul class="max-w-md space-y-1 text-gray-500 list-inside text-left w-full text-[0.9rem] leading-tight">
+          <li class="flex items-center">
+            <svg :class="projectName ? 'text-green-500' : 'text-gray-500'" class="w-3.5 h-3.5 me-2 shrink-0 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
             </svg>
             Entrez un nom pour identifier le projet
-        </li>
-        <li class="flex items-center">
-            <svg :class="projectDescription ?  'text-green-500' : 'text-gray-500'"  class="w-3.5 h-3.5 me-2 shrink-0 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+          </li>
+          <li class="flex items-center">
+            <svg :class="isValidCourseId ? 'text-green-500' : 'text-gray-500'" class="w-3.5 h-3.5 me-2 shrink-0 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+            </svg>
+            Sélectionnez un cours associé
+          </li>
+          <li class="flex items-center">
+            <svg :class="projectDescription ? 'text-green-500' : 'text-gray-500'" class="w-3.5 h-3.5 me-2 shrink-0 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
             </svg>
             Entrez une description optionnelle
-        </li>
-        <li class="flex items-center">
-            <svg :class="pdfFile ?  'text-green-500' : 'text-gray-500'"  class="w-3.5 h-3.5 me-2 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+          </li>
+          <li class="flex items-center">
+            <svg :class="pdfFile ? 'text-green-500' : 'text-gray-500'" class="w-3.5 h-3.5 me-2 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
             </svg>
             Sélectionnez un fichier PDF (avec des champs interactifs)
-        </li>
-    </ul>
-  </div>
-
+          </li>
+        </ul>
+      </div>
 
       <input
         type="text"
@@ -33,6 +38,43 @@
         placeholder="Nom du projet"
         class="form-control"
       />
+
+      <!-- Course selection area -->
+      <div class="mt-2">
+        <!-- Existing Course Dropdown -->
+        <div v-if="!creatingNewCourse" class="relative">
+          <select
+            v-model="selectedCourseId"
+            class="form-control"
+          >
+            <option value="" disabled selected>Choisir un cours</option>
+            <option v-for="courseId in existingCourseIds" :key="courseId" :value="courseId">
+              {{ courseId }}
+            </option>
+          </select>
+          <div class="mt-1">
+            <a href="#" class="text-sm text-primary hover:underline" @click.prevent="startCreatingNewCourse">
+              + Créer un nouveau cours
+            </a>
+          </div>
+        </div>
+
+        <!-- New Course Input -->
+        <div v-else>
+          <input
+            type="text"
+            v-model="newCourseId"
+            placeholder="Entrez l'identifiant du nouveau cours"
+            class="form-control"
+            ref="newCourseInput"
+          />
+          <div class="mt-1">
+            <a href="#" class="text-sm text-primary hover:underline" @click.prevent="switchToSelectExisting">
+              Sélectionner un cours existant
+            </a>
+          </div>
+        </div>
+      </div>
 
       <textarea
         v-model="projectDescription"
@@ -53,7 +95,7 @@
         <button 
           @click="confirm" 
           class="btn bg-primary rounded-md text-white" 
-          :disabled="!projectName || !pdfFile || errorOverlay"
+          :disabled="!projectName || !pdfFile || errorOverlay || !isValidCourseId"
         >
           Créer le projet
         </button>
@@ -72,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { useProjects } from '~/stores/projects';
 import * as pdfjsLib from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker';
@@ -83,9 +125,49 @@ const projectDescription = ref('');
 const pdfFile = ref(null);
 const pdfImage = ref(null);
 const errorOverlay = ref(false);
+const selectedCourseId = ref('');
+const newCourseId = ref('');
+const creatingNewCourse = ref(false);
+const newCourseInput = ref(null);
 
 const projectStore = useProjects();
 const emit = defineEmits(['close', 'projectCreated']);
+
+// Extract unique courseIds from projects
+const existingCourseIds = computed(() => {
+  const courseIds = new Set();
+  
+  if (projectStore.projects && projectStore.projects.length > 0) {
+    projectStore.projects.forEach(project => {
+      if (project.profile && project.profile.courseId) {
+        courseIds.add(project.profile.courseId);
+      }
+    });
+  }
+  
+  return Array.from(courseIds).sort();
+});
+
+const isValidCourseId = computed(() => {
+  if (creatingNewCourse.value) {
+    return !!newCourseId.value.trim();
+  }
+  return !!selectedCourseId.value;
+});
+
+const startCreatingNewCourse = async () => {
+  creatingNewCourse.value = true;
+  // Focus the new course input after the UI updates
+  await nextTick();
+  if (newCourseInput.value) {
+    newCourseInput.value.focus();
+  }
+};
+
+const switchToSelectExisting = () => {
+  creatingNewCourse.value = false;
+  selectedCourseId.value = '';
+};
 
 const handleFileUpload = async (event) => {
   pdfFile.value = event.target.files[0];
@@ -168,6 +250,9 @@ const cancel = () => {
 const confirm = async () => {
   if (!pdfFile.value) return;
 
+  // Get the effective courseId
+  const effectiveCourseId = creatingNewCourse.value ? newCourseId.value.trim() : selectedCourseId.value;
+
   // hide overlay
   showOverlay.value = false;
 
@@ -175,7 +260,8 @@ const confirm = async () => {
     projectName.value,
     projectDescription.value,
     pdfFile.value,
-    pdfImage.value
+    pdfImage.value,
+    effectiveCourseId, // Add courseId to profile
   );
   emit('projectCreated', newProjectId);
 };

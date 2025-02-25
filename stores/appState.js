@@ -128,7 +128,6 @@ export const useAppStateStore = defineStore('app', () => {
 
     if (isMaintenanceMode.value) {
       currentOverlay.value = 'maintenance';
-      console.log(profile.value);
       return; // Exit the function
 
     } else if (isEndpoint.value) {
@@ -186,8 +185,6 @@ export const useAppStateStore = defineStore('app', () => {
 
     // Check if the unitProfile contains a "mockup" key and is set to true
     if (unitProfile.value.mockup) {
-
-      console.log(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
 
       saveAnswerToLocalStorage(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
       currentOverlay.value = 'completed';

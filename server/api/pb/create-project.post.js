@@ -34,6 +34,8 @@ export default defineEventHandler(async (event) => {
   const formData = await readMultipartFormData(event);
   const projectName = formData.find((field) => field.name === 'projectName').data.toString();
   const projectDescription = formData.find((field) => field.name === 'projectDescription').data.toString();
+  const courseId = formData.find((field) => field.name === 'courseId').data.toString();
+
   const pdfFileField = formData.find((field) => field.name === 'pdfFile');
   const pdfFileBuffer = pdfFileField.data;
   const originalPdfFilename = pdfFileField.filename || `project_${Date.now()}.pdf`;
@@ -157,7 +159,7 @@ export default defineEventHandler(async (event) => {
       profile: {
         activities,
         author: userId,
-        courseId: 'L\'apprentissage du savoir faire...',
+        courseId: courseId,
         lang: 'fr',
         name: projectName,
         description: projectDescription,

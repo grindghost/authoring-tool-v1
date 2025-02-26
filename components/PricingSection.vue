@@ -45,9 +45,7 @@ const buttonText = computed(() => {
   <section class="bg-slate-200 bg-opacity-25 pt-2 pb-24 px-8 relative" id="pricing">
     <div class="text-center mb-20">
       <p class="font-medium text-primary mb-8">Tarifs</p>
-      <h2 class="font-extrabold text-4xl lg:text-4=5xl tracking-tight mb-8 md:mb-8">
-        Facilitez la réflexion personnelle sur les apprentissages
-      </h2>
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-8">Facilitez la réflexion personnelle sur les apprentissages</h2>
 
       <p
         class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600"

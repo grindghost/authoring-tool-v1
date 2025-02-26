@@ -76,46 +76,41 @@ const configs = computed(() => {
   return projectStore.configs;
 });
 
-
 const profile = computed(() => {    
+    console.log("computed profile triggered");
 
     // Reset the app state
     appStateStore.resetAppState();
 
-    // Get the project from the projects store (with the profile key)
-    const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id));
+    // Use the existing project computed property directly
+    const currentProject = computed(() => projectStore.projects.find((p) => p.id === route.params.id)).value;
 
     const projectId = route.params.id;
-    const activityId = selectedActivity.value.id
+    const activityId = selectedActivity.value.id;
 
-    // Get the selected activit
-
-    const _history = computed(() => {
-      return appStateStore.getAnswerFromLocalStorage(projectId, activityId);
-    }).value;
-    
+    // Don't create a new computed inside a computed
+    // Instead, directly call the method
+    const _history = appStateStore.getAnswerFromLocalStorage(projectId, activityId);
     
     const _profile = {
       configs: configs.value,
-      project: currentProject.value,
-      activity: selectedActivity.value,
+      project: { ...currentProject }, // Creating a new object to ensure reactivity
+      activity: { ...selectedActivity.value }, // Creating a new object to ensure reactivity
       locale: language.value,
       history: _history,
       message: null,
       mockup: true,
     }
 
-    // Update app state synchronously
-    setTimeout(() => {
+    // Update app state synchronously or use a watcher instead of setTimeout
+    nextTick(() => {
       appStateStore.SetUnitStateOnArrival(_profile);
 
       // Make sure the activity id is set
-      if (!appStateStore.unitProfile.activity.id)  {
+      if (!appStateStore.unitProfile.activity.id) {
         appStateStore.unitProfile.activity.id = activityId;
       }
-
-      
-    }, 1000);
+    });
     
     if (_profile.activity?.token) {
       appStateStore.unitToken = _profile.activity.token;
@@ -253,11 +248,13 @@ function openEditor(fieldName) {
   showQuillOverlay.value = true;
 }
 
+
 // Watchers ****************************************
 watch(project, (newVal) => {
   if (newVal) {
     // ...
-     console.log('Project/profile updated:', profile.value);
+    console.log('Project updated:', newVal);
+    //
 
     if (!showProjectUpdateOverlay.value) {
       showAlert.value = true;
@@ -553,7 +550,7 @@ if (status.value === "authenticated") {
             <!-- Accordion content for the activity level parameters -->
             <div class="collapse-content">
               
-              <form @submit.prevent="saveProject">
+              <form @submit.prevent="saveProject" :key="activeActivity">
 
                   <!-- PDF form field name -->
                   <div class="form-group">
@@ -575,7 +572,7 @@ if (status.value === "authenticated") {
                     <input
                       type="text"
                       id="activityTitle"
-                      v-model="selectedActivity.activityTitle"
+                      v-model.lazy="selectedActivity.activityTitle"
                       class="form-control"
                       :readonly="!projectModelStore.activitiesParams.activityTitle.editable"
                       :disabled="!projectModelStore.activitiesParams.activityTitle.editable"
@@ -643,7 +640,7 @@ if (status.value === "authenticated") {
                     <input
                       type="number"
                       id="maxCharactersAllowed"
-                      v-model="selectedActivity.maxCharactersAllowed"
+                      v-model.lazy="selectedActivity.maxCharactersAllowed"
                       class="form-control"
                       :disabled="!projectModelStore.activitiesParams.maxCharactersAllowed.editable"
                     />
@@ -668,7 +665,7 @@ if (status.value === "authenticated") {
                     <input
                       type="text"
                       id="customPlaceholder"
-                      v-model="selectedActivity.customPlaceholder"
+                      v-model.lazy="selectedActivity.customPlaceholder"
                       class="form-control"
                       :disabled="!projectModelStore.activitiesParams.customPlaceholder.editable"
                     />

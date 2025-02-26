@@ -38,20 +38,31 @@ export const useAppStateStore = defineStore('app', () => {
   const enableEditor = computed(() => !overlayVisible.value && !isLoading.value);
 
   const resetAppState = () => {
+
+    // Get the current state of the overlayVisible
+    const overlayVisibleState = computed(() => {
+      if (isLoading.value || isMaintenanceMode.value || isEndpoint.value) {
+        return true;        
+      }
+      return false;
+    });
+
+
     unitToken.value = '';
     unitProfile.value = null;
-    // lang.value = 'fr';
+
     mode.value = '';
     editorContent.value = '<p></p>';
     statusMessage.value = '';
+    
     startTime.value = 0;
     endTime.value = 0;
     timeElapsed.value = 0;
+    
     isLoading.value = true;
     isMaintenanceMode.value = false;
     isEndpoint.value = false;
-    // historyContent.value = '<p></p>';
-    overlayVisible.value = true;
+    overlayVisible.value = overlayVisibleState;
     currentOverlay.value = 'loading';
   };
   
@@ -141,8 +152,21 @@ export const useAppStateStore = defineStore('app', () => {
       console.log('Timer started for this session.');
 
     } else {
-      mode.value = 'edition';
-      currentOverlay.value = 'completed';
+
+      // Check if the profile contains a mockup key and if it is set to true
+      if (unitProfile.value.mockup) {
+        
+        // In "mockup", we don't need to show the completed overlay
+        console.log('Mockup mode enabled for this session.');
+        overlayVisible.value = false;
+        currentOverlay.value = null;
+      
+      } else {
+        mode.value = 'edition';
+        currentOverlay.value = 'completed';
+      }
+
+      // Logic to assing a value to the editor content
       editorContent.value = historyContent.value;
     }
 

@@ -103,14 +103,14 @@ const profile = computed(() => {
     }
 
     // Update app state synchronously or use a watcher instead of setTimeout
-    nextTick(() => {
+    setTimeout(() => {
       appStateStore.SetUnitStateOnArrival(_profile);
 
       // Make sure the activity id is set
       if (!appStateStore.unitProfile.activity.id) {
         appStateStore.unitProfile.activity.id = activityId;
       }
-    });
+    }, 500);
     
     if (_profile.activity?.token) {
       appStateStore.unitToken = _profile.activity.token;

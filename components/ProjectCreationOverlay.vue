@@ -265,6 +265,8 @@ const confirm = async () => {
   );
   emit('projectCreated', newProjectId);
 };
+
+
 </script>
 
 <style scoped>

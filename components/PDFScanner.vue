@@ -6,6 +6,10 @@ import { gsap } from "gsap";
 import { useProjects } from "~/stores/projects";
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { BiInputCursorText, HiInformationCircle} from "oh-vue-icons/icons";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
 
 // Register the icons
 addIcons(BiInputCursorText, HiInformationCircle);
@@ -35,12 +39,6 @@ onMounted(async () => {
   await processFile(props.selectedFile);
 });
 
-// Watch for changes in the selectedFile prop
-// watch(() => props.selectedFile, async (newFile) => {
-//   if (newFile) {
-//     await processFile(newFile);
-//   }
-// }, { immediate: true });
 
 // Move file processing logic to separate function
 const processFile = async (file) => {
@@ -59,8 +57,6 @@ const processFile = async (file) => {
   reader.readAsArrayBuffer(file);
 };
 
-// Rest of your component code remains the same...
-// (Keep all other functions and logic unchanged)
 
 // Computed property to group fields by page
 const fieldsByPage = computed(() => {
@@ -300,14 +296,16 @@ const highlightTextFields = async (page, viewport, wrapper, pageNum, scaleFactor
 
     wrapper.appendChild(highlight);
 
-    // Add field to detectedFields immediately before animation
-    detectedFields.value.push({ 
+    // Add field to detectedFields immediately before animation, if the fieldName is not equal to "store" (ignore "store" field)
+    if (fieldName !== "store") {
+      detectedFields.value.push({ 
       name: fieldName, 
       page: pageNum,
       index: fieldCount,
       position: { x, y, width, height }
     });
-
+    }
+    
     // Animate the highlight
     await new Promise((resolve) => {
       gsap.to(highlight, {
@@ -326,6 +324,9 @@ const handleNext = () => {
   // Add your logic for handling the next step
   console.log('Next step...');
   projectStore.projectIsBeingCreated = false;
+
+  // Navigate to the editor
+  router.push(`/editor/${projectStore.newProjectId}`);
 };
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -374,10 +375,19 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
           <div class="flex flex-row justify-center items-center">
             <OhVueIcon name="hi-information-circle" class="text-primary"  scale="1.8" animation="flash" speed="slow"/>
-            <span class="text-xs text-gray-500 ml-3 mr-6 leading-[105%]">
-              Nous sommes en train d'extraire les infos. sur les champs de formulaire...
-            </span>
-            
+
+            <div class="flex flex-col">
+              <span v-if="!projectStore.projectFinishedCreation" class="text-xs text-gray-500 ml-3 mr-6 leading-[105%]">
+                Nous sommes en train d'extraire les infos. sur les champs de formulaire...
+              </span>
+
+              <span v-else="projectStore.projectFinishedCreation" class="text-xs text-gray-500 ml-3 mr-6 leading-[105%] inline-block">
+                Nous avons extrait les infos. sur les champs de formulaire.
+                <a class="text-[0.7rem] text-primary link" :href="`/editor/${projectStore.newProjectId}`">(Passer...)</a>
+              </span>
+
+            </div>
+
           </div>
 
 

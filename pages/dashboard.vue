@@ -150,11 +150,11 @@ function cancelDelete() {
 }
 
 function onProjectCreated(newProjectId) {
+  
   showProjectCreationOverlay.value = false;
   
   // Check the project limit
   checkProjectLimit();
-  router.push(`/editor/${newProjectId}`);
 }
 
 function editProject(projectId) {

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useRouter } from "vue-router";
 
 export const useProjects = defineStore('projects', {
   state: () => ({
@@ -9,6 +10,8 @@ export const useProjects = defineStore('projects', {
     projectsLoaded: false,
     isLoading: false,
     projectIsBeingCreated: false,
+    projectFinishedCreation: false,
+    newProjectId: null,
     selectedFile: null,
     statusMessage: 'Loading',
   }),
@@ -168,8 +171,15 @@ export const useProjects = defineStore('projects', {
 
           if (data.success) {
             
-            // Refetch the projects
-            await this.fetchProjects();
+            // Refetch the projects, or just add the returned project to the projects array...
+            // await this.fetchProjects();
+            this.projects.push(data.project);
+
+            // Set the current new project ID
+            this.newProjectId = data.projectId;
+
+            // Send a message that says that the project has been created
+            this.projectFinishedCreation = true;
 
             return data.projectId;
           } else {

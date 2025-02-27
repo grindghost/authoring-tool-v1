@@ -76,12 +76,19 @@ const configs = computed(() => {
   return projectStore.configs;
 });
 
-// Computed property that will check if the selectedActivity is the last one in the activities list, or if the isEndpoint key is set to true
+
 const isLastActivity = computed(() => {
   const activities = project.value.activities;
   const lastActivity = activities[activities.length - 1];
   return selectedActivity.value === lastActivity || selectedActivity.value.isEndpoint;
 })
+
+// Compute a sorted version of activities, based on their index key
+const sortedActivities = computed(() => {
+  return Object.entries(project.value.activities) // Convert object to array
+    .map(([id, activity]) => ({ id, ...activity })) // Keep ID reference
+    .sort((a, b) => a.index - b.index); // Sort by index
+});
 
 const profile = computed(() => {    
     console.log("computed profile triggered");
@@ -560,7 +567,7 @@ if (status.value === "authenticated") {
               <form @submit.prevent="saveProject" :key="activeActivity">
 
                   <!-- PDF form field name -->
-                  <div class="form-group" v-if="!isLastActivity">
+                  <div class="form-group" v-if="!selectedActivity.fieldName.includes('endpoint')">
                     <label for="formFeldName">Nom du champ (PDF)</label>
                     <input
                       type="text"
@@ -630,7 +637,7 @@ if (status.value === "authenticated") {
                   </div>
                   
                   <!-- Limit characters Toggle -->                
-                  <div class="form-group">
+                  <div class="form-group" v-if="!isLastActivity && !selectedActivity.fieldName.includes('endpoint')">
                     <label for="useCharactersLimit" v-html="projectModelStore.activitiesParams.useCharactersLimit.label">
                     </label>
                     <input
@@ -642,7 +649,7 @@ if (status.value === "authenticated") {
                   </div>
                   
                   <!-- Number field to set limit -->
-                  <div class="form-group" v-if="selectedActivity.useCharactersLimit">
+                  <div class="form-group" v-if="selectedActivity.useCharactersLimit && !isLastActivity && !selectedActivity.fieldName.includes('endpoint')">
                     <label for="maxCharactersAllowed" v-html="projectModelStore.activitiesParams.maxCharactersAllowed.label"></label>
                     <input
                       type="number"
@@ -654,7 +661,7 @@ if (status.value === "authenticated") {
                   </div>
 
                   <!-- Use custom placeholder text toggle -->                
-                  <div class="form-group">
+                  <div class="form-group" v-if="!isLastActivity && !selectedActivity.fieldName.includes('endpoint')">
                     <label for="useCustomPlaceholder" v-html="projectModelStore.activitiesParams.useCustomPlaceholder.label">
                     </label>
                     <input
@@ -667,7 +674,7 @@ if (status.value === "authenticated") {
 
 
                   <!-- Text field to define the custom placeholder -->
-                  <div class="form-group" v-if="selectedActivity.useCustomPlaceholder">
+                  <div class="form-group" v-if="selectedActivity.useCustomPlaceholder && !isLastActivity && !selectedActivity.fieldName.includes('endpoint')">
                     <label for="customPlaceholder" v-html="projectModelStore.activitiesParams.customPlaceholder.label"></label>
                     <input
                       type="text"
@@ -677,19 +684,6 @@ if (status.value === "authenticated") {
                       :disabled="!projectModelStore.activitiesParams.customPlaceholder.editable"
                     />
                   </div>
-
-                  <!-- <div class="form-group">
-                    <label for="name" v-html="projectModelStore.activitiesParams.defaultText.label"></label>
-                    <input
-                      type="text"
-                      id="name"
-                      v-model="selectedActivity.defaultText"
-                      class="form-control"
-                      :readonly="!projectModelStore.activitiesParams.defaultText.editable"
-                      :disabled="!projectModelStore.activitiesParams.defaultText.editable"
-                      required
-                    />
-                  </div> -->
 
                 </form>
                 
@@ -749,25 +743,23 @@ if (status.value === "authenticated") {
       </div>
     </div>
 
-      <!-- Right Sidebar: Clickable Thumbnails for Activities -->
-       <div class="activity-sidebar">
-        <div
-          v-for="(activity, key, index) in project.activities"
-          :key="key"
-          :class="['thumbnail', { selected: key === activeActivity }]"
-          @click="selectActivity(key)"
-        >
-          <div class="flex-column justify-start items-start ml-1">
-            <h4 class="font-bold mb-[-3px]">
-              <!-- {{ activity.activityTitle.slice(0, 20) + '...' }} -->
-              Activité {{ index + 1 }}
-            </h4>
-            <span class="text-sm">
-            {{ activity.activityTitle.slice(0, 18) + '...' }}
-            </span>
-          </div> 
-        </div>
+    <div class="activity-sidebar">
+    <div
+      v-for="(activity, index) in sortedActivities"
+      :key="activity.id"
+      :class="['thumbnail', { selected: activity.id === activeActivity }]"
+      @click="selectActivity(activity.id)"
+    >
+      <div class="flex-column justify-start items-start ml-1">
+        <h4 class="font-bold mb-[-3px]">
+          Activité {{ index + 1 }}
+        </h4>
+        <span class="text-sm">
+          {{ activity.activityTitle.length > 18 ? activity.activityTitle.slice(0, 18) + '...' : activity.activityTitle }}
+        </span>
       </div> 
+    </div>
+  </div>
 
     </div>
 

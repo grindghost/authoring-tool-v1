@@ -134,6 +134,7 @@ export default defineEventHandler(async (event) => {
         useCustomPlaceholder : false,
         token: '_',
         fieldName: fieldName,
+        index: index,
       };
     });
     
@@ -157,6 +158,7 @@ export default defineEventHandler(async (event) => {
         useCustomPlaceholder : false,
         token: '_',
         fieldName: endpointFieldName,
+        index: textFields.length,
       };
     }
   

@@ -76,6 +76,13 @@ const configs = computed(() => {
   return projectStore.configs;
 });
 
+// Computed property that will check if the selectedActivity is the last one in the activities list, or if the isEndpoint key is set to true
+const isLastActivity = computed(() => {
+  const activities = project.value.activities;
+  const lastActivity = activities[activities.length - 1];
+  return selectedActivity.value === lastActivity || selectedActivity.value.isEndpoint;
+})
+
 const profile = computed(() => {    
     console.log("computed profile triggered");
 
@@ -553,12 +560,12 @@ if (status.value === "authenticated") {
               <form @submit.prevent="saveProject" :key="activeActivity">
 
                   <!-- PDF form field name -->
-                  <div class="form-group">
+                  <div class="form-group" v-if="!isLastActivity">
                     <label for="formFeldName">Nom du champ (PDF)</label>
                     <input
                       type="text"
                       id="formFeldName"
-                      v-model="activeActivity"
+                      v-model="selectedActivity.fieldName"
                       class="form-control"
                       readonly
                       disabled

@@ -98,6 +98,15 @@ export default defineEventHandler(async (event) => {
     // Create the activities from the text fields
     const activities = {};
 
+    // Generate a unique token for each activity
+    const generateUniqueId = () => {
+      let id;
+      do {
+        id = crypto.randomUUID();
+      } while (activities[id]); // Ensure no duplicate keys
+      return id;
+    };
+
     textFields.forEach((field, index) => {
       const fieldName = field.getName();
       const fieldType = field.constructor.name;
@@ -111,8 +120,10 @@ export default defineEventHandler(async (event) => {
       if (fieldName.toLowerCase() === "store") {
         return; // Continue to the next iteration
       }
-    
-      activities[fieldName] = {
+      // Generate a unique ID
+      const id = generateUniqueId();
+
+      activities[id] = {
         activityTitle: `Exercice ${index + 1}`,
         contextText: '<p></p>',
         customPlaceholder: '...',
@@ -122,6 +133,7 @@ export default defineEventHandler(async (event) => {
         useCharactersLimit: false,
         useCustomPlaceholder : false,
         token: '_',
+        fieldName: fieldName,
       };
     });
     
@@ -130,7 +142,10 @@ export default defineEventHandler(async (event) => {
       const lastFieldName = textFields[textFields.length - 1].getName();
       const endpointFieldName = `${lastFieldName}_endpoint`;
 
-      activities[endpointFieldName] = {
+      // Generate a unique ID
+      const id = generateUniqueId();
+
+      activities[id] = {
         ...activities[lastFieldName], // Copy properties from the last activity
         isEndpoint: true,             // Set isEndpoint to true for this activity
         activityTitle: `Télécharger le PDF de votre journal de bord`,
@@ -141,6 +156,7 @@ export default defineEventHandler(async (event) => {
         useCharactersLimit: false,
         useCustomPlaceholder : false,
         token: '_',
+        fieldName: endpointFieldName,
       };
     }
   

@@ -48,6 +48,9 @@ export default defineEventHandler(async (event) => {
     const projectId = project;
     const activityId = exercice;
 
+    // Get the project from the `Projects` collection
+    const currentProject = await pb.collection('Projects').getFirstListItem(`id = '${projectId}'`);
+
     // Query the history collection for all events related to the project
     let allEvents = [];
     try {
@@ -56,8 +59,8 @@ export default defineEventHandler(async (event) => {
         sort: '-date', // Get the most recent events first
       });
     } catch (error) {
-      console.warn('No matching historic events found:', error.message);
       // No matching events found, proceed with empty form data
+      console.warn('No matching historic events found:', error.message);
     }
 
     // Group events by activityId and get the most recent one per activity
@@ -73,6 +76,7 @@ export default defineEventHandler(async (event) => {
 
     // Helper function to remove BOM and non-printable characters
     const cleanText = (text) => {
+      
       // Remove BOM character if present
       const noBOM = text.replace(/^\uFEFF/, '');
 
@@ -86,7 +90,13 @@ export default defineEventHandler(async (event) => {
 
     // Populate formData with the most recent answers per activity
     for (const [activityId, event] of Object.entries(latestEvents)) {
-      const decryptedContent = await decryptContent(event.answer); // Decrypt the content
+
+      // Check in the currentProject.profile and get the activity with the current activityId and extract its fieldName key
+      const activity = currentProject.profile.activities[activityId];
+      const fieldName = activity.fieldName;
+      
+      // Decrypt the content
+      const decryptedContent = await decryptContent(event.answer); 
 
       // Convert HTML to plain text while preserving structure
       const plainTextAnswer = convertQuillHtmlToText(decryptedContent);
@@ -95,22 +105,31 @@ export default defineEventHandler(async (event) => {
       const noEmojisAnswer = emojiStrip(plainTextAnswer).trim();
       const cleanedAnswer = cleanText(noEmojisAnswer); // Clean the text
 
-      console.log(`Plain answer for activityId ${activityId}: ${plainTextAnswer}`);
-
-      console.log(`Answer for activityId ${activityId}: ${cleanedAnswer}`);
+      console.log(`Plain answer for activityId ${fieldName}: ${plainTextAnswer}`);
+      console.log(`Answer for activityId ${fieldName}: ${cleanedAnswer}`);
     
       // Map the activityId to the corresponding cleaned answer
-      formData[activityId] = cleanedAnswer;
+      formData[fieldName] = cleanedAnswer;
     }
 
-    // Load the PDF form (from URL or local file)
-    // Get the project from the `Projects` collection
-    const currentProject = await pb.collection('Projects').getFirstListItem(`id = '${projectId}'`);
-    console.log('Current project:', currentProject.profile.pdfURL);
+    // Get the PDF URL dynamically, from the currentProject files field
 
-    const pdfUrl = currentProject.profile.pdfURL;
+    // Get the first file ID (supposed to be just one)
+    const fileID = currentProject.files[0];
 
-    // const pdfUrl = projectProfile.pdfURL; // URL or file path to the PDF form
+    // Get the corresponding Files record
+    const fileRecord = await pb.collection('Files').getFirstListItem(`id = '${fileID}'`);
+    
+    // Retrieve the filename stored in the record
+    const pdfFileName = fileRecord.pdf; 
+    
+    // Generate the correct URLs
+    const pdfUrl = pb.files.getUrl(fileRecord, pdfFileName, { token: '' });
+    console.log('PDF URL:', pdfUrl);
+
+    // Alternative: use the hardcoded URL in the profile 
+    // const pdfUrl = currentProject.profile.pdfURL;
+
     const response = await fetch(pdfUrl);
     const pdfBytes = await response.arrayBuffer();
 

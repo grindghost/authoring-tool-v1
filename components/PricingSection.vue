@@ -14,6 +14,31 @@ const filteredTiers = computed(() => {
   )
 })
 
+// Calculate the original price (monthly × 12) for yearly plans
+const getOriginalPrice = (tier) => {
+  if (tier.type === 'yearly') {
+    // Find the corresponding monthly tier
+    const monthlyTier = tiers.find(t => 
+      t.type === 'monthly' && t.name === tier.name
+    )
+    // If found, return the monthly price × 12
+    if (monthlyTier) {
+      return (monthlyTier.price * 12).toFixed(0)
+    }
+  }
+  return null
+}
+
+// Calculate the savings percentage
+const getSavingsPercentage = (tier) => {
+  const originalPrice = getOriginalPrice(tier)
+  if (originalPrice) {
+    const savings = ((originalPrice - tier.price) / originalPrice * 100).toFixed(0)
+    return savings
+  }
+  return null
+}
+
 const handleNavigateToStripeDashboard = async() => {
   projectStore.startLoading();
   await navigateToStripeDashboard();
@@ -96,11 +121,19 @@ const buttonText = computed(() => {
           </div>
 
           <!-- Price -->
-          <div class="flex items-baseline gap-2 text-primary">
-            <p class="text-5xl font-extrabold">${{ tier.price }}</p>
-            <span class="text-xs uppercase font-semibold text-base-content/60">
-               {{ yearlyEnabled ? 'CA/année' : 'CA/mois' }} 
-            </span>
+          <div class="flex flex-col">
+            <div class="flex items-baseline gap-2 text-primary">
+              <p class="text-5xl font-extrabold">${{ tier.price }}</p>
+              <span class="text-xs uppercase font-semibold text-base-content/60">
+                {{ yearlyEnabled ? 'CA/année' : 'CA/mois' }} 
+              </span>
+            </div>
+            
+            <!-- Original price with strikethrough for yearly plans -->
+            <div v-if="yearlyEnabled && getOriginalPrice(tier)" class="mt-1 flex items-center gap-2">
+              <span class="text-base line-through text-base-content/60">${{ getOriginalPrice(tier) }} CA</span>
+              <span class="text-sm font-medium text-green-600">Économisez {{ getSavingsPercentage(tier) }}%</span>
+            </div>
           </div>
 
           <!-- Features -->

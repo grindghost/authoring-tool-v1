@@ -27,7 +27,7 @@
             <h3 class="text-white text-lg font-semibold">Ressources</h3>
             <div class="flex flex-col space-y-2">
               <NuxtLink to="/login" class="hover:text-white transition-colors">Connexion</NuxtLink>
-              <NuxtLink to="#pricing" class="hover:text-white transition-colors">Tarifs et forfaits</NuxtLink>
+              <NuxtLink to="/#pricing" class="hover:text-white transition-colors">Tarifs et forfaits</NuxtLink>
               <NuxtLink to="/docs" class="hover:text-white transition-colors">Documentation</NuxtLink>
             </div>
           </div>

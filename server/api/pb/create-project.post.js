@@ -216,7 +216,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Rewrite the updated activities back to the project in PocketBase
-    await pb.collection('Projects').update(project.id, {
+    const updatedProject = await pb.collection('Projects').update(project.id, {
       profile: {
         ...project.profile, // Keep other project profile properties
         activities, // Include updated activities with tokens
@@ -229,7 +229,7 @@ export default defineEventHandler(async (event) => {
     });
 
     console.log(`Project ${project.id} created successfully.`);
-    return { projectId: project.id, project: project, success: true };
+    return { projectId: project.id, project: updatedProject, success: true };
 
   } catch (error) {
     console.error('Error creating project:', error.message);

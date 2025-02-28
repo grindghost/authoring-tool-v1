@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { useProjects } from "~/stores/projects";
 
 const router = useRouter();
-const { session, signIn } = useAuth();
+const { signIn } = useAuth();
 const projectStore = useProjects();
 const errorMessage = ref(""); 
 
@@ -20,6 +20,21 @@ const handleGithubSignIn = () => {
         router.push("/dashboard");
     } catch (error) {  
         errorMessage.value = "Une erreur s'est produite lors de la connexion avec Github.";
+        console.error("Github login error:", error);
+    } finally {
+        projectStore.stopLoading();
+
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    try {
+        projectStore.startLoading();
+        errorMessage.value = "";
+        signIn("google"); // Replace "github" with your provider name
+        router.push("/dashboard");
+    } catch (error) {  
+        errorMessage.value = "Une erreur s'est produite lors de la connexion avec Google.";
         console.error("Github login error:", error);
     } finally {
         projectStore.stopLoading();
@@ -66,7 +81,7 @@ const handleGithubSignIn = () => {
             <!-- Auth Buttons -->
             <div class="space-y-4">
               <button
-                @click="handleGithubSignIn"
+                @click="handleGoogleSignIn"
                 :disabled="projectStore.isLoading"
                 class="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >

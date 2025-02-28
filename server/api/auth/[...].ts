@@ -1,10 +1,11 @@
 import GithubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google'; // Change import path
+
 import { NuxtAuthHandler } from '#auth';
 import { PocketBaseAdapter } from '~/server/adapters/pocketbase';
 import { stripe } from '~/server/utils/stripe';
 
 // import { useProjects } from '~/stores/projects';
-
 // const projectsStore = useProjects()
 
 const runtimeConfig = useRuntimeConfig()
@@ -49,6 +50,21 @@ export default NuxtAuthHandler({
       authorization: { params: { scope: 'read:user user:email', prompt: "select_account" } },
       options: { timeout: 10000 }, // Increase timeout to 10 seconds
     }),
+
+    // @ts-expect-error
+    GoogleProvider.default({
+      clientId: runtimeConfig.GOOGLE_CLIENT_ID,
+      clientSecret: runtimeConfig.GOOGLE_CLIENT_SECRET,
+      authorization: { 
+        params: { 
+          prompt: "select_account",
+          access_type: "offline",
+          response_type: "code"
+        } 
+      },
+      options: { timeout: 10000 },
+    }),
+
   ],
 
   callbacks: {

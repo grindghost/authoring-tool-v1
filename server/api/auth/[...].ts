@@ -5,9 +5,6 @@ import { NuxtAuthHandler } from '#auth';
 import { PocketBaseAdapter } from '~/server/adapters/pocketbase';
 import { stripe } from '~/server/utils/stripe';
 
-// import { useProjects } from '~/stores/projects';
-// const projectsStore = useProjects()
-
 const runtimeConfig = useRuntimeConfig()
 
 export default NuxtAuthHandler({

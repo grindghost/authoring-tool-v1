@@ -38,6 +38,9 @@ export default defineEventHandler(async (event) => {
     const projectId = project;
     const activityId = exercice;
 
+    // Get the project from the `Projects` collection
+    const relatedProject = await pb.collection('Projects').getFirstListItem(`id = '${projectId}'`);
+
     // Step 3: Sanitize and encrypt the content
     const sanitizedData = sanitizeHtml(data, {
       allowedTags: [
@@ -70,6 +73,7 @@ export default defineEventHandler(async (event) => {
       answer: encryptedAnswer,
       date: timestamp,
       timeElapsed: timeElapsed || 0,
+      project: [relatedProject.id],
     };
 
     if (existingRecords.items.length > 0) {

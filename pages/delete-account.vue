@@ -1,3 +1,73 @@
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const confirmationText = ref('');
+const isDeleting = ref(false);
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastType = ref('error');
+
+definePageMeta({
+middleware: ["auth"],
+// pageTransition: false,
+});
+
+const goBack = () => {
+  router.push('/dashboard');
+};
+
+const deleteAccount = async () => {
+  if (confirmationText.value !== 'SUPPRIMER MON COMPTE') {
+    return;
+  }
+  
+  try {
+    isDeleting.value = true;
+    
+    const response = await $fetch('/api/account/delete', {
+      method: 'DELETE'
+    });
+    
+    if (response.success) {
+      toastType.value = 'success';
+      toastMessage.value = 'Votre compte a été supprimé avec succès.';
+      showToast.value = true;
+      
+      // Short delay before redirecting to logout
+      setTimeout(() => {
+        navigateTo('/logout');
+      }, 2000);
+    } else {
+      throw new Error(response.message || 'Une erreur est survenue.');
+    }
+  } catch (err) {
+    toastType.value = 'error';
+    toastMessage.value = err.message || 'Une erreur est survenue lors de la suppression de votre compte.';
+    showToast.value = true;
+    isDeleting.value = false;
+  }
+};
+
+// Toast timer
+const showToastWithTimeout = () => {
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
+
+// Watch for toast changes to trigger timeout
+watch(showToast, (newValue) => {
+  if (newValue) {
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  }
+});
+</script>
+
 <template>
     <div class="p-6 space-y-8 pt-24 pb-16 bg-slate-50 wrapper">
       <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
@@ -92,71 +162,7 @@
       </div>
     </div>
   </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  
-  const router = useRouter();
-  const confirmationText = ref('');
-  const isDeleting = ref(false);
-  const showToast = ref(false);
-  const toastMessage = ref('');
-  const toastType = ref('error');
-  
-  const goBack = () => {
-    router.push('/dashboard');
-  };
-  
-  const deleteAccount = async () => {
-    if (confirmationText.value !== 'SUPPRIMER MON COMPTE') {
-      return;
-    }
-    
-    try {
-      isDeleting.value = true;
-      
-      const response = await $fetch('/api/account/delete', {
-        method: 'DELETE'
-      });
-      
-      if (response.success) {
-        toastType.value = 'success';
-        toastMessage.value = 'Votre compte a été supprimé avec succès.';
-        showToast.value = true;
-        
-        // Short delay before redirecting to logout
-        setTimeout(() => {
-          navigateTo('/logout');
-        }, 2000);
-      } else {
-        throw new Error(response.message || 'Une erreur est survenue.');
-      }
-    } catch (err) {
-      toastType.value = 'error';
-      toastMessage.value = err.message || 'Une erreur est survenue lors de la suppression de votre compte.';
-      showToast.value = true;
-      isDeleting.value = false;
-    }
-  };
-  
-  // Toast timer
-  const showToastWithTimeout = () => {
-    showToast.value = true;
-    setTimeout(() => {
-      showToast.value = false;
-    }, 3000);
-  };
-  
-  // Watch for toast changes to trigger timeout
-  watch(showToast, (newValue) => {
-    if (newValue) {
-      setTimeout(() => {
-        showToast.value = false;
-      }, 3000);
-    }
-  });
-  </script>
+
   
   <style scoped>
   .animate-popup {

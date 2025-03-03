@@ -19,6 +19,7 @@ const { status, signIn, signOut } = useAuth()
     </div>
 
     <Hero />
+    
     <!-- <Customers /> -->
     <TechStack />
     <!-- <problem /> -->

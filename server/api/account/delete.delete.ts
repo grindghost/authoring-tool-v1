@@ -62,11 +62,21 @@ export default defineEventHandler(async (event) => {
         for (const subscription of subscriptions.data) {
           await stripe.subscriptions.cancel(subscription.id)
         }
+
+        // c. Instead of deleting, update the customer with metadata indicating deleted status
+        await stripe.customers.update(account.stripe_customer_id, {
+          metadata: { 
+            account_deleted: 'true',
+            deleted_at: new Date().toISOString(),
+            pocketbase_user_id: userId || 'unknown',
+            pocketbase_account_id: account.id || 'unknown'
+          }
+        })
         
-        // c. Delete the customer from Stripe if needed
+        // d. Alternative: Delete the customer from Stripe if needed
         // Note: Stripe recommends keeping customer records for reporting
         // but if regulatory requirements mandate deletion:
-        await stripe.customers.del(account.stripe_customer_id)
+        // await stripe.customers.del(account.stripe_customer_id)
       } catch (stripeError) {
         console.error('Stripe deletion error:', stripeError)
         // Continue with account deletion even if Stripe operations fail

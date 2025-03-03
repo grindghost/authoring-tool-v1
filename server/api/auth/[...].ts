@@ -11,30 +11,60 @@ export default NuxtAuthHandler({
   secret: runtimeConfig.AUTH_SECRET,
   adapter: {
     ...PocketBaseAdapter(),
+    // @ts-expect-error
     async linkAccount(account) {
       // Fetch the user using the PocketBase adapter's functionality
       const user = await PocketBaseAdapter().getUser(account.userId);
-
+    
       if (!user || !user.email) {
         throw new Error('User email is required to create a Stripe customer');
       }
-
-      // Create a Stripe customer
-      const customer = await stripe.customers.create({ email: user.email });
-
-      console.log('Stripe customer created:', customer.id);
-
+    
+      let stripeCustomerId;
+    
+      // Check if this email was previously used in Stripe
+      const previousCustomers = await stripe.customers.list({
+        email: user.email,
+        limit: 1
+      });
+      
+      if (previousCustomers.data.length > 0) {
+        // Found an existing customer with this email
+        const previousCustomer = previousCustomers.data[0];
+        stripeCustomerId = previousCustomer.id;
+        
+        console.log('Found existing Stripe customer:', stripeCustomerId);
+        
+        // Update metadata with new PocketBase user ID
+        await stripe.customers.update(stripeCustomerId, {
+          metadata: { 
+            pocketbase_user_id: user.id,
+            account_deleted: 'false',
+            reactivated_at: previousCustomer.metadata.account_deleted === 'true' ? 
+              new Date().toISOString() : undefined
+          }
+        });
+      } else {
+        // No previous customer found - create a new one
+        const newCustomer = await stripe.customers.create({ 
+          email: user.email,
+          metadata: { pocketbase_user_id: user.id }
+        });
+        stripeCustomerId = newCustomer.id;
+        console.log('New Stripe customer created:', stripeCustomerId);
+      }
+    
       // Add Stripe customer ID to account data
       const accountData = {
         ...account,
-        stripe_customer_id: customer.id, // Ensure this matches your PocketBase field name
+        stripe_customer_id: stripeCustomerId,
       };
-
+    
       console.log('Account data to be saved:', accountData);
-
+    
       // Save the account with additional data
       const createdAccount = await PocketBaseAdapter().linkAccount(accountData);
-
+    
       console.log('Created account with Stripe ID:', createdAccount);
       return createdAccount;
     },

@@ -76,6 +76,14 @@ const configs = computed(() => {
   return projectStore.configs;
 });
 
+const isNotAPdfField = computed(() => {
+
+  if (selectedActivity.value.fieldName.includes('endpoint')) {
+    return true;
+  } else {
+    return false;
+  }
+});
 
 const isLastActivity = computed(() => {
   const activities = project.value.activities;
@@ -91,7 +99,6 @@ const sortedActivities = computed(() => {
 });
 
 const profile = computed(() => {    
-    console.log("computed profile triggered");
 
     // Reset the app state
     appStateStore.resetAppState();
@@ -199,8 +206,6 @@ function saveProject() {
   const updatedProject = project.value;
 
   // for each activity in the project, update the activity
-  // console.log('Updated project:', updatedProject);
-
   projectStore.saveProject(projectId, updatedProject).then(() => {
     setTimeout(() => {
     showSaveOverlay.value = true; // Show the save confirmation overlay
@@ -266,9 +271,7 @@ function openEditor(fieldName) {
 // Watchers ****************************************
 watch(project, (newVal) => {
   if (newVal) {
-    // ...
-    console.log('Project updated:', newVal);
-    //
+    // console.log('Project updated:', newVal);
 
     if (!showProjectUpdateOverlay.value) {
       showAlert.value = true;
@@ -625,7 +628,7 @@ if (status.value === "authenticated") {
                   </div>
                   
                   <!-- Is Endpoint Toggle -->                
-                  <div class="form-group">
+                  <div class="form-group" v-if="!isNotAPdfField">
                     <label for="isEndpoint" v-html="projectModelStore.activitiesParams.isEndpoint.label">
                     </label>
                     <input
@@ -633,6 +636,18 @@ if (status.value === "authenticated") {
                       id="isEndpoint"
                       v-model="selectedActivity.isEndpoint"
                       :disabled="!projectModelStore.activitiesParams.isEndpoint.editable"
+                    />
+                  </div>
+
+                  <!-- Is Endpoint Toggle (disabled) -->                
+                  <div class="form-group" v-else>
+                    <label for="isEndpoint" v-html="projectModelStore.activitiesParams.isEndpoint.label">
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="isEndpoint"
+                      v-model="selectedActivity.isEndpoint"
+                      disabled
                     />
                   </div>
                   
@@ -1041,6 +1056,7 @@ iframe {
   gap: 0.5rem;
 }
 
+
 input:disabled {
   cursor: not-allowed;
   color: slategrey;
@@ -1109,6 +1125,11 @@ input[type="checkbox"]::before {
 
 input[type="checkbox"]:checked::before {
   transform: translateX(20px);
+}
+
+input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  background: #ccc;
 }
 
 .switch-label {

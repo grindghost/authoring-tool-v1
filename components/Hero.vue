@@ -28,7 +28,7 @@
                 <p class="px-0 mb-8 text-lg text-gray-600 md:text-xl lg:px-24">
                     Transformez vos PDF interactifs en unités de réflexion dynamiques et offrez à vos apprenants un document personnalisé de leurs propres réponses.
                 </p>
-                <div class="mb-4 space-x-2 md:space-x-2 md:mb-8">
+                <div class="mb-4 space-x-2 md:space-x-2 md:mb-4">
                     <a href="#pricing" class="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg text-white bg-primary rounded-[50px] sm:rounded-lg sm:w-auto sm:mb-0 hover:bg-secondary max-w-44">
                         Débuter
                         <svg class="w-4 h-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -42,7 +42,10 @@
                         </svg>
                     </a>
                 </div>
+                <CouponPromotion />
+
                 <testimonialsAvatars />
+                
             </div>
             <div class="w-full mx-auto mt-8 lg:mt-[3.5rem] md:w-10/12">
                 <div class="relative z-0 w-full mt-8">

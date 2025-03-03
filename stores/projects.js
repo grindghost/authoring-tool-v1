@@ -13,12 +13,12 @@ export const useProjects = defineStore('projects', {
     projectFinishedCreation: false,
     newProjectId: null,
     selectedFile: null,
-    statusMessage: 'Loading',
+    statusMessage: '',
   }),
 
   actions: {
     startLoading() {
-      this.statusMessage = 'Loading';
+      this.statusMessage = '';
       this.isLoading = true;
     },
     stopLoading() {

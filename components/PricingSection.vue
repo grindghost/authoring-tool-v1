@@ -89,7 +89,7 @@ const buttonText = computed(() => {
       <div
         v-for="tier in filteredTiers"
         :key="tier.id"
-        class="relative w-full max-w-lg sm:max-w-full"
+        class="relative w-full max-w-lg sm:max-w-3-4 m-auto"
       >
         <!-- Featured Badge -->
         <div

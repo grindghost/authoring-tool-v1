@@ -28,7 +28,8 @@
             <div class="flex flex-col space-y-2">
               <NuxtLink to="/login" class="hover:text-white transition-colors">Connexion</NuxtLink>
               <NuxtLink to="/#pricing" class="hover:text-white transition-colors">Tarifs et forfaits</NuxtLink>
-              <NuxtLink to="/docs" class="hover:text-white transition-colors">Documentation</NuxtLink>
+              <NuxtLink to="/docs" class="hover:text-white transition-colors">Documentation <div class="badge badge-sm">À venir...</div></NuxtLink>
+              
             </div>
           </div>
   

@@ -2,7 +2,7 @@
     <transition name="fade">
       <div v-if="show" class="loading-overlay">
         <div class="spinner"></div>
-        <p>{{ projectStore.statusMessage }}...</p>
+        <p>{{ projectStore.statusMessage }}</p>
       </div>
     </transition>
   </template>

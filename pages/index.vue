@@ -35,5 +35,6 @@ const { status, signIn, signOut } = useAuth()
     <RoadmapSection />
     <PricingSection />
     <!-- <FeaturesAccordion /> -->
+     
 </div>
 </template>

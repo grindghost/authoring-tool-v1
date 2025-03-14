@@ -3,17 +3,20 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { isBefore, set, startOfDay } from "date-fns";
 
 import  DOMPurify from 'dompurify';
+import domtoimage from 'dom-to-image';
+
 import { useRouter, useRoute } from 'vue-router'
 import { useProjects } from '~/stores/projects'
 import { useProjectModelStore } from '~/stores/projectModel'
 import { initializeContainerScaler } from '~/utils/editorContainerScaler';
 import { OhVueIcon, addIcons } from "oh-vue-icons";
-import { BiCheckCircle, HiDownload, FaRegularCopy } from "oh-vue-icons/icons";
+import { BiCheckCircle, HiDownload, FaRegularCopy, MdAddaphotoRound } from "oh-vue-icons/icons";
+
 import ProjectUpdateOverlay from '~/components/ProjectUpdateOverlay.vue';
 import { useAppStateStore } from '/stores/appState';
 
 // Register the icons
-addIcons(BiCheckCircle, HiDownload, FaRegularCopy);
+addIcons(BiCheckCircle, HiDownload, FaRegularCopy, MdAddaphotoRound);
 
 definePageMeta({
   middleware: ['auth'] // Keep auth first
@@ -224,7 +227,9 @@ async function onProjectUpdated() {
     showAlert.value = false;
   }
 
-function downloadZip() {
+
+async function downloadZip() {
+
   projectStore.downloadProjectZip(project.value.activities, route.params.id, project.value.lang);
 }
 
@@ -267,6 +272,52 @@ function openEditor(fieldName) {
   showQuillOverlay.value = true;
 }
 
+// Helper Method for Taking Screenshot
+async function takeScreenshot() {
+  const element = document.querySelector('.wrapper'); // Target the .wrapper element
+
+  if (!element) {
+    console.error("Element .scalable-container not found");
+    return;
+  }
+
+  // Add a faint gray border before taking the screenshot
+  // element.style.border = '1px solid #ccc';
+
+  try {
+    const dataUrl = await domtoimage.toPng(element, {
+      // Optional parameters - adjust as needed
+      bgcolor: '#fff', // default background to white.
+      style: {
+        border: 'none', // Prevent dom-to-image from adding its own border
+      },
+      quality: 1, // Set quality to 1 for best resolution
+      scale: 2,  // Increase scale factor for high-quality images
+      width: 800,
+      height: 449,
+    });
+
+    // Create a temporary link element to trigger the download
+    const link = document.createElement('a');
+    link.href = dataUrl;
+
+    // Define the filename - using project name and activity title as example
+    const projectName = project.value.name || 'project'; // Default to 'project' if name is empty
+    const activityTitle = selectedActivity.value.activityTitle || 'activity'; // Default to 'activity' if title is empty
+    const filename = `${projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${activityTitle.replace(/[^a-zA-Z0-9]/g, '_')}_screenshot.png`;
+    link.download = filename;
+
+    // Simulate a click on the link to trigger the download
+    link.click();
+
+    // Clean up the link element
+    link.remove();
+  } catch (error) {
+    console.error("Error taking screenshot:", error);
+  } finally {
+    // element.style.border = ''; // Remove the border
+  }
+}
 
 // Watchers ****************************************
 watch(project, (newVal) => {
@@ -754,7 +805,6 @@ if (status.value === "authenticated") {
           </div>
 
         </div>
-
       </div>
     </div>
 
@@ -769,9 +819,15 @@ if (status.value === "authenticated") {
         <h4 class="font-bold mb-[-3px]">
           Activité {{ index + 1 }}
         </h4>
+
         <span class="text-sm">
           {{ activity.activityTitle.length > 18 ? activity.activityTitle.slice(0, 18) + '...' : activity.activityTitle }}
         </span>
+
+        <div v-if="activity.id === activeActivity" class="w-9 h-9 rounded-[50%] bg-gray-300 flex items-center justify-center hover:cursor-pointer relative right-[-120px] top-[-37px] hover:bg-primary" @click="takeScreenshot">
+          <OhVueIcon name="md-addaphoto-round" fill="#fff" class="" scale="1"/>
+        </div>
+
       </div> 
     </div>
   </div>
@@ -973,7 +1029,7 @@ iframe {
   border: 1px solid #ccc;
   background-color: white;
   opacity: 0.5;
-  cursor: pointer;
+  cursor: pointer !important;
   /* text-align: center; */
   height: 70px;
   width: 100%;

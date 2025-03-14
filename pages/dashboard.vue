@@ -275,12 +275,14 @@ function cancelCourseIdChanges() {
     </div>
 
     <!-- Filter Section -->
-    <div class="flex items-center space-x-4 mb-6">
-      <select v-model="filterKey" class="border rounded px-4 py-2 text-gray-600">
-        <option value="courseId">Identifiant</option>
-        <option value="name">Nom du projet</option>
-        <option value="date">Date</option>
-      </select>
+    <div class="flex items-center space-x-4 mb-6 bg-base-100">
+      <div class="border rounded px-3 py-2 text-gray-600">
+        <select v-model="filterKey" class="">
+          <option value="courseId">Identifiant (répertoire)</option>
+          <option value="name">Nom du projet</option>
+          <option value="date">Date</option>
+        </select>
+    </div>
       <input
         type="text"
         v-model="filterValue"

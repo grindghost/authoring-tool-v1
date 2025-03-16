@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { decryptContent, encryptContent } from '~/server/utils/services';
 import { getServerSession } from '#auth';
+import { replaceInDesignSpecialChars } from '~/server/utils/replaceInDesignSpecialChars';
 
 export default defineEventHandler(async (event) => {
 
@@ -70,6 +71,15 @@ export default defineEventHandler(async (event) => {
       return fieldType === 'PDFTextField' && fieldName !== 'store';
     });
 
+    // If there's a field name 'store', get its content, which would be a json string, and parse it
+    const storeField = pdfDoc.getForm().getFields().find(field => field.getName() === 'store');
+    const storeContent = storeField ? storeField.getText() : null;
+    const storeData = storeContent ? JSON.parse(storeContent) : {};
+
+    // Replace special characters in the store data (which are inserted by InDesign)
+    replaceInDesignSpecialChars(storeData);
+    console.log(storeData);
+
     // Throw an error if no valid text fields are found
     if (textFields.length === 0) {
       throw createError({
@@ -120,6 +130,10 @@ export default defineEventHandler(async (event) => {
       if (fieldName.toLowerCase() === "store") {
         return; // Continue to the next iteration
       }
+
+      // Get the default text for the field from the store data
+      const defaultText = storeData[fieldName] || '<p></p>';
+ 
       // Generate a unique ID
       const id = generateUniqueId();
 
@@ -127,7 +141,7 @@ export default defineEventHandler(async (event) => {
         activityTitle: `Exercice ${index + 1}`,
         contextText: '<p></p>',
         customPlaceholder: '...',
-        defaultText: '<p></p>',
+        defaultText: defaultText,
         isEndpoint: false,
         maxCharactersAllowed: 1000,
         useCharactersLimit: false,

@@ -51,20 +51,29 @@ onBeforeMount(() => {
 onMounted(async () => {
   if (process.client) {
     // Dynamically import Quill
-    const { default: ImportedQuill } = await import('quill');
     
-    Quill = ImportedQuill;
+    try {
+      //const { default: ImportedQuill } = await import('quill');
+      const Quill = (await import('quill')).default;
 
-    quill.value = new Quill(editor.value, {
-      theme: 'snow',
-      modules: {
-        toolbar: toolbarOptions,
-      },
-    });
+      // Quill = ImportedQuill;
+      quill.value = new Quill(editor.value, {
+        theme: 'snow',
+        modules: {
+          toolbar: toolbarOptions,
+        },
+      });
 
-    // Set initial content if provided by parent
-    if (props.content) {
-      quill.value.root.innerHTML = props.content;
+      // Set initial content if provided by parent
+      if (props.content) {
+        quill.value.root.innerHTML = props.content;
+        // quill.value?.clipboard?.dangerouslyPasteHTML(props.content);
+
+        console.log('content set', quill.value.root.innerHTML)
+      }
+      
+    } catch (error) {
+      console.error('Error loading Quill:', error);
     }
   }
 });
@@ -81,7 +90,6 @@ watch(
 </script>
   
   <style scoped>
-
 
   .wrapper {
     height: auto;

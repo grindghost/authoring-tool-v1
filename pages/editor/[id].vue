@@ -45,9 +45,6 @@ const showAlert = ref(false);                 // Alert visibility
 const editorContent = ref("");
 const editingField = ref(null);
 
-const iframeSrc = ref('');                    // Reactive iframe src
-const iframe = ref(null);                     // Reference to iframe element
-
 // Getters ****************************************
 const project = computed(() => {
   const projectId = route.params.id
@@ -320,14 +317,12 @@ async function takeScreenshot() {
 }
 
 // Watchers ****************************************
-watch(project, (newVal) => {
+watch(project, (oldVal, newVal) => {
   if (newVal) {
     // console.log('Project updated:', newVal);
-
     if (!showProjectUpdateOverlay.value) {
-      showAlert.value = true;
+      showAlert.value = true;      
     }
-
   }
 }, { deep: true });
 
@@ -355,6 +350,7 @@ if (status.value === "authenticated") {
       // If the project exist, select the first activity by default
       selectActivity(Object.entries(project.value?.activities)[0][0]); 
       projectStore.stopLoading();  
+
     }      
   }
 
@@ -776,7 +772,7 @@ if (status.value === "authenticated") {
 
       <!-- Middle Canvas (Iframe for PDF Preview) -->
       <div class="middle-canvas">
-        <div class="browser-mockup with-url">
+        <div class="browser-mockup with-url h-full">
 
         <div ref="scalableContainer" class="scalable-container">
         <div class="custom-component">
@@ -808,30 +804,74 @@ if (status.value === "authenticated") {
       </div>
     </div>
 
-    <div class="activity-sidebar">
-    <div
-      v-for="(activity, index) in sortedActivities"
-      :key="activity.id"
-      :class="['thumbnail', { selected: activity.id === activeActivity }]"
-      @click="selectActivity(activity.id)"
-    >
-      <div class="flex-column justify-start items-start ml-1">
-        <h4 class="font-bold mb-[-3px]">
-          Activité {{ index + 1 }}
-        </h4>
+      <!-- <div class="activity-sidebar">
+        <div
+          v-for="(activity, index) in sortedActivities"
+          :key="activity.id"
+          :class="['thumbnail', { selected: activity.id === activeActivity }]"
+          @click="selectActivity(activity.id)"
+        >
+          <div class="flex-column justify-start items-start ml-1">
+            <h4 class="font-bold mb-[-3px]">
+              Activité {{ index + 1 }}
+            </h4>
 
-        <span class="text-sm">
-          {{ activity.activityTitle.length > 18 ? activity.activityTitle.slice(0, 18) + '...' : activity.activityTitle }}
-        </span>
+            <span class="text-sm">
+              {{ activity.activityTitle.length > 18 ? activity.activityTitle.slice(0, 18) + '...' : activity.activityTitle }}
+            </span>
 
-        <div v-if="activity.id === activeActivity" class="w-9 h-9 rounded-[50%] bg-gray-300 flex items-center justify-center hover:cursor-pointer relative right-[-120px] top-[-37px] hover:bg-primary" @click="takeScreenshot">
-          <OhVueIcon name="md-addaphoto-round" fill="#fff" class="" scale="1"/>
+            <div v-if="activity.id === activeActivity" class="w-9 h-9 rounded-[50%] bg-gray-300 flex items-center justify-center hover:cursor-pointer relative right-[-120px] top-[-37px] hover:bg-primary" @click="takeScreenshot">
+              <OhVueIcon name="md-addaphoto-round" fill="#fff" class="" scale="1"/>
+            </div>
+
+          </div> 
+        </div>
+      </div> -->
+
+      <div class="activity-sidebar bg-white rounded-lg shadow-md p-4 m-4 flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-180px)] min-w-[300px]">
+        <h3 class="font-bold text-lg text-gray-700 border-b pb-2 mb-2">Activités</h3>
+        
+        <div
+          v-for="(activity, index) in sortedActivities"
+          :key="activity.id"
+          :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50', 
+                  { 'border-2 border-primary bg-blue-50 shadow-md': activity.id === activeActivity,
+                    'border-gray-200 opacity-70': activity.id !== activeActivity }]"
+          @click="selectActivity(activity.id)"
+        >
+          <div class="flex flex-col justify-start w-full">
+            <div class="flex justify-between items-center mb-1">
+              <span :class="{ 'border-2 border-primary bg-primary text-white': activity.id === activeActivity,
+                    'border-gray-200 opacity-70': activity.id !== activeActivity }" class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                Activité {{ index + 1 }}
+              </span>
+              <span v-if="activity.fieldName.includes('endpoint')" class="text-xs font-medium text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">
+                Endpoint
+              </span>
+            </div>
+            
+            <h4 class="font-semibold text-sm" :title="activity.activityTitle">
+              {{ activity.activityTitle }}
+            </h4>
+            
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-xs text-gray-500 italic" :title="activity.fieldName">
+                {{ activity.fieldName }}
+              </span>
+              
+              <div v-if="activity.id === activeActivity" 
+                  class="screenshot-btn absolute right-2 bottom-2 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-primary transition-colors duration-200 group"
+                  @click.stop="takeScreenshot" 
+                  title="Prendre une capture d'écran">
+                <OhVueIcon name="md-addaphoto-round" class="group-hover:scale-110 transition-transform duration-200" fill="currentColor" :class="{'text-gray-600': true, 'group-hover:text-white': true}" scale="0.9"/>
+              </div>
+            </div>
+          </div>
         </div>
 
-      </div> 
-    </div>
-  </div>
+      </div>
 
+    
     </div>
 
     <!-- Project PDF update Overlay -->

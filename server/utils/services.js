@@ -98,6 +98,9 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
     }
 
     if (backpackId && backpackId !== 'defaultbackpackId') {
+
+      console.log('backpackId received from the query:', backpackId);
+
       // Step 1: Decrypt the backpackId
       const decryptedbackpackId = await decryptContent(backpackId, secretKey);
 

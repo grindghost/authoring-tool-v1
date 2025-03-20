@@ -49,7 +49,27 @@ const editingField = ref(null);
 const project = computed(() => {
   const projectId = route.params.id
   const selectedProject = projectStore.projects.find((p) => p.id === projectId)
-  return selectedProject ? selectedProject.profile : {}
+
+  // Check if the project is found
+  if (!selectedProject) {
+    return {};
+  } else {
+    // Compute the project data
+    const computedProject = selectedProject.profile;
+    computedProject.locales = {};
+
+    // Check if the selected project locales array is empty
+    if (selectedProject.locales.length === 0) {  
+      
+      // If empty, set the locales to the default locales (templates)
+      computedProject.locales = projectStore.locales;
+    } else {
+      
+      // If not empty, set the locales to the selected project locales
+      computedProject.locales = selectedProject.expand.locales;
+    }
+    return computedProject;
+  }
 });
 
 const unitUrl = computed(() => {
@@ -67,8 +87,9 @@ const isDateExpired = computed(() => {
 
 const language = computed(() => {
   const currentLang = project.value.lang;
-  const locale = projectStore.locales.find((l) => l.lang === currentLang);
   
+  // Get the locale object for the current language
+  const locale = project.value.locales[currentLang]
   return locale;
 });
 
@@ -804,36 +825,20 @@ if (status.value === "authenticated") {
       </div>
     </div>
 
-      <!-- <div class="activity-sidebar">
+    <div class="activity-sidebar relative bg-white rounded-lg shadow-md p-4 m-4 flex flex-col min-w-[300px] max-h-[calc(100dvh-70px)] overflow-y-auto">
+    <!-- Fixed header -->
+    <div class="sticky top-0 pb-2 z-20">
+      <h3 class="font-bold text-lg text-gray-700 border-b pb-2">Activités</h3>
+      <!-- Gradient overlay for scrolling content -->
+      <div class="absolute left-0 right-0 bottom-[-8px] h-6 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
+    </div>
+  
+      <!-- Scrollable content -->
+      <div class="overflow-y-auto max-h-[calc(100vh-100px)] relative top-[-10px] flex flex-col gap-3">
         <div
           v-for="(activity, index) in sortedActivities"
           :key="activity.id"
-          :class="['thumbnail', { selected: activity.id === activeActivity }]"
-          @click="selectActivity(activity.id)"
-        >
-          <div class="flex-column justify-start items-start ml-1">
-            <h4 class="font-bold mb-[-3px]">
-              Activité {{ index + 1 }}
-            </h4>
-
-            <span class="text-sm">
-              {{ activity.activityTitle.length > 18 ? activity.activityTitle.slice(0, 18) + '...' : activity.activityTitle }}
-            </span>
-
-            <div v-if="activity.id === activeActivity" class="w-9 h-9 rounded-[50%] bg-gray-300 flex items-center justify-center hover:cursor-pointer relative right-[-120px] top-[-37px] hover:bg-primary" @click="takeScreenshot">
-              <OhVueIcon name="md-addaphoto-round" fill="#fff" class="" scale="1"/>
-            </div>
-
-          </div> 
-        </div>
-      </div> -->
-
-      <div class="activity-sidebar bg-white rounded-lg shadow-md p-4 m-4 flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-180px)] min-w-[300px]">
-        <h3 class="font-bold text-lg text-gray-700 border-b pb-2 mb-2">Activités</h3>
-        
-        <div
-          v-for="(activity, index) in sortedActivities"
-          :key="activity.id"
+          class="first:mt-2"
           :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50', 
                   { 'border-2 border-primary bg-blue-50 shadow-md': activity.id === activeActivity,
                     'border-gray-200 opacity-70': activity.id !== activeActivity }]"
@@ -868,8 +873,8 @@ if (status.value === "authenticated") {
             </div>
           </div>
         </div>
-
       </div>
+    </div>
 
     
     </div>
@@ -1062,7 +1067,7 @@ iframe {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+
 }
 .thumbnail {
   padding: 0.4rem;

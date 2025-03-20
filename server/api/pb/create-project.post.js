@@ -211,6 +211,27 @@ export default defineEventHandler(async (event) => {
       files: [fileRecord.id],
     });
 
+    // Check the Locales collection, get the 2 records that have the template set to true, duplicate them, add the current project as a relation within the "project" field
+    let duplicatedLocaleIds = [];
+
+    const locales = await pb.collection('Locales').getList(1, 50, { 
+      filter: 'template=true' 
+    });
+    
+    const templateLocales = locales.items;
+    
+    for (const templateLocale of templateLocales) {
+      // Create a new object with only the fields you want to duplicate
+      const localeData = {
+        dict: templateLocale.dict,
+        project: [project.id],
+        template: false
+      };
+      
+      // Create the new record
+      const duplicatedLocale = await pb.collection('Locales').create(localeData);
+      duplicatedLocaleIds.push(duplicatedLocale.id);
+    }
 
     // Update tokens with the actual project ID
     for (const activityKey in activities) {
@@ -235,6 +256,7 @@ export default defineEventHandler(async (event) => {
         ...project.profile, // Keep other project profile properties
         activities, // Include updated activities with tokens
       },
+      locales: duplicatedLocaleIds,
     });
 
     // Update the Files record with the new project ID (as a relation)

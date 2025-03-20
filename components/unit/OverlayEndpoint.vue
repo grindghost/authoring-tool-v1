@@ -8,7 +8,6 @@
   
         <div class="bottom">
           <p class="file-info">
-            <!-- <span class="filename">{{ pdfFilename.length > 30 ? pdfFilename.slice(0, 30) + '... ' : pdfFilename }}.pdf</span> -->
             <span class="filename">{{ filename }}</span>
 
             <br />
@@ -35,6 +34,7 @@
   import { set } from 'date-fns';
 import { useAppStateStore } from '/stores/appState';
   import { useStatusStore } from '/stores/status';
+import { file } from 'jszip';
   
   const statusStore = useStatusStore();
   const appStore = useAppStateStore();
@@ -63,7 +63,8 @@ import { useAppStateStore } from '/stores/appState';
     });
 
     const filename = computed(() => {
-      return locale.value.filename;
+      // return locale.value.filename;
+      return appStore.unitProfile.project.profile.pdfFilename.substring(0, 20) + '... ' + '.pdf';
     });
 
     const button = computed(() => {
@@ -114,6 +115,7 @@ import { useAppStateStore } from '/stores/appState';
 
     }
   }
+
   </script>
   
   

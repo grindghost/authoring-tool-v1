@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     // Fetch only the allowed number of projects corresponding to the user's ID
     const userProjects = await pb.collection('Projects').getList(1, projectLimit, {
       filter: `author.id="${authSession.user.userId}"`, // Filter projects by the userId field
-      expand: 'author', // Expand the author field to include the full user record
+      expand: 'author,locales', // Expand the author field to include the full user record
       sort: 'created',
     });
 
@@ -74,6 +74,19 @@ export default defineEventHandler(async (event) => {
         const { name, email, id } = record.expand.author; // Extract only desired fields
         record.expand.author = { name, email, id }; // Replace the expanded author with filtered data
       }
+      
+      if (record.expand?.locales) { 
+        // Iterate over the locales array, in the "dict" json field, get the "lang" key, and create a new json where the key is the lang value, and the value is the json object
+        const localesdDict = {};
+
+        for (let locale of record.expand.locales) {
+          const { dict } = locale;
+          const lang = dict.lang;
+          localesdDict[lang] = dict;
+        }
+        record.expand.locales = localesdDict; // Replace the expanded locales with filtered data
+      }
+
       return record;
     });
 
@@ -85,14 +98,22 @@ export default defineEventHandler(async (event) => {
     const globalConfig = await pb.collection('Configs').getList(1, 1, {filter: `name="global"`});
 
     // Query the Locales collection and fetch all records
-    const locales = await pb.collection('Locales').getList();
+    const localeTemplates = await pb.collection('Locales').getFullList({
+      filter: `template=true`,
+      limit: 2 // Only get up to 2 records
+    });
 
     // Add the fetched data to the response object
     response.projects = sanitizedProjects;
     response.configs = globalConfig.items[0];
 
-    // Isolate the dict object from the locales.items, and put them in an array
-    response.locales = locales.items.map(locale => locale.dict);
+    // Create a dictionary of locales where the key is the lang value and the value is the json object
+    const localeTemplatesDict = {};
+    for (let locale of localeTemplates) {
+      localeTemplatesDict[locale.dict.lang] = locale.dict;
+    }
+    // Add the localeTemplatesDict to the response object
+    response.locales = localeTemplatesDict;
 
     return response;
 

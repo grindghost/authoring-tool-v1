@@ -62,8 +62,98 @@ export const createNewUser = async (pb, name, mbox) => {
   }
 };
 
-// Helper function to validate or create a new user
+// Helper function to validate or create a new user (v2)
 export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
+  const secretKey = process.env.SECRET_KEY;
+  const DEFAULT_NAME = "Unknown User";
+  const DEFAULT_EMAIL = "mailto:unknown@example.com";
+
+  try {
+    // Check if name and mbox are valid (not undefined/null and not default values)
+    const isValidName = name && name !== DEFAULT_NAME;
+    const isValidEmail = mbox && mbox !== DEFAULT_EMAIL;
+
+    // First check if a user with the same name and email already exists,
+    // but only if both values are valid (not defaults or empty)
+    if (isValidName && isValidEmail) {
+      try {
+        const existingUser = await pb.collection('Backpacks').getFirstListItem(`name = '${name}' && email = '${mbox}'`);
+        if (existingUser) {
+          console.log('Found existing user with matching name and email');
+          const encryptedbackpackId = existingUser.token ? await encryptContent(existingUser.token, secretKey) : null;
+          return {
+            valid: true,
+            backpackId: encryptedbackpackId,
+            decryptedbackpackId: existingUser.token,
+            existing: true
+          };
+        }
+      } catch (error) {
+        console.log('No existing user found with matching name and email');
+        // Continue with the rest of the function if no matching user is found
+      }
+    } else {
+      console.log('Skipping name/email lookup due to default or empty values:', 
+                  { isValidName, isValidEmail, name, mbox });
+    }
+
+    if (backpackId && backpackId !== 'defaultbackpackId') {
+      // Step 1: Decrypt the backpackId
+      const decryptedbackpackId = await decryptContent(backpackId, secretKey);
+
+      // Validate the decrypted key
+      if (!decryptedbackpackId || decryptedbackpackId.length < BACKPACK_TOKEN_LENGTH) {
+        console.log(decryptedbackpackId.length);
+        throw new Error('Invalid user key format');
+      }
+
+      // Step 2: Check if the user exists in Pocketbase
+      try {
+        const user = await pb.collection('Backpacks').getFirstListItem(`token = '${decryptedbackpackId}'`);
+        // If the backpack with the given token exists, return the decrypted token
+        return { valid: true, backpackId, decryptedbackpackId };
+      } catch (error) {
+        // If user doesn't exist, create a new one
+        console.log('User not found, creating a new one.');
+        const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
+        const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
+
+        return {
+          valid: true,
+          backpackId: newEncryptedbackpackId,
+          decryptedbackpackId: decryptedbackpackId,
+          newlyCreated: true
+        };
+      }
+    } else {
+      // If no valid backpackId is provided or it's the default, create a new user
+      const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
+      const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
+
+      return {
+        valid: true,
+        backpackId: newEncryptedbackpackId,
+        decryptedbackpackId: decryptedbackpackId,
+        newlyCreated: true
+      };
+    }
+  } catch (error) {
+    console.error('User validation or creation error:', error.message);
+    // In case of an error, create a new user
+    const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
+    const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
+    return {
+      valid: true,
+      backpackId: newEncryptedbackpackId,
+      decryptedbackpackId: decryptedbackpackId,
+      newlyCreated: true
+    };
+  }
+};
+
+
+// Helper function to validate or create a new user (v1)
+export const _validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
   const secretKey = process.env.SECRET_KEY;
 
   try {

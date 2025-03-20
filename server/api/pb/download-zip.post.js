@@ -304,23 +304,12 @@ export default defineEventHandler(async (event) => {
 
             <script>
 
-                // Get user data from URL params
-                const urlParams = new URLSearchParams(window.location.search);
-                const lmsUser = {
-                    mbox: urlParams.get("mbox"),
-                    name: urlParams.get("name")
-                };
-                const mbox = encodeURIComponent(lmsUser.mbox);
-                const name = encodeURIComponent(lmsUser.name);
-
-                console.log("Received User:", lmsUser);
-
                 const container = document.querySelector('.container');
                 const messageEl = document.getElementById('message');
                 const pdfContainer = document.getElementById('pdfContainer');
                 const newWindowContainer = document.getElementById('newWindowContainer');
                 const apiBaseUrl = "https://jdb.pockethost.io";
-                const targetUrl = '${tokenizedUrlEmbed}&mbox=mbox&name=name';
+                const targetUrl = '${tokenizedUrlEmbed}';
                 const pdfUrl = 'assets/document.pdf';
 
                 function openPdf() {
@@ -359,7 +348,17 @@ export default defineEventHandler(async (event) => {
                                 newWindowContainer.style.display = 'flex';
                                 openInNewWindow();
                             } else {
-                                window.location.href = targetUrl;
+                                // Get user data from the URL params
+                                const urlParams = new URLSearchParams(window.location.search);
+                                const lmsUser = {
+                                    mbox: urlParams.get("mbox"),
+                                    name: urlParams.get("name")
+                                };
+                                const lmsUserMbox = encodeURIComponent(lmsUser.mbox);
+                                const lmsUserName = encodeURIComponent(lmsUser.name);
+
+                                // Edit the window location to include the LMS user data
+                                window.location.href = targetUrl + '&mbox=' + lmsUserMbox + '&name=' + lmsUserName;
                             }
                         }, 1000);
 

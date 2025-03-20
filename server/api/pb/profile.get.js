@@ -9,6 +9,8 @@ export default defineEventHandler(async (event) => {
   const backpackId = getCookie(event, 'backpackId');
   const token = getQuery(event).token;
   let lang = getQuery(event).lang;
+  const mbox = getQuery(event).mbox;
+  const name = getQuery(event).name;
 
   // Normalize the iso language received from the query
   if (lang !== 'fr' || lang !== 'en') {
@@ -43,7 +45,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Validate user
-    const { valid, backpackId: validBackpackId, decryptedbackpackId } = await validateOrCreateUser(pb, backpackId, event);
+    const { valid, backpackId: validBackpackId, decryptedbackpackId } = await validateOrCreateUser(pb, backpackId, event, name, mbox);
     if (!valid) {
       UnitProfile.message = 'User validation failed';
       return UnitProfile;

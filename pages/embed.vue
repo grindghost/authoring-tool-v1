@@ -37,14 +37,12 @@
         
         const lang = queryParams.get('lang') || 'fr';
 
-        // Get the mbox and name from the query parameters
+        // Get the mbox and name from the query parameters (from xAPI)
         const mbox = queryParams.get('mbox');
         const name = queryParams.get('name');
-        console.log('mbox:', mbox);
-        console.log('name:', name);
         
         // Logic to assign, of remotely retrieve the unit profile (from db)
-        profile.value = await store.GetUnitProfile(token, lang); 
+        profile.value = await store.GetUnitProfile(token, lang, mbox, name); 
         
         await store.SetUnitStateOnArrival(profile.value);
     });

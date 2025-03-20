@@ -22,7 +22,7 @@ export const decryptContent = async (cipherText) => {
 }
 
 // Helper function to create a new user in Pocketbase
-export const createNewUser = async (pb) => {
+export const createNewUser = async (pb, name, mbox) => {
   try {
     // Step 1: Retrieve the current collection value from the 'configs' collection
     const globalConfig = await pb.collection('Configs').getFirstListItem(`name = 'global'`);
@@ -50,6 +50,8 @@ export const createNewUser = async (pb) => {
       token: newBackpackId,
       creationDate: creationDate,
       collection: currentCollection,
+      name: name,
+      email: mbox,
     });
 
     console.log(`New user created with unsique token: ${newBackpackId}`);
@@ -61,7 +63,7 @@ export const createNewUser = async (pb) => {
 };
 
 // Helper function to validate or create a new user
-export const validateOrCreateUser = async (pb, backpackId, req) => {
+export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
   const secretKey = process.env.SECRET_KEY;
 
   try {
@@ -83,7 +85,7 @@ export const validateOrCreateUser = async (pb, backpackId, req) => {
       } catch (error) {
         // If user doesn't exist, create a new one
         console.log('User not found, creating a new one.');
-        const newEncryptedbackpackId = await createNewUser(pb);
+        const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
         const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
 
         return {
@@ -95,7 +97,7 @@ export const validateOrCreateUser = async (pb, backpackId, req) => {
     } else {
       
       // If no valid backpackId is provided or it's the default, create a new user
-      const newEncryptedbackpackId = await createNewUser(pb);
+      const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
       const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
 
       return {
@@ -107,7 +109,7 @@ export const validateOrCreateUser = async (pb, backpackId, req) => {
   } catch (error) {
     console.error('User validation or creation error:', error.message);
     // In case of an error, create a new user
-    const newEncryptedbackpackId = await createNewUser(pb);
+    const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
     const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
     return {
       valid: true,

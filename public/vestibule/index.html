@@ -42,17 +42,29 @@
   <script defer>
 
     // Function to get the LMS user
-    function getLMSUser() {
+    async function getLMSUser() {
 
       // Check if LMS is injecting xAPI config
       if (window.ADL && ADL.XAPIWrapper.lrs) {
           const lrsConfig = ADL.XAPIWrapper.lrs;
 
-          // Example: Extract the user from the stored xAPI config
+          // Extract the user from the stored xAPI config
           if (lrsConfig.actor) {
-              // console.log("LMS-injected user:", lrsConfig.actor);
-              return lrsConfig.actor;
-          }
+            
+            let actor = lrsConfig.actor;
+            
+            // Make sure lrsConfig.actor is an object
+            if (typeof actor === "string") {
+                try {
+                    actor = JSON.parse(actor);
+                } catch (error) {
+                    console.error("Erreur lors du parsing de l'acteur xAPI:", error);
+                }
+            }
+
+            // console.log("LMS-injected user:", actor);
+            return actor;
+        }
       }
 
       // Return default fake user if LMS does not inject info
@@ -105,8 +117,8 @@
         }
     });
 
-    window.addEventListener("DOMContentLoaded", function () {
-        const user = getLMSUser();
+    window.addEventListener("DOMContentLoaded", async() => {
+        const user = await getLMSUser();
         const iframe = document.getElementById("dynamicIframe");
 
         // Encode user data as a query string

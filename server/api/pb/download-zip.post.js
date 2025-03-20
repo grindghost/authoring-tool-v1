@@ -310,6 +310,9 @@ export default defineEventHandler(async (event) => {
                     mbox: urlParams.get("mbox"),
                     name: urlParams.get("name")
                 };
+                const mbox = encodeURIComponent(lmsUser.mbox);
+                const name = encodeURIComponent(lmsUser.name);
+
                 console.log("Received User:", lmsUser);
 
                 const container = document.querySelector('.container');
@@ -317,7 +320,7 @@ export default defineEventHandler(async (event) => {
                 const pdfContainer = document.getElementById('pdfContainer');
                 const newWindowContainer = document.getElementById('newWindowContainer');
                 const apiBaseUrl = "https://jdb.pockethost.io";
-                const targetUrl = '${tokenizedUrlEmbed}';
+                const targetUrl = '${tokenizedUrlEmbed}&mbox=mbox&name=name';
                 const pdfUrl = 'assets/document.pdf';
 
                 function openPdf() {

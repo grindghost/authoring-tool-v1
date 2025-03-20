@@ -38,7 +38,7 @@ export const createNewUser = async (pb) => {
       newBackpackId = `dev-${newBackpackId}`;
       
       // Ensure the length of the final ID is exactly 15 characters
-      newBackpackId = newBackpackId.slice(0, BACKPACK_TOKEN_LENGTH); // Truncate to 15 chars
+      newBackpackId = newBackpackId.slice(0, BACKPACK_TOKEN_LENGTH); // Truncate to X chars
     }
 
     // Step 3: Encrypt the new backpack ID
@@ -47,13 +47,12 @@ export const createNewUser = async (pb) => {
 
     // Step 4: Store the new user data in the 'backpacks' collection
     await pb.collection('Backpacks').create({
-      // id: newBackpackId,
       token: newBackpackId,
       creationDate: creationDate,
       collection: currentCollection,
     });
 
-    console.log(`New user created with ID: ${newBackpackId}`);
+    console.log(`New user created with unsique token: ${newBackpackId}`);
     return encryptedBackpackId;
   } catch (error) {
     console.error('Failed to create new user:', error.message);

@@ -323,7 +323,10 @@ async function takeScreenshot() {
     const projectName = project.value.name || 'project'; // Default to 'project' if name is empty
     const activityTitle = selectedActivity.value.activityTitle || 'activity'; // Default to 'activity' if title is empty
     const filename = `${projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${activityTitle.replace(/[^a-zA-Z0-9]/g, '_')}_screenshot.png`;
-    link.download = filename;
+
+    const simplifiedFilename = `vignette-${selectedActivity.value.index + 1}.png`
+
+    link.download = simplifiedFilename;
 
     // Simulate a click on the link to trigger the download
     link.click();
@@ -830,7 +833,7 @@ if (status.value === "authenticated") {
     <div class="sticky top-0 pb-2 z-20">
       <h3 class="font-bold text-lg text-gray-700 border-b pb-2">Activités</h3>
       <!-- Gradient overlay for scrolling content -->
-      <div class="absolute left-0 right-0 bottom-[-8px] h-6 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
+      <div class="absolute left-0 right-0 bottom-[-12px] h-6 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
     </div>
   
       <!-- Scrollable content -->
@@ -839,7 +842,7 @@ if (status.value === "authenticated") {
           v-for="(activity, index) in sortedActivities"
           :key="activity.id"
           class="first:mt-2"
-          :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50', 
+          :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-md', 
                   { 'border-2 border-primary bg-blue-50 shadow-md': activity.id === activeActivity,
                     'border-gray-200 opacity-70': activity.id !== activeActivity }]"
           @click="selectActivity(activity.id)"
@@ -855,8 +858,8 @@ if (status.value === "authenticated") {
               </span>
             </div>
             
-            <h4 class="font-semibold text-sm" :title="activity.activityTitle">
-              {{ activity.activityTitle }}
+            <h4 class="font-semibold text-sm pr-[2rem]" :title="activity.activityTitle">
+              {{ activity.activityTitle.length > 25 ? activity.activityTitle.slice(0, 25) + '...' : activity.activityTitle }}
             </h4>
             
             <div class="flex justify-between items-center mt-2">

@@ -120,8 +120,10 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
         console.log('User not found with token, attempting to create a new one');
         
         // Use fallback username/email if the provided ones are the defaults
-        const userName = isValidName ? name : `User_${Date.now().toString().slice(-6)}`;
-        const userEmail = isValidEmail ? mbox : `user_${Date.now().toString().slice(-6)}@mail.com`;
+        // const userName = isValidName ? name : `User_${Date.now().toString().slice(-6)}`;
+        // const userEmail = isValidEmail ? mbox : `user_${Date.now().toString().slice(-6)}@mail.com`;
+        const userName = 'anonymous';
+        const userEmail = 'unknown@mail.com';
         
         try {
           const newEncryptedbackpackId = await createNewUser(pb, userName, userEmail);
@@ -143,8 +145,10 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
       console.log('No valid backpackId, attempting to create a new user');
       
       // Use fallback username/email if the provided ones are the defaults
-      const userName = isValidName ? name : `User_${Date.now().toString().slice(-6)}`;
-      const userEmail = isValidEmail ? mbox : `user_${Date.now().toString().slice(-6)}@mail.com`;
+      // const userName = isValidName ? name : `User_${Date.now().toString().slice(-6)}`;
+      // const userEmail = isValidEmail ? mbox : `user_${Date.now().toString().slice(-6)}@mail.com`;
+      const userName = 'anonymous';
+      const userEmail = 'unknown@mail.com';
       
       try {
         const newEncryptedbackpackId = await createNewUser(pb, userName, userEmail);
@@ -168,14 +172,14 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
     try {
       console.log('Attempting fallback strategy: generating random token');
       // Generate a random token of appropriate length
-      const crypto = require('crypto');
-      const randomToken = crypto.randomBytes(Math.ceil(BACKPACK_TOKEN_LENGTH / 2)).toString('hex').slice(0, BACKPACK_TOKEN_LENGTH);
-      const encryptedToken = await encryptContent(randomToken, secretKey);
+
+      let newBackpackId = generateUniqueID(BACKPACK_TOKEN_LENGTH);
+      const encryptedBackpackId = await encryptContent(newBackpackId);
       
       return {
         valid: true,
-        backpackId: encryptedToken,
-        decryptedbackpackId: randomToken,
+        backpackId: encryptedBackpackId,
+        decryptedbackpackId: newBackpackId,
         newlyCreated: true,
         fallback: true
       };

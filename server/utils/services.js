@@ -54,7 +54,7 @@ export const createNewUser = async (pb, name, mbox) => {
       email: mbox,
     });
 
-    console.log(`New user created with unsique token: ${newBackpackId}`);
+    console.log(`New user created with unique token: ${newBackpackId}`);
     return encryptedBackpackId;
   } catch (error) {
     console.error('Failed to create new user:', error.message);
@@ -66,7 +66,7 @@ export const createNewUser = async (pb, name, mbox) => {
 export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
   const secretKey = process.env.SECRET_KEY;
   const DEFAULT_NAME = "Unknown User";
-  const DEFAULT_EMAIL = "mailto:unknown@example.com";
+  const DEFAULT_EMAIL = "mailto:unknown@mail.com";
 
   try {
     // Check if name and mbox are valid (not undefined/null and not default values)
@@ -114,8 +114,37 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
         return { valid: true, backpackId, decryptedbackpackId };
       } catch (error) {
         // If user doesn't exist, create a new one
-        console.log('User not found, creating a new one.');
-        const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
+        console.log('User not found with token, attempting to create a new one');
+        
+        // Use fallback username/email if the provided ones are the defaults
+        const userName = isValidName ? name : `User_${Date.now().toString().slice(-6)}`;
+        const userEmail = isValidEmail ? mbox : `user_${Date.now().toString().slice(-6)}@mail.com`;
+        
+        try {
+          const newEncryptedbackpackId = await createNewUser(pb, userName, userEmail);
+          const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
+
+          return {
+            valid: true,
+            backpackId: newEncryptedbackpackId,
+            decryptedbackpackId: decryptedbackpackId,
+            newlyCreated: true
+          };
+        } catch (createError) {
+          console.error('Failed during user creation:', createError.message);
+          throw new Error('Failed to create new user');
+        }
+      }
+    } else {
+      // If no valid backpackId is provided or it's the default, create a new user
+      console.log('No valid backpackId, attempting to create a new user');
+      
+      // Use fallback username/email if the provided ones are the defaults
+      const userName = isValidName ? name : `User_${Date.now().toString().slice(-6)}`;
+      const userEmail = isValidEmail ? mbox : `user_${Date.now().toString().slice(-6)}@mail.com`;
+      
+      try {
+        const newEncryptedbackpackId = await createNewUser(pb, userName, userEmail);
         const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
 
         return {
@@ -124,30 +153,33 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
           decryptedbackpackId: decryptedbackpackId,
           newlyCreated: true
         };
+      } catch (createError) {
+        console.error('Failed during user creation:', createError.message);
+        throw new Error('Failed to create new user');
       }
-    } else {
-      // If no valid backpackId is provided or it's the default, create a new user
-      const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
-      const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
-
-      return {
-        valid: true,
-        backpackId: newEncryptedbackpackId,
-        decryptedbackpackId: decryptedbackpackId,
-        newlyCreated: true
-      };
     }
   } catch (error) {
     console.error('User validation or creation error:', error.message);
-    // In case of an error, create a new user
-    const newEncryptedbackpackId = await createNewUser(pb, name, mbox);
-    const decryptedbackpackId = await decryptContent(newEncryptedbackpackId, secretKey);
-    return {
-      valid: true,
-      backpackId: newEncryptedbackpackId,
-      decryptedbackpackId: decryptedbackpackId,
-      newlyCreated: true
-    };
+    
+    // Generate a random token as a fallback strategy when user creation fails
+    try {
+      console.log('Attempting fallback strategy: generating random token');
+      // Generate a random token of appropriate length
+      const crypto = require('crypto');
+      const randomToken = crypto.randomBytes(Math.ceil(BACKPACK_TOKEN_LENGTH / 2)).toString('hex').slice(0, BACKPACK_TOKEN_LENGTH);
+      const encryptedToken = await encryptContent(randomToken, secretKey);
+      
+      return {
+        valid: true,
+        backpackId: encryptedToken,
+        decryptedbackpackId: randomToken,
+        newlyCreated: true,
+        fallback: true
+      };
+    } catch (fallbackError) {
+      console.error('Even fallback strategy failed:', fallbackError.message);
+      throw new Error('Complete authentication failure');
+    }
   }
 };
 

@@ -21,12 +21,16 @@
         overflow: hidden;
       }
     </style>
+
+    <script type="text/javascript" src="./xapiwrapper/lib/cryptojs_v3.1.2.js"></script>
+    <script type="text/javascript" src="./xapiwrapper/dist/xapiwrapper.min.js"></script>
+
   </head>
 
   <body spellcheck="false">
     <iframe
       id="dynamicIframe"
-      src="provider.html"
+      src=""
       frameborder="0"
       allowfullscreen="allowfullscreen"
       allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
@@ -36,6 +40,28 @@
   </body>
 
   <script defer>
+
+    // Function to get the LMS user
+    function getLMSUser() {
+
+      // Check if LMS is injecting xAPI config
+      if (window.ADL && ADL.XAPIWrapper.lrs) {
+          const lrsConfig = ADL.XAPIWrapper.lrs;
+
+          // Example: Extract the user from the stored xAPI config
+          if (lrsConfig.actor) {
+              // console.log("LMS-injected user:", lrsConfig.actor);
+              return lrsConfig.actor;
+          }
+      }
+
+      // Return default fake user if LMS does not inject info
+      return {
+          mbox: "mailto:unknown@example.com",
+          name: "Unknown User",
+          objectType: "Agent"
+      };
+      }
 
     // Scaler function
     function Scaler() {
@@ -77,6 +103,20 @@
         if (data.action === 'openNewWindow') {
             window.open(data.url, '_blank'); // Open the URL in a new window/tab
         }
+    });
+
+    window.addEventListener("DOMContentLoaded", function () {
+        const user = getLMSUser();
+        const iframe = document.getElementById("dynamicIframe");
+
+        // Encode user data as a query string
+        const userParams = new URLSearchParams({
+            mbox: user.mbox,
+            name: user.name
+        }).toString();
+
+        // Update iframe src dynamically
+        iframe.src = `provider.html?${userParams}`;
     });
 
     window.addEventListener("DOMContentLoaded", Scaler, false);

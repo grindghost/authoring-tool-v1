@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
     'check.svg': `${process.env.NEXTAUTH_URL}/vestibule/check.svg`,
   };
 
+
   // Fetch static assets
   const assetContents = {};
   for (const [name, url] of Object.entries(assetFiles)) {
@@ -74,6 +75,9 @@ export default defineEventHandler(async (event) => {
 
     const activityZip = new JSZip();
     const assetsFolder = activityZip.folder('assets');
+    const xapiWrapperFolder = activityZip.folder('xapiwrapper');
+    const distFolder = xapiWrapperFolder.folder('dist');
+    const libFolder = xapiWrapperFolder.folder('lib');
 
     // Add static assets
     for (const [name, content] of Object.entries(assetContents)) {
@@ -84,6 +88,14 @@ export default defineEventHandler(async (event) => {
     if (pdfBuffer) {
       assetsFolder.file('document.pdf', pdfBuffer);
     }
+
+    // Fetch and add xapiwrapper files
+    const xapiFiles = {
+        'dist/xapiwrapper.min.js': `${process.env.NEXTAUTH_URL}/vestibule/xapiwrapper/dist/xapiwrapper.min.js`,
+        'dist/xapiwrapper.min.js.map': `${process.env.NEXTAUTH_URL}/vestibule/xapiwrapper/dist/xapiwrapper.min.js.map`,
+        'lib/cryptojs_v3.1.2.js': `${process.env.NEXTAUTH_URL}/vestibule/xapiwrapper/lib/cryptojs_v3.1.2.js`,
+        'lib/utf8-text-encoding.js': `${process.env.NEXTAUTH_URL}/vestibule/xapiwrapper/lib/utf8-text-encoding.js`
+    };
 
     // Create the html for the provider
     const providerHTMLContent = `
@@ -291,6 +303,15 @@ export default defineEventHandler(async (event) => {
 
 
             <script>
+
+                // Get user data from URL params
+                const urlParams = new URLSearchParams(window.location.search);
+                const lmsUser = {
+                    mbox: urlParams.get("mbox"),
+                    name: urlParams.get("name")
+                };
+                console.log("Received User:", lmsUser);
+
                 const container = document.querySelector('.container');
                 const messageEl = document.getElementById('message');
                 const pdfContainer = document.getElementById('pdfContainer');
@@ -355,6 +376,13 @@ export default defineEventHandler(async (event) => {
     // Create empty HTML files
     activityZip.file('index.html', indexHTMLContent);
     activityZip.file('provider.html', providerHTMLContent);
+
+    // Add xapiwrapper files
+    for (const [filePath, url] of Object.entries(xapiFiles)) {
+        const response = await fetch(url);
+        const content = await response.text();
+        activityZip.file(`xapiwrapper/${filePath}`, content);
+    }
 
     // Generate the activity zip file
     const activityZipContent = await activityZip.generateAsync({ type: 'nodebuffer' });

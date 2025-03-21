@@ -1,57 +1,99 @@
+// server/api/encrypt-actor.js
 import { encryptContent } from '~/server/utils/services';
-import { readBody, setResponseHeaders } from 'h3';
 
 export default defineEventHandler(async (event) => {
-  // Set CORS headers for all requests
-  setResponseHeaders(event, {
-    'Access-Control-Allow-Origin': '*', // Be specific instead of using *
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Max-Age': '86400', // Cache preflight results for 24 hours
-  });
-
-  // Handle preflight OPTIONS request
-  if (event.method === 'OPTIONS') {
-    event.res.statusCode = 204; // No content status code
-    event.res.end();
-    return;
+  // Get the request headers
+  const headers = getRequestHeaders(event);
+  const origin = headers.origin || '';
+  const referer = headers.referer || '';
+  
+  // Define allowed origins
+  const allowedOrigins = [
+    'https://pr.cloudfront.brioeducation.ca',
+    'https://www.monjournaldebord.ca',
+    // Add other origins as needed
+  ];
+  
+  // Determine the request origin
+  const requestOrigin = origin !== '' ? origin : (referer ? new URL(referer).origin : '');
+  const isAllowedOrigin = allowedOrigins.includes(requestOrigin);
+  
+  // Set response origin based on request
+  const responseOrigin = isAllowedOrigin ? requestOrigin : allowedOrigins[0];
+  
+  // Handle OPTIONS preflight requests
+  if (getMethod(event) === 'OPTIONS') {
+    return new Response(null, { 
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': responseOrigin,
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
+      }
+    });
   }
 
   try {
     // Get the request body
     const body = await readBody(event);
-    console.log('Request body:', body);
-
+    
     // Check if actor is present in the request body
     const { actor } = body;
     if (!actor) {
-      console.error('Actor not found in the request body');
-      return { statusCode: 400, message: 'Actor is required' };
+      return new Response(JSON.stringify({ message: 'Actor is required' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': responseOrigin
+        }
+      });
     }
 
-    // Decode the actor (assuming it's base64 encoded)
+    // Decode the actor
     let decodedActor;
     try {
-      decodedActor = JSON.parse(atob(actor)); // Decode from base64 and then parse
+      decodedActor = JSON.parse(atob(actor));
     } catch (error) {
-      console.error('Error decoding actor:', error);
-      return { statusCode: 400, message: 'Invalid actor encoding' };
+      return new Response(JSON.stringify({ message: 'Invalid actor encoding' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': responseOrigin
+        }
+      });
     }
 
-    // Encrypt the actor object with your secret key
+    // Encrypt the actor object
     const secretKey = process.env.SECRET_KEY;
     if (!secretKey) {
-      console.error('Secret key is missing');
-      return { statusCode: 500, message: 'Server secret key is not configured' };
+      return new Response(JSON.stringify({ message: 'Server secret key is not configured' }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': responseOrigin
+        }
+      });
     }
 
     const encryptedActor = await encryptContent(JSON.stringify(decodedActor));
 
     // Return the encrypted token
-    return { token: encryptedActor };
+    return new Response(JSON.stringify({ token: encryptedActor }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': responseOrigin
+      }
+    });
   } catch (error) {
     console.error('Error in encrypting actor:', error);
-    return { statusCode: 500, message: 'Encryption failed' };
+    return new Response(JSON.stringify({ message: 'Encryption failed' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': responseOrigin
+      }
+    });
   }
 });

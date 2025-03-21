@@ -1,16 +1,17 @@
 import { encryptContent } from '~/server/utils/services';
+import { readBody, setResponseHeaders } from 'h3';
 
 export default defineEventHandler(async (event) => {
-
-  // Set CORS headers
+  // Set CORS headers for both the preflight and actual request
   setResponseHeaders(event, {
     'Access-Control-Allow-Origin': '*', 
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true', // If you're sending credentials (cookies, etc.)
   });
 
   if (getMethod(event) === 'OPTIONS') {
-    return 'OK'; // Handle preflight requests
+    return ''; // Handle preflight request properly by returning an empty response.
   }
 
   try {
@@ -24,6 +25,7 @@ export default defineEventHandler(async (event) => {
       console.error('Actor not found in the request body');
       return { statusCode: 400, message: 'Actor is required' };
     }
+
     // Decode the actor (assuming it's base64 encoded)
     let decodedActor;
     try {

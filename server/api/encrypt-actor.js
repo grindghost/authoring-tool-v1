@@ -2,20 +2,24 @@ import { encryptContent } from '~/server/utils/services';
 import { readBody, setResponseHeaders } from 'h3';
 
 export default defineEventHandler(async (event) => {
-  // Set CORS headers for both the preflight and actual request
+  // Set CORS headers for all requests
   setResponseHeaders(event, {
-    'Access-Control-Allow-Origin': '*', 
+    'Access-Control-Allow-Origin': '*', // Be specific instead of using *
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Credentials': 'true', // If you're sending credentials (cookies, etc.)
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400', // Cache preflight results for 24 hours
   });
 
-  if (getMethod(event) === 'OPTIONS') {
-    return ''; // Handle preflight request properly by returning an empty response.
+  // Handle preflight OPTIONS request
+  if (event.method === 'OPTIONS') {
+    event.res.statusCode = 204; // No content status code
+    event.res.end();
+    return;
   }
 
   try {
-    // Get the request body using 'event' directly
+    // Get the request body
     const body = await readBody(event);
     console.log('Request body:', body);
 

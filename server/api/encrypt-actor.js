@@ -1,6 +1,18 @@
 import { encryptContent } from '~/server/utils/services';
 
 export default defineEventHandler(async (event) => {
+
+  // Set CORS headers
+  setResponseHeaders(event, {
+    'Access-Control-Allow-Origin': '*', 
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  });
+
+  if (getMethod(event) === 'OPTIONS') {
+    return 'OK'; // Handle preflight requests
+  }
+
   try {
     // Get the request body using 'event' directly
     const body = await readBody(event);

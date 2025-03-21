@@ -350,15 +350,21 @@ export default defineEventHandler(async (event) => {
                             } else {
                                 // Get user data from the URL params
                                 const urlParams = new URLSearchParams(window.location.search);
-                                const lmsUser = {
-                                    mbox: urlParams.get("mbox"),
-                                    name: urlParams.get("name")
-                                };
-                                const lmsUserMbox = encodeURIComponent(lmsUser.mbox);
-                                const lmsUserName = encodeURIComponent(lmsUser.name);
+                                
+                                // const lmsUser = {
+                                //    mbox: urlParams.get("mbox"),
+                                //    name: urlParams.get("name")
+                                // };
+                                // const lmsUserMbox = encodeURIComponent(lmsUser.mbox);
+                                // const lmsUserName = encodeURIComponent(lmsUser.name);
+                                
+                                const actorToken = urlParams.get("actor");
+                                const lmsActor = encodeURIComponent(actorToken);
 
                                 // Edit the window location to include the LMS user data
-                                window.location.href = targetUrl + '&mbox=' + lmsUserMbox + '&name=' + lmsUserName;
+                                // window.location.href = targetUrl + '&mbox=' + lmsUserMbox + '&name=' + lmsUserName;
+                                
+                                window.location.href = targetUrl + '&actor=' + lmsActor;
                             }
                         }, 1000);
 

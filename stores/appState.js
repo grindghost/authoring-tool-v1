@@ -66,7 +66,7 @@ export const useAppStateStore = defineStore('app', () => {
     currentOverlay.value = 'loading';
   };
   
-  const GetUnitProfile = async (token, language, mbox, name) => {
+  const GetUnitProfile = async (token, language, actor) => {
 
     // Assign the token
     unitToken.value = token;
@@ -81,7 +81,7 @@ export const useAppStateStore = defineStore('app', () => {
     statusMessage.value = statusStore.status[lang.value].loading;
 
     // Fetch the unit profile
-    unitProfile.value = await fetchFromApi(`/pb/profile?token=${encodeURIComponent(token)}&lang=${lang.value}&mbox=${mbox}&name=${name}`);
+    unitProfile.value = await fetchFromApi(`/pb/profile?token=${encodeURIComponent(token)}&lang=${lang.value}&actor=${actor}`);
 
     // Start the loading status
     isLoading.value = false;

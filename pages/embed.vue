@@ -38,11 +38,14 @@
         const lang = queryParams.get('lang') || 'fr';
 
         // Get the mbox and name from the query parameters (from xAPI)
-        const mbox = queryParams.get('mbox');
-        const name = queryParams.get('name');
+        // const mbox = queryParams.get('mbox');
+        // const name = queryParams.get('name');
+
+        // Get the actor from the query parameters (from xAPI)
+        const actor = queryParams.get('actor');
         
         // Logic to assign, of remotely retrieve the unit profile (from db)
-        profile.value = await store.GetUnitProfile(token, lang, mbox, name); 
+        profile.value = await store.GetUnitProfile(token, lang, actor); 
         
         await store.SetUnitStateOnArrival(profile.value);
     });

@@ -9,8 +9,9 @@ export default defineEventHandler(async (event) => {
   const backpackId = getCookie(event, 'backpackId');
   const token = getQuery(event).token;
   let lang = getQuery(event).lang;
-  const mbox = getQuery(event).mbox;
-  const name = getQuery(event).name;
+  // const mbox = getQuery(event).mbox;
+  // const name = getQuery(event).name;
+  const actor = getQuery(event).actor;
 
   // Normalize the iso language received from the query
   if (lang !== 'fr' || lang !== 'en') {
@@ -20,6 +21,10 @@ export default defineEventHandler(async (event) => {
   // Ensure authentication on pocketbase
   // With some retries, if needed...
   await ensureAuthenticated("Get answer");
+
+  // Derive the ACTOR mbox and name from the encrypted actor token passed as a query
+  const decryptedActor = await decryptContent(actor);
+  const { mbox, name } = JSON.parse(decryptedActor);
 
   // Initialize the unit profile
   const UnitProfile = { message: null };

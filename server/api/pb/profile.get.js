@@ -22,8 +22,12 @@ export default defineEventHandler(async (event) => {
   // With some retries, if needed...
   await ensureAuthenticated("Get answer");
 
-  // Derive the ACTOR mbox and name from the encrypted actor token passed as a query
-  const decryptedActor = await decryptContent(actor);
+  // Derive the actor mbox and name from the encrypted actor token passed as a query
+
+  // The query actor is base64 encoded, so decode it
+  const decodedActor = decodeURIComponent(actor);
+  const decryptedActor = atob(decodedActor);
+
   const { mbox, name } = JSON.parse(decryptedActor);
 
   // Initialize the unit profile

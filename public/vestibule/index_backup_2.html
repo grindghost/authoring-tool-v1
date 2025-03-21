@@ -76,15 +76,26 @@
 
     // Function to send the actor to API and get the encrypted token
     async function sendActorToAPI(actor) {
-      
+      const apiUrl = "https://monjournaldebord.ca/api/encrypt-actor"; // Your API endpoint
+
       // Base64 encode actor before sending
       const encodedActor = btoa(JSON.stringify(actor));
 
+      const jsonActor = JSON.stringify({ actor: encodedActor });
+
       try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: jsonActor,
+        });
+
+        const { token } = await response.json(); // Get the encrypted token
+        if (token) {
           // Update the iframe src with the encrypted token as a query parameter
           const iframe = document.getElementById("dynamicIframe");
-          iframe.src = `provider.html?actor=${encodeURIComponent(encodedActor)}`;
-
+          iframe.src = `provider.html?actor=${encodeURIComponent(token)}`;
+        }
       } catch (error) {
         console.error("Failed to send actor:", error);
       }

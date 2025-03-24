@@ -122,7 +122,7 @@ watch(
     margin-top:2rem;
     margin-bottom: 0.8rem;
     display: flex;
-    gap: 1rem;
+    gap: 0.4rem;
     justify-content: flex-end;
   }
   </style>

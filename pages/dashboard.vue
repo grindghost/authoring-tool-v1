@@ -279,7 +279,7 @@ function cancelCourseIdChanges() {
       <div class="border rounded px-3 py-2 text-gray-600">
         <select v-model="filterKey" class="">
           <option value="courseId">Identifiant (répertoire)</option>
-          <option value="name">Nom du projet</option>
+           <option value="name">Nom du projet</option>
           <option value="date">Date</option>
         </select>
     </div>

@@ -133,6 +133,55 @@ html {
     overflow: visible;
 }
 
+/* List overrides */
+
+/* --- Ordered List (Top-level items) --- */
+.ql-editor li[data-list="ordered"] > .ql-ui::before {
+  content: counter(list-0, lower-alpha) ') ' !important;
+  font-size: 16px;
+}
+
+/* --- Nested Ordered Lists (Level 1) --- */
+li.ql-indent-1[data-list="ordered"] > .ql-ui::before {
+  content: counter(list-1, decimal) '. ' !important;
+  font-size: 16px;
+}
+
+/* --- Nested Ordered Lists (Level 2) --- */
+li.ql-indent-2[data-list="ordered"] > .ql-ui::before {
+  content: counter(list-2, lower-roman) '. ' !important;
+  font-size: 16px;
+}
+
+/* --- Nested Ordered Lists (Level 3) --- */
+li.ql-indent-3[data-list="ordered"] > .ql-ui::before {
+  content: counter(list-3, upper-roman) '. ' !important;
+  font-size: 16px;
+}
+
+/* --- Bullet List --- */
+.ql-editor li[data-list="bullet"] > .ql-ui::before {
+  content: '\2022' !important; /* Unicode for bullet (•) */
+  font-size: 16px;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: -1.5em; /* Adjust position */
+  margin-right: .3em;
+  text-align: right;
+  white-space: nowrap;
+  width: 1.2em;
+}
+
+/* --- Nested Bullet Lists --- */
+li.ql-indent-1[data-list="bullet"] > .ql-ui::before {
+  content: '◦' !important; /* Smaller bullet for first level nesting */
+}
+
+li.ql-indent-2[data-list="bullet"] > .ql-ui::before {
+  content: '▪' !important; /* Square bullet for second level nesting */
+}
+
+
 /* Browser mockup */
 
 .browser-mockup {

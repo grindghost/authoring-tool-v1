@@ -43,15 +43,18 @@
       <div class="mt-2">
         <!-- Existing Course Dropdown -->
         <div v-if="!creatingNewCourse" class="relative">
+          <div class="border border-[#ccc] rounded px-3 py-2 text-gray-600">
           <select
             v-model="selectedCourseId"
-            class="form-control"
+            class="w-full"
           >
             <option value="" disabled selected>Choisir un cours</option>
             <option v-for="courseId in existingCourseIds" :key="courseId" :value="courseId">
               {{ courseId }}
             </option>
           </select>
+        </div>
+
           <div class="mt-1">
             <a href="#" class="text-sm text-primary hover:underline" @click.prevent="startCreatingNewCourse">
               + Créer un nouveau cours
@@ -170,6 +173,59 @@ const switchToSelectExisting = () => {
 };
 
 const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  pdfFile.value = file;
+  projectStore.selectedFile = file;
+
+  try {
+    const fileReader = new FileReader();
+    fileReader.onload = async (e) => {
+      try {
+        const typedArray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument(typedArray).promise;
+        const metadata = await pdf.getMetadata().catch(() => null);
+
+        // Préremplir seulement si les champs sont vides
+        if (!projectName.value) {
+          projectName.value = metadata?.info?.Title || file.name.replace(/\.[^/.]+$/, "");
+        }
+
+        if (!projectDescription.value && metadata?.info?.Subject) {
+          projectDescription.value = metadata.info.Subject;
+        }
+
+        if (!selectedCourseId.value && existingCourseIds.value.length > 0) {
+          selectedCourseId.value = existingCourseIds.value[0];
+        }
+
+        // Vérifier la présence de champs de texte
+        const hasTextFields = await checkForTextFields(file);
+        if (!hasTextFields) {
+          errorOverlay.value = true;
+          pdfFile.value = null; // Reset file if invalid
+          return;
+        }
+
+        await extractFirstPageImage(file);
+      } catch (error) {
+        console.error("Error processing the PDF metadata:", error);
+        errorOverlay.value = true;
+        pdfFile.value = null;
+      }
+    };
+
+    fileReader.readAsArrayBuffer(file);
+  } catch (error) {
+    console.error("Error reading the file:", error);
+    errorOverlay.value = true;
+    pdfFile.value = null;
+  }
+};
+
+
+const _handleFileUpload = async (event) => {
   pdfFile.value = event.target.files[0];
   projectStore.selectedFile = pdfFile.value;
 
@@ -323,8 +379,8 @@ h2  {
 .overlay-buttons {
   margin-top: 2rem;
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  gap: 0.4rem;
+  justify-content: end;
 }
 
 @keyframes fadeIn {

@@ -921,7 +921,7 @@ if (status.value === "authenticated") {
 
     <!-- Quill Editor Overlay -->
     <transition name="fade" mode="out-in">
-      <div v-if="showQuillOverlay" class="overlay" @click="cancelQuillOverlay">
+      <div v-if="showQuillOverlay" class="overlay">
         <!--  v-model:content="selectedActivity.defaultText" -->
         <div class="overlay-content" @click.stop>
           <QuillEditor

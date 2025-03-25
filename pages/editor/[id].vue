@@ -247,7 +247,6 @@ async function onProjectUpdated() {
 
 
 async function downloadZip() {
-
   projectStore.downloadProjectZip(project.value.activities, route.params.id, project.value.lang);
 }
 
@@ -781,8 +780,6 @@ if (status.value === "authenticated") {
             <button class="btn bg-white rounded-md" @click="handleDeleteProject">Supprimer</button>
         </div>
 
-        <!-- <button class="btn bg-primary rounded-md text-white" @click="downloadZip">Télécharger</button> -->
-
         <div class="downloadBlock flex items-center justify-start gap-2 cursor-pointer" @click="downloadZip">
           <div class="rounded-full w-7 h-7 bg-primary flex items-center justify-center px-2 box-size">
             <OhVueIcon name="hi-download" class="" fill="#fff"  scale="0.9"/>
@@ -828,7 +825,7 @@ if (status.value === "authenticated") {
       </div>
     </div>
 
-    <div class="activity-sidebar relative bg-white rounded-lg shadow-md p-4 m-4 flex flex-col min-w-[300px] max-h-[calc(100dvh-70px)] overflow-y-auto">
+    <div class="activity-sidebar relative bg-white shadow-md p-4 m-4 flex flex-col min-w-[300px] max-h-[calc(100dvh-70px)] overflow-y-auto">
     <!-- Fixed header -->
     <div class="sticky top-0 pb-2 z-20">
       <h3 class="font-bold text-lg text-gray-700 border-b pb-2">Activités</h3>
@@ -1028,7 +1025,7 @@ h3 {
 
   background-color: white;
   margin: 20px;
-  border-radius: 4px;
+  border-radius: 0.4rem;
 }
 
 .activity-title {
@@ -1070,6 +1067,7 @@ iframe {
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  border-radius: 0.4rem;
 
 }
 .thumbnail {

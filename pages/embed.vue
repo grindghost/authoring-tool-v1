@@ -41,9 +41,9 @@
         const actor = queryParams.get('actor');
 
         // Console log the actor
-        // const decodedActor = decodeURIComponent(actor);
-        // const decryptedActor = atob(decodedActor);
-        // console.log("xAPIActor:", decryptedActor);
+        const decodedActor = decodeURIComponent(actor);
+        const decryptedActor = atob(decodedActor);
+        console.log("xAPIActor:", decryptedActor);
         
         // Logic to assign, of remotely retrieve the unit profile (from db)
         profile.value = await store.GetUnitProfile(token, lang, actor); 

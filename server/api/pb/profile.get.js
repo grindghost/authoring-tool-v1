@@ -20,15 +20,29 @@ export default defineEventHandler(async (event) => {
 
   // Ensure authentication on pocketbase
   // With some retries, if needed...
-  await ensureAuthenticated("Get answer");
+  await ensureAuthenticated("Get profile");
 
   // Derive the actor mbox and name from the encrypted actor token passed as a query
-
   // The query actor is base64 encoded, so decode it
   const decodedActor = decodeURIComponent(actor);
   const decryptedActor = atob(decodedActor);
 
-  const { mbox, name } = JSON.parse(decryptedActor);
+  let mbox = 'mailto:unknown@example.com';
+  let name = 'Unknown User';
+
+  // check if the actor is a valid JSON
+  try {
+    const parsedActor = JSON.parse(decryptedActor);
+    // Now that we know it's valid JSON, destructure mbox and name
+    ({ mbox, name } = parsedActor);
+    // Ensure mbox and name are not undefined or null
+    mbox = mbox || 'mailto:unknown@example.com';
+    name = name || 'Unknown User';
+  } catch (error) {
+    // If not a valid JSON, use the default values already set
+    console.warn('Invalid actor encoding, using default values.');
+  }
+
 
   // Initialize the unit profile
   const UnitProfile = { message: null };
@@ -99,9 +113,20 @@ export default defineEventHandler(async (event) => {
     }
 
     // Get the locale
-    const allLocales = await pb.collection('Locales').getFullList(10);
-    const locale = allLocales.find(l => l.dict?.lang === currentProject.profile.lang);
-    UnitProfile['locale'] = locale?.dict || {};
+    // const allLocales = await pb.collection('Locales').getFullList(10);
+    // const locale = allLocales.find(l => l.dict?.lang === currentProject.profile.lang);
+    // UnitProfile['locale'] = locale?.dict || {};
+
+    // Retrieve the locale record specific to the project and language
+    try {
+      const localeRecord = await pb.collection('Locales').getFirstListItem(
+          `project = "${currentProject.id}" && dict.lang = "${currentProject.profile.lang}"`
+      );
+      UnitProfile['locale'] = localeRecord.dict || {};
+  } catch (error) {
+      console.error(`Error fetching locale for project ${currentProject.id} and language ${currentProject.profile.lang}:`, error);
+      UnitProfile['locale'] = {}; // Set to empty object if not found
+  }
 
     // Validate account subscription
     let account;

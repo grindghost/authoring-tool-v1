@@ -8,7 +8,7 @@
   
         <div class="bottom">
           <p class="file-info">
-            <span class="filename">{{ filename }}</span>
+            <span class="filename">{{ displayedFilename }}</span>
 
             <br />
             <span class="file-size">~{{ pdfFileSize }}</span>
@@ -62,9 +62,19 @@ import { file } from 'jszip';
       return locale.value.body;
     });
 
-    const filename = computed(() => {
-      // return locale.value.filename;
-      return appStore.unitProfile.project.profile.pdfFilename.substring(0, 20) + '... ' + '.pdf';
+    // const filename = computed(() => {
+    //   // return locale.value.filename;
+    //   return appStore.unitProfile.project.profile.pdfFilename.substring(0, 20) + '... ' + '.pdf';
+    // });
+
+    // Enhanced filename computed property
+    const displayedFilename = computed(() => {
+      const fullFilename = appStore.unitProfile.project.profile.pdfFilename;
+      if (fullFilename.length > 20) {
+        return fullFilename.substring(0, 20) + '... ' + '.pdf';
+      } else {
+        return fullFilename + '.pdf';
+      }
     });
 
     const button = computed(() => {

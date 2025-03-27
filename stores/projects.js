@@ -272,6 +272,34 @@ export const useProjects = defineStore('projects', {
         this.stopLoading();
       }
     },
+
+    // Method to fetch project history
+    async fetchProjectHistory(projectId) {
+      this.startLoading();
+      this.statusMessage = 'Récupération de l\'historique du projet';
+      try {
+        const response = await fetch('/api/pb/project-history', {
+          method: 'POST',
+          body: JSON.stringify({ projectId }), // Correctly stringify the object
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to fetch project history');
+        }
+    
+        const data = await response.json(); // Parse the JSON data
+    
+        console.log('Project History Response:', data); // Log the actual data
+        return data; // Return the parsed data
+    
+      } catch (error) {
+        console.error('Error fetching project history:', error);
+        throw error;
+      } finally {
+        this.stopLoading();
+      }
+    },
     
   },
 });

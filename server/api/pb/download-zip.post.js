@@ -304,6 +304,9 @@ export default defineEventHandler(async (event) => {
 
             <script>
 
+                // Global variable to store lmsActor
+                window.lmsActor = null;
+
                 const container = document.querySelector('.container');
                 const messageEl = document.getElementById('message');
                 const pdfContainer = document.getElementById('pdfContainer');
@@ -316,8 +319,13 @@ export default defineEventHandler(async (event) => {
                     window.parent.postMessage({ action: 'openNewWindow', url: pdfUrl }, '*');
                 }
 
-                function openInNewWindow() {
+                function _openInNewWindow() {
                     window.parent.postMessage({ action: 'openNewWindow', url: '${tokenizedUrlPortal}' }, '*');
+                }
+
+                function openInNewWindow() {
+                    const actor = window.lmsActor;
+                    window.parent.postMessage({ action: 'openNewWindow', url: '${tokenizedUrlPortal}' + '&actor=' + actor }, '*');
                 }
 
                 async function checkPocketBaseStatus() {
@@ -346,7 +354,14 @@ export default defineEventHandler(async (event) => {
                             if (openInNewWindowValue) {
                                 container.style.display = 'none'; 
                                 newWindowContainer.style.display = 'flex';
+
+                                // Get user data from the URL params
+                                const urlParams = new URLSearchParams(window.location.search);
+                                const actorToken = urlParams.get("actor");
+                                window.lmsActor = encodeURIComponent(actorToken);
+
                                 openInNewWindow();
+                                
                             } else {
                                 // Get user data from the URL params
                                 const urlParams = new URLSearchParams(window.location.search);

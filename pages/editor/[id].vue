@@ -254,6 +254,16 @@ function closeSaveOverlay() {
   showSaveOverlay.value = false; // Close the save overlay
 }
 
+async function showHistoryHandler() {
+  const projectId = route.params.id;
+  try {
+    const history = await projectStore.fetchProjectHistory(projectId);
+
+  } catch (error) {
+    console.error('Error fetching history:', error);
+  }
+}
+
 function selectActivity(activityKey) {
 
   activeActivity.value = activityKey;
@@ -289,14 +299,88 @@ function openEditor(fieldName) {
   showQuillOverlay.value = true;
 }
 
+function convertQuillListsToStatic(containerDiv) {
+    const quillEditor = containerDiv.querySelector('.ql-editor');
+    if (!quillEditor) return null;
+
+    // Save original Quill content
+    const originalHtml = quillEditor.innerHTML;
+
+    const listItems = quillEditor.querySelectorAll('li[data-list]');
+    listItems.forEach((li, index) => {
+        let listSymbol = '';
+        let indentLevel = 0;
+        let indentPx = 20;
+
+        // Determine list type and indentation
+        if (li.hasAttribute('data-list')) {
+            const listType = li.getAttribute('data-list'); // "ordered" or "bullet"
+
+            // Check indentation level from class (e.g., "ql-indent-1")
+            const indentClass = li.className.match(/ql-indent-(\d+)/);
+            if (indentClass) {
+                indentLevel = parseInt(indentClass[1], 10);
+                indentPx = (indentLevel + 1) * 20; // Increase indentation spacing as needed
+            }
+
+            // Determine list numbering style based on your CSS
+            if (listType === "ordered") {
+                if (indentLevel === 0) listSymbol = String.fromCharCode(97 + index) + ')'; // lower-alpha
+                else if (indentLevel === 1) listSymbol = (index + 1) + '.'; // decimal
+                else if (indentLevel === 2) listSymbol = toRoman(index + 1).toLowerCase() + '.'; // lower-roman
+                else if (indentLevel === 3) listSymbol = toRoman(index + 1).toUpperCase() + '.'; // upper-roman
+                else listSymbol = (index + 1) + '.'; // Fallback
+            } else if (listType === "bullet") {
+                if (indentLevel === 0) listSymbol = '•'; // Bullet
+                else if (indentLevel === 1) listSymbol = '◦'; // Smaller bullet
+                else if (indentLevel === 2) listSymbol = '▪'; // Square bullet
+                else listSymbol = '•'; // Fallback
+            }
+        }
+
+        // Replace list item with a <p> tag
+        const newParagraph = document.createElement('p');
+        newParagraph.style.marginLeft = `${indentPx}px`; // Apply indentation
+        newParagraph.innerHTML = `<span style="margin-right: 5px;">${listSymbol}</span> ${li.innerHTML}`;
+        li.replaceWith(newParagraph);
+    });
+
+    return originalHtml; // Return original content for restoring later
+}
+
+function restoreQuillListsFromStatic(containerDiv, originalHtml) {
+    const quillEditor = containerDiv.querySelector('.ql-editor');
+    if (quillEditor && originalHtml) {
+        quillEditor.innerHTML = originalHtml;
+    }
+}
+
+// Utility function: Convert numbers to Roman numerals
+function toRoman(num) {
+    const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+    let roman = '';
+    for (let i in lookup) {
+        while (num >= lookup[i]) {
+            roman += i;
+            num -= lookup[i];
+        }
+    }
+    return roman;
+}
+
+
 // Helper Method for Taking Screenshot
 async function takeScreenshot() {
+  
+
   const element = document.querySelector('.wrapper'); // Target the .wrapper element
 
   if (!element) {
     console.error("Element .scalable-container not found");
     return;
   }
+  
+  const originalHtml = convertQuillListsToStatic(element);
 
   // Add a faint gray border before taking the screenshot
   // element.style.border = '1px solid #ccc';
@@ -313,6 +397,8 @@ async function takeScreenshot() {
       width: 800,
       height: 449,
     });
+
+    restoreQuillListsFromStatic(element, originalHtml);
 
     // Create a temporary link element to trigger the download
     const link = document.createElement('a');
@@ -820,8 +906,9 @@ if (status.value === "authenticated") {
             >
             <OhVueIcon name="fa-regular-copy" fill="#8d8d8d"  scale="0.9"/>
           </div>
-
         </div>
+        <!-- <button class="btn bg-primary rounded-md text-white mt-2" @click="showHistoryHandler">Preview history</button> -->
+
       </div>
     </div>
 
@@ -1377,4 +1464,5 @@ input[type="checkbox"]:disabled {
   transform-origin: top left; /* Scale from the center */
   padding: 2px;
 }
+
 </style>

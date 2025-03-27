@@ -278,5 +278,7 @@ function setQuillPlaceholderText(placeholderText) {
     overflow: visible;
   }
 
+  
+
   </style>
   

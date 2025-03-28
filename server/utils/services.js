@@ -257,7 +257,8 @@ export const convertQuillHtmlToText = (quillHtml) => {
   const listNumbering = { 0: 0, 1: 0, 2: 0, 3: 0 };
 
   const getOrderedListBullet = (level, index) => {
-    const numberingStyles = ['1.', 'a.', 'i.'];
+    // const numberingStyles = ['1.', 'a.', 'i.'];
+    const numberingStyles = ['a)', '1.', 'i.'];
     const styleIndex = level % numberingStyles.length;
     return numberingStyles[styleIndex]
       .replace('1', index + 1)

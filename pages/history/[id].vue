@@ -2,8 +2,8 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProjects } from '~/stores/projects';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { format, set } from 'date-fns';
+import { fr, ro } from 'date-fns/locale';
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { MdDelete } from "oh-vue-icons/icons";
 
@@ -95,19 +95,27 @@ function trimAnswer(answer) {
   return noMultipleSpaces.length > 50 ? noMultipleSpaces.substring(0, 50) + '...' : noMultipleSpaces;
 }
 
-function showTooltip(event, content) {
-  const row = event.currentTarget;
-  const tableContainer = row.closest('.overflow-x-auto');
-  const tableRect = tableContainer.getBoundingClientRect();
-  const rowRect = row.getBoundingClientRect();
+function showTooltip(event, content, _) {
+    if (event.target.tagName !== 'SPAN') {
+        return;
+    }
 
-  tooltipContent.value = content;
-  tooltipPosition.value = {
-    top: rowRect.top - tableRect.top + rowRect.height,
-    left: tableRect.right - tableRect.left - 100
-  };
-  tooltipVisible.value = true;
+    const span = event.target;
+    const spanRect = span.getBoundingClientRect(); // Get position relative to viewport
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+    tooltipContent.value = content;
+    console.log(content);
+
+    tooltipPosition.value = {
+        top: spanRect.bottom + scrollTop + 5, // Place tooltip below the span
+        left: spanRect.left + scrollLeft
+    };
+
+    tooltipVisible.value = true;
 }
+
 
 function hideTooltip() {
   tooltipVisible.value = false;
@@ -123,7 +131,7 @@ onMounted(async () => {
     <div class="container mx-auto">
       <h1 class="text-3xl font-bold mb-6">Historique du projet</h1>
 
-      <div v-if="isLoading" class="text-center">Chargement...</div>
+      <div v-if="isLoading" class="text-center"></div>
 
       <div v-else-if="error" class="alert alert-error shadow-lg">
         <div class="flex items-center">
@@ -160,13 +168,13 @@ onMounted(async () => {
                   v-for="record in historyRecords"
                   :key="record.id"
                   class="cursor-pointer border-b border-gray-200 bg-white hover:bg-gray-100"
-                  @mouseover="showTooltip($event, record.answer)"
+                  @mouseover="showTooltip($event, record.answer, $event.currentTarget.closest('.table'))"
                   @mouseleave="hideTooltip"
                 >
                   <td>{{ formatDate(record.created) }}</td>
                   <td>{{ record.activityTitle }}</td>
                   <td>
-                    <span class="truncate max-w-[200px] block">
+                    <span class="truncate max-w-[200px] block transparent">
                       {{ trimAnswer(record.answer) }}
                     </span>
                   </td>
@@ -188,14 +196,16 @@ onMounted(async () => {
       <!-- External Tooltip -->
       <div 
         v-if="tooltipVisible"
-        class="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-96 max-h-[50vh] overflow-auto"
+        class="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-96 max-h-[50vh] overflow-auto tptooltip"  
         :style="{
-          top: `${tooltipPosition.top}px`,
-          left: `${tooltipPosition.left}px`
+            top: `${tooltipPosition.top}px`,
+            left: `${tooltipPosition.left}px`,
+            position: 'absolute'
         }"
-      >
-        <div v-html="tooltipContent" class="prose max-w-full"></div>
+        >
+            <div v-html="tooltipContent" class="max-w-full scale-75 ql-editor ql-snow m-0 p-0"></div>
       </div>
+
     </div>
 
     <!-- Delete Confirmation Modal -->
@@ -215,4 +225,7 @@ onMounted(async () => {
 .prose {
   max-width: 100%;
 }
+
+
+
 </style>

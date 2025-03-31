@@ -386,9 +386,42 @@ export default defineEventHandler(async (event) => {
         </html>
     `;
 
+    // Generate tincan.xml content dynamically
+    const tincanXmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+    <manifest identifier="tincan-package"
+            xmlns="http://www.adlnet.gov/xsd/adlcp"
+            xmlns:lom="http://ltsc.ieee.org/xsd/LOM"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.adlnet.gov/xsd/adlcp 
+                                http://www.adlnet.gov/xsd/adlcp.xsd">
+        <resources>
+            <resource identifier="index" href="index.html" type="tincan">
+                <file href="index.html"/>
+                <file href="provider.html"/>
+                <file href="tincan.xml"/>
+            </resource>
+        </resources>
+        <tincan>
+            <activities>
+                <activity id="https://monjournaldebord.ca/activity/${key}">
+                    <name>
+                        <langstring xml:lang="fr">${activity.activityTitle}</langstring>
+                    </name>
+                    <description>
+                        <langstring xml:lang="fr">${'Activité de réflexion personnelle'}</langstring>
+                    </description>
+                </activity>
+            </activities>
+        </tincan>
+    </manifest>`;
+
+
     // Create empty HTML files
     activityZip.file('index.html', indexHTMLContent);
     activityZip.file('provider.html', providerHTMLContent);
+
+    // Add the tincan.xml file to the activity zip
+    activityZip.file('tincan.xml', tincanXmlContent);
 
     // Add xapiwrapper files
     for (const [filePath, url] of Object.entries(xapiFiles)) {

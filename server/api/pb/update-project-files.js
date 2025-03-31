@@ -145,6 +145,7 @@ export default defineEventHandler(async (event) => {
         // If it exists, preserve the existing activity with its ID
         updatedActivities[existingActivityId] = {
           ...existingActivities[existingActivityId],
+          defaultText: defaultText,   // Update the default text (to make sure it's up-to-date)
           index: index,              // Update the index
         };
       } else {

@@ -25,40 +25,60 @@ export const useProjects = defineStore('projects', {
       this.isLoading = false;
     },
 
-
     async fetchProjects() {
+      // Display loading
+      this.startLoading();
+  
+      // Reset projects loaded
+      this.projectsLoaded = false;
+  
+      try {
+          // Send the request without passing the userId explicitly
+          const response = await $fetch('/api/pb/projects', {
+              credentials: 'include',
+          });
+  
+          // Check if the response contains an error (e.g., rate-limited)
+          if (response.error) {
+              throw new Error(response.error);  // Handle error response (e.g., rate limit exceeded)
+          }
+  
+          // Assign the response to the state
+          this.projects = response.projects;
+          this.configs = response.configs;
+          this.locales = response.locales;
+  
+          // Flag projects as loaded
+          this.projectsLoaded = true;
+  
+      } catch (error) {
+          console.error('Error fetching projects:', error);
+          // Handle specific error types (rate limit)
+          if (error.message.includes('429')) {
+            console.log('gotchas');
+            window.location.href = '/429';
+          }
 
-        // Display loading
-        this.startLoading();
-
-        // Reset projects loaded
-        this.projectsLoaded = false;
-
-        try {
-            // Send the request without passing the userId explicitly
-            const response = await $fetch('/api/pb/projects', {
-                credentials: 'include',
-            });
+          // if (error.message == '429 (Too Many Requests)') {
+          //     console.log('here ok')
+          //     // Redirect to a rate-limiting error page or set an error state
+          //     this.errorMessage = "You have been rate-limited. Please try again later.";
+          //     // this.projects = [];
+          //     // Optional: You can redirect to a dedicated rate-limited page
+          //     setTimeout(() => {
+          //       useRouter().push('/429');
+          //     }, 3000); // Redirect after 1 second
             
-            this.projects = response.projects;
-            this.configs = response.configs;
-            this.locales = response.locales;
-
-            // Flag projects as loaded
-            this.projectsLoaded = true;
-
-            // Hide loading
-            this.stopLoading();
-
-        } catch (error) {
-            console.error('Error fetching projects:', error);
-            throw error;
-        } finally {
-            
-            // Hide loading
-            this.stopLoading();
-        }
-    },
+          // } else {
+          //     // Handle other errors
+          //     this.errorMessage = "An error occurred while fetching projects. Please try again.";
+          // }
+      } finally {
+          // Hide loading
+          this.stopLoading();
+      }
+  },
+  
 
     async deleteProject(projectId) {
       

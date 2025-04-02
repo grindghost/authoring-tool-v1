@@ -45,17 +45,16 @@ onMounted(async () => {
     if (!isSubscribed) {
       console.log('Your are not subscribed');
       return;
-      // navigateToStripeDashboard();
     }
 
     checkProjectLimit();
 
     // Check if the projects have already been fetched
     if (!projectStore.projectsLoaded) {
+      
       console.log("Initiating the projects fetch...");
       await projectStore.fetchProjects();
-      checkProjectLimit();
-      
+      checkProjectLimit();      
     }
     initializeCourseIds();
   }

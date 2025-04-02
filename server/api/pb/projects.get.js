@@ -2,8 +2,13 @@
 
 import { pb } from '~/server/plugins/pocketbase'; // Import Pocketbase instance
 import { getServerSession } from '#auth';
+import rateLimit from "~/server/utils/rateLimit"; // Import manually
 
 export default defineEventHandler(async (event) => {
+
+  // Apply rate limiting here
+  await rateLimit(event); 
+
   // Get the authenticated user's session
   const authSession = await getServerSession(event);
 

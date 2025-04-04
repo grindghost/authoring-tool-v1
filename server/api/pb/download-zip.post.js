@@ -1,8 +1,45 @@
 import JSZip from 'jszip';
+import { minify } from 'html-minifier-terser';
+import JavaScriptObfuscator from 'javascript-obfuscator';
 import { encryptContent } from '~/utils/encryption';
-
 import { pb } from '~/server/plugins/pocketbase'; // Import Pocketbase instance
 import { getServerSession } from '#auth';
+
+async function fetchAndProcessVestibuleHTML() {
+    // Step 1: Fetch the vestibule HTML
+    const htmlResponse = await fetch(`${process.env.NEXTAUTH_URL}/vestibule/index.html`);
+    let vestibuleHTML = await htmlResponse.text();
+  
+    // Step 2: Obfuscate inline <script> content (we target <script defer> in this case)
+    const scriptMatch = vestibuleHTML.match(/<script\s+defer>([\s\S]*?)<\/script>/);
+    if (scriptMatch && scriptMatch[1]) {
+      const originalScript = scriptMatch[1];
+  
+      const obfuscatedScript = JavaScriptObfuscator.obfuscate(originalScript, {
+        compact: true,
+        controlFlowFlattening: true,
+        deadCodeInjection: true,
+        stringArray: true,
+        stringArrayEncoding: ['base64'],
+        stringArrayThreshold: 0.75,
+      }).getObfuscatedCode();
+  
+      // Replace original <script defer> with obfuscated version
+      vestibuleHTML = vestibuleHTML.replace(scriptMatch[0], `<script defer>${obfuscatedScript}</script>`);
+    }
+  
+    // Step 3: Minify the full HTML after obfuscation
+    vestibuleHTML = await minify(vestibuleHTML, {
+      collapseWhitespace: true,
+      removeComments: true,
+      removeRedundantAttributes: true,
+      useShortDoctype: true,
+      minifyCSS: true,
+      minifyJS: true,
+    });
+  
+    return vestibuleHTML;
+  }
 
 export default defineEventHandler(async (event) => {
   const { projectId, activities, lang } = await readBody(event);
@@ -57,14 +94,16 @@ export default defineEventHandler(async (event) => {
   }
   
     // Fetch the main index.html file
-    const htmlResponse = await fetch(`${process.env.NEXTAUTH_URL}/vestibule/index.html`);
-    const indexHTMLContent = await htmlResponse.text();
+    // const htmlResponse = await fetch(`${process.env.NEXTAUTH_URL}/vestibule/index-minified.html`);
+    // const indexHTMLContent = await htmlResponse.text();
+
+    const indexHTMLContent = await fetchAndProcessVestibuleHTML();
 
   for (const [key, activity] of Object.entries(activities)) {
 
     // Assemble a token for the activity
     const tokenData = {
-        source: 'brioeducation',
+        source: process.env.NUXT_PUBLIC_ALLOWED_SOURCE,
         project: projectId,
         exercice: key,
     };
@@ -98,7 +137,7 @@ export default defineEventHandler(async (event) => {
     };
 
     // Create the html for the provider
-    const providerHTMLContent = `
+    let providerHTMLContent = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -415,6 +454,36 @@ export default defineEventHandler(async (event) => {
         </tincan>
     </manifest>`;
 
+    // Extract inline <script> content
+    const scriptMatch = providerHTMLContent.match(/<script>([\s\S]*?)<\/script>/);
+    let obfuscatedScript = '';
+
+    if (scriptMatch && scriptMatch[1]) {
+        obfuscatedScript = JavaScriptObfuscator.obfuscate(scriptMatch[1], {
+          compact: true,
+          controlFlowFlattening: true,
+          deadCodeInjection: true,
+          stringArray: true,
+          stringArrayEncoding: ['base64'],
+          stringArrayThreshold: 0.75,
+        }).getObfuscatedCode();
+        
+        // Replace original script with obfuscated one
+        providerHTMLContent = providerHTMLContent.replace(
+            scriptMatch[0],
+            `<script>${obfuscatedScript}</script>`
+        );
+    }
+
+    // Minify the final HTML
+    providerHTMLContent = await minify(providerHTMLContent, {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        minifyCSS: true,
+        minifyJS: true,
+    });
 
     // Create empty HTML files
     activityZip.file('index.html', indexHTMLContent);

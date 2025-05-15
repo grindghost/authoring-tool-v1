@@ -68,7 +68,7 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
   const DEFAULT_NAME = "Unknown User";
   const DEFAULT_EMAIL = "mailto:unknown@mail.com";
 
-  console.log('VOCU inspector', mbox, name);
+  console.log('xAPI actor inspector', mbox, name);
 
   try {
     // Check if name and mbox are valid (not undefined/null and not default values)

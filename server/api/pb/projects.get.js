@@ -57,6 +57,7 @@ export default defineEventHandler(async (event) => {
       sort: 'created',
     });
 
+    
 
     // Iterate through projects and fetch history count for each
     for (let project of userProjects.items) {

@@ -925,7 +925,7 @@ if (status.value === "authenticated") {
         <div
           v-for="(activity, index) in sortedActivities"
           :key="activity.id"
-          class="first:mt-2"
+          class="first:mt-2 thumbnail"
           :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-md', 
                   { 'border-2 border-primary bg-blue-50 shadow-md': activity.id === activeActivity,
                     'border-gray-200 opacity-70': activity.id !== activeActivity }]"
@@ -1155,30 +1155,6 @@ iframe {
   display: flex;
   flex-direction: column;
   border-radius: 0.4rem;
-
-}
-.thumbnail {
-  padding: 0.4rem;
-  border: 1px solid #ccc;
-  background-color: white;
-  opacity: 0.5;
-  cursor: pointer !important;
-  /* text-align: center; */
-  height: 70px;
-  width: 100%;
-  min-width: 150px;
-  display: flex;
-  align-items: start;
-  justify-content: start;
-  gap:0;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.thumbnail.selected {
-  opacity: 1;
-  border: 2px solid black;
-  box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.17);
 
 }
 

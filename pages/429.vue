@@ -16,7 +16,7 @@
   <script setup>
   useHead(() => ({
     status: 429,
-    title: "Too Many Requests",
+    title: "Too Many Requests ",
   }));
   </script>
   

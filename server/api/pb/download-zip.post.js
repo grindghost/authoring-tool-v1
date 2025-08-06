@@ -84,8 +84,7 @@ export default defineEventHandler(async (event) => {
     'logo.svg': `${process.env.NEXTAUTH_URL}/vestibule/logo.svg`,
     'pdf.svg': `${process.env.NEXTAUTH_URL}/vestibule/pdf.svg`,
     'book.svg': `${process.env.NEXTAUTH_URL}/vestibule/book.svg`,
-    'check.svg': `${process.env.NEXTAUTH_URL}/vestibule/check.svg`,
-    'xapi-state-utils.umd.js': `${process.env.NEXTAUTH_URL}/vestibule/xapi-state-utils.umd.js`,
+    'check.svg': `${process.env.NEXTAUTH_URL}/vestibule/check.svg`
   };
 
 

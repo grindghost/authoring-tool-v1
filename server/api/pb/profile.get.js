@@ -156,14 +156,17 @@ export default defineEventHandler(async (event) => {
         return UnitProfile;
       }
     }
+
         
     // Validate history record count (for the whole project)
     const historyRecords = await pb.collection('History').getFullList(200, { filter: `courseId = '${project}'` });
-
+    
+    /*
     if (historyRecords.length > 150) {
       UnitProfile.message = 'Too many history records';
       return UnitProfile;
     }
+    */
 
     delete currentProject.profile.activities;
     UnitProfile['project'] = currentProject;

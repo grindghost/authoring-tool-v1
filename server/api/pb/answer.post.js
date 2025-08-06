@@ -5,6 +5,7 @@ import sanitizeHtml from 'sanitize-html';
 
 export default defineEventHandler(async (event) => {
   const backpackId = getCookie(event, 'backpackId');
+  console.log('🍪 Cookie backpackId for that user:', backpackId);
   const { token, data, date, timeElapsed } = await readBody(event);
 
   console.log('Token received from the query:', token);

@@ -5,6 +5,15 @@ import { encryptContent } from '~/utils/encryption';
 import { pb } from '~/server/plugins/pocketbase'; // Import Pocketbase instance
 import { getServerSession } from '#auth';
 
+
+async function fetchXAPIStateUtils() {
+  const response = await fetch(`${process.env.NEXTAUTH_URL}/vestibule/xapi-state-utils.umd.js`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch xAPI State Utils');
+  }
+  return await response.text();
+}
+
 async function fetchAndProcessVestibuleHTML() {
     // Step 1: Fetch the vestibule HTML
     const htmlResponse = await fetch(`${process.env.NEXTAUTH_URL}/vestibule/index.html`);
@@ -76,6 +85,7 @@ export default defineEventHandler(async (event) => {
     'pdf.svg': `${process.env.NEXTAUTH_URL}/vestibule/pdf.svg`,
     'book.svg': `${process.env.NEXTAUTH_URL}/vestibule/book.svg`,
     'check.svg': `${process.env.NEXTAUTH_URL}/vestibule/check.svg`,
+    'xapi-state-utils.umd.js': `${process.env.NEXTAUTH_URL}/vestibule/xapi-state-utils.umd.js`,
   };
 
 
@@ -98,6 +108,7 @@ export default defineEventHandler(async (event) => {
     // const indexHTMLContent = await htmlResponse.text();
 
     const indexHTMLContent = await fetchAndProcessVestibuleHTML();
+    const xapiStateUtilsContent = await fetchXAPIStateUtils();
 
   for (const [key, activity] of Object.entries(activities)) {
 
@@ -488,6 +499,7 @@ export default defineEventHandler(async (event) => {
     // Create empty HTML files
     activityZip.file('index.html', indexHTMLContent);
     activityZip.file('provider.html', providerHTMLContent);
+    activityZip.file('xapi-state-utils.umd.js', xapiStateUtilsContent);
 
     // Add the tincan.xml file to the activity zip
     activityZip.file('tincan.xml', tincanXmlContent);

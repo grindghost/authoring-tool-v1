@@ -163,7 +163,7 @@ return date.toLocaleDateString('fr-FR', options);
 
           <div class="flex justify-center items-center">
             <div class="w-full bg-gray-200 rounded-full h-1.5 mr-3 dark:bg-gray-700">
-              <div class="bg-green-500 h-1.5 rounded-full dark:bg-green-500" :style="{ width: (historyCount / answersLimit)*100 + '%' }"></div>
+              <div class="bg-green-500 h-1.5 rounded-full max-w-full dark:bg-green-500" :style="{ width: (historyCount / answersLimit)*100 + '%' }"></div>
             </div>
             <p class="text-xs scale-x-95 tracking-tighter">{{ historyCount }}/{{ answersLimit }}</p>
           </div>

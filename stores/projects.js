@@ -320,6 +320,46 @@ export const useProjects = defineStore('projects', {
         this.stopLoading();
       }
     },
+
+    // Method to download PDF for specific user
+    async downloadUserPdf(projectId, backpackId) {
+      this.startLoading();
+      this.statusMessage = 'Génération du PDF pour l\'utilisateur';
+      try {
+        const response = await fetch('/api/pb/download-user-pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ projectId, backpackId }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to download user PDF');
+        }
+
+        // Get the blob from the response
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `user-${backpackId}-project-${projectId}.pdf`;
+        a.click();
+        
+        // Clean up
+        window.URL.revokeObjectURL(url);
+        
+        return true;
+      } catch (error) {
+        console.error('Error downloading user PDF:', error);
+        throw error;
+      } finally {
+        this.stopLoading();
+      }
+    },
     
   },
 });

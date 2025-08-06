@@ -53,6 +53,15 @@ async function deleteRecord(recordId) {
   showDeleteConfirmation.value = true;
 }
 
+// Download PDF for specific user
+async function downloadUserPdf(backpackId) {
+  try {
+    await projectStore.downloadUserPdf(projectId.value, backpackId);
+  } catch (err) {
+    error.value = err.message || 'Failed to download PDF';
+  }
+}
+
 async function confirmDelete() {
   showDeleteConfirmation.value = false;
   try {
@@ -95,22 +104,134 @@ function trimAnswer(answer) {
   return noMultipleSpaces.length > 50 ? noMultipleSpaces.substring(0, 50) + '...' : noMultipleSpaces;
 }
 
+// Computed property to sort history records by index
+const sortedProjectHistory = computed(() => {
+  if (!projectHistory.value || !projectHistory.value.historyByBackpack) {
+    return null;
+  }
+
+  const sorted = {};
+  for (const [backpackId, records] of Object.entries(projectHistory.value.historyByBackpack)) {
+    // Sort records by index (ascending order)
+    sorted[backpackId] = [...records].sort((a, b) => {
+      const indexA = a.index || 0;
+      const indexB = b.index || 0;
+      return indexA - indexB;
+    });
+  }
+  return {
+    ...projectHistory.value,
+    historyByBackpack: sorted
+  };
+});
+
 function showTooltip(event, content, _) {
     if (event.target.tagName !== 'SPAN') {
         return;
     }
 
-    const span = event.target;
-    const spanRect = span.getBoundingClientRect(); // Get position relative to viewport
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+    // Process the content to add inline styles for bullets
+    let processedContent = content;
+    
+    // Add inline styles to list items to override Tailwind
+    processedContent = processedContent.replace(
+        /<li([^>]*)>/g,
+        '<li$1 style="position: relative; padding-left: 1rem; margin-bottom: 0.5rem; list-style: none;">'
+    );
+    
+    // Add bullet styling for bullet lists
+    processedContent = processedContent.replace(
+        /<li([^>]*data-list="bullet"[^>]*)>/g,
+        '<li$1 style="position: relative; padding-left: 2rem; margin-bottom: 0.5rem; list-style: none;"><span style="position: absolute; left: 0; color: #6b7280; font-size: 0.75rem;">•</span>'
+    );
+    
+    // Handle indent classes
+    processedContent = processedContent.replace(
+        /<li([^>]*class="[^"]*ql-indent-1[^"]*"[^>]*data-list="bullet"[^>]*)>/g,
+        '<li$1 style="position: relative; padding-left: 3.5rem; margin-bottom: 0.5rem; list-style: none;"><span style="position: absolute; left: 1.5rem; color: #6b7280; font-size: 0.75rem;">•</span>'
+    );
+    
+    processedContent = processedContent.replace(
+        /<li([^>]*class="[^"]*ql-indent-2[^"]*"[^>]*data-list="bullet"[^>]*)>/g,
+        '<li$1 style="position: relative; padding-left: 5rem; margin-bottom: 0.5rem; list-style: none;"><span style="position: absolute; left: 3rem; color: #6b7280; font-size: 0.75rem;">•</span>'
+    );
+    
+    // Process ordered lists by finding each <ol> and numbering its items
+    processedContent = processedContent.replace(
+        /<ol>([\s\S]*?)<\/ol>/g,
+        (match, listContent) => {
+            let counter = 1;
+            let processedList = listContent.replace(
+                /<li([^>]*data-list="ordered"[^>]*)>(.*?)<\/li>/g,
+                (match, attributes, content) => `<li${attributes} style="position: relative; padding-left: 2rem; margin-bottom: 0.5rem; list-style: none; display: block;"><span style="position: absolute; left: 0; color: #6b7280; font-size: 0.75rem;">${counter++}.</span>${content}</li>`
+            );
+            
+            // Handle indented ordered lists
+            counter = 1;
+            processedList = processedList.replace(
+                /<li([^>]*class="[^"]*ql-indent-1[^"]*"[^>]*data-list="ordered"[^>]*)>(.*?)<\/li>/g,
+                (match, attributes, content) => `<li${attributes} style="position: relative; padding-left: 3.5rem; margin-bottom: 0.5rem; list-style: none; display: block;"><span style="position: absolute; left: 1.5rem; color: #6b7280; font-size: 0.75rem;">${counter++}.</span>${content}</li>`
+            );
+            
+            counter = 1;
+            processedList = processedList.replace(
+                /<li([^>]*class="[^"]*ql-indent-2[^"]*"[^>]*data-list="ordered"[^>]*)>(.*?)<\/li>/g,
+                (match, attributes, content) => `<li${attributes} style="position: relative; padding-left: 5rem; margin-bottom: 0.5rem; list-style: none; display: block;"><span style="position: absolute; left: 3rem; color: #6b7280; font-size: 0.75rem;">${counter++}.</span>${content}</li>`
+            );
+            
+            return `<ol>${processedList}</ol>`;
+        }
+    );
+    
+    // Hide ql-ui spans
+    processedContent = processedContent.replace(
+        /<span class="ql-ui"><\/span>/g,
+        ''
+    );
 
-    tooltipContent.value = content;
-    console.log(content);
+    tooltipContent.value = processedContent;
+    
+    // Get the span element and its position
+    const span = event.target;
+    const spanRect = span.getBoundingClientRect();
+    
+    // Get cursor position relative to viewport
+    const cursorY = event.clientY;
+    
+    // Calculate optimal position to avoid overflow
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const tooltipWidth = 400; // Use the same width as the answer span
+    const tooltipHeight = 300; // Estimated tooltip height
+    
+    // Align tooltip with the answer span
+    let left = spanRect.left;
+    let top = cursorY + 10; // 10px offset from cursor
+
+    // Adjust horizontal position to prevent overflow
+    if (left + tooltipWidth > viewportWidth) {
+        left = viewportWidth - tooltipWidth - 10; // Align to right edge
+    }
+    
+    // Ensure tooltip doesn't go outside left edge
+    if (left < 10) {
+        left = 10;
+    }
+
+    // Adjust vertical position to prevent overflow
+    if (top + tooltipHeight > viewportHeight) {
+        top = cursorY - tooltipHeight - 10; // Position above cursor
+    }
+
+    // Ensure tooltip doesn't go above the viewport
+    if (top < 10) {
+        top = 10;
+    }
 
     tooltipPosition.value = {
-        top: spanRect.bottom + scrollTop + 5, // Place tooltip below the span
-        left: spanRect.left + scrollLeft
+        top: top,
+        left: left,
+        width: tooltipWidth
     };
 
     tooltipVisible.value = true;
@@ -142,21 +263,34 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div v-else-if="projectHistory && projectHistory.historyByBackpack">
-        <div v-for="(historyRecords, backpackId) in projectHistory.historyByBackpack" :key="backpackId" class="mb-8">
-          <div class="mb-4">
-            <h2 class="text-2xl font-semibold mb-1">
-              <span v-if="projectHistory.backpackRecords[backpackId]">
-                {{ projectHistory.backpackRecords[backpackId].name }}
-              </span>
-            </h2>
-            <p class="text-sm text-gray-500">Backpack ID: {{ backpackId }}</p>
+      <div v-else-if="sortedProjectHistory && sortedProjectHistory.historyByBackpack">
+        <div v-for="(historyRecords, backpackId) in sortedProjectHistory.historyByBackpack" :key="backpackId" class="mb-8">
+          <div class="mb-4 flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-semibold mb-1">
+                <span v-if="sortedProjectHistory.backpackRecords[backpackId]">
+                  {{ sortedProjectHistory.backpackRecords[backpackId].name }}
+                </span>
+              </h2>
+              <p class="text-sm text-gray-500">Backpack ID: {{ backpackId }}</p>
+            </div>
+            <button 
+              class="btn btn-primary btn-sm"
+              @click="downloadUserPdf(backpackId)"
+              :disabled="isLoading"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              PDF
+            </button>
           </div>
 
           <div class="overflow-x-auto rounded-lg shadow-md border border-gray-200 overflow-hidden relative">
             <table class="table w-full bg-white">
               <thead>
                 <tr>
+                  <th>Index</th>
                   <th>Date</th>
                   <th>Activité</th>
                   <th>Réponse</th>
@@ -171,6 +305,9 @@ onMounted(async () => {
                   @mouseover="showTooltip($event, record.answer, $event.currentTarget.closest('.table'))"
                   @mouseleave="hideTooltip"
                 >
+                  <td class="text-center">
+                    <span class="txt-md">{{ record.index || 0 }}</span>
+                  </td>
                   <td>{{ formatDate(record.created) }}</td>
                   <td>{{ record.activityTitle }}</td>
                   <td>
@@ -193,17 +330,25 @@ onMounted(async () => {
         <p>Aucune donnée d'historique trouvée pour ce projet.</p>
       </div>
 
-      <!-- External Tooltip -->
+      <!-- Enhanced Tooltip -->
       <div 
         v-if="tooltipVisible"
-        class="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg w-96 max-h-[50vh] overflow-auto tptooltip"  
+        class="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-xl max-h-[60vh] overflow-hidden tooltip-container"  
         :style="{
             top: `${tooltipPosition.top}px`,
             left: `${tooltipPosition.left}px`,
-            position: 'absolute'
+            width: `${tooltipPosition.width}px`,
+            position: 'fixed'
         }"
+        @mouseenter="tooltipVisible = true"
+        @mouseleave="hideTooltip"
         >
-            <div v-html="tooltipContent" class="max-w-full scale-75 ql-editor ql-snow m-0 p-0"></div>
+            <div class="bg-gray-50 px-3 py-2 border-b border-gray-200">
+              <h4 class="text-sm font-semibold text-gray-700">Contenu de la réponse</h4>
+            </div>
+            <div class="p-3 max-h-[50vh] overflow-y-auto">
+              <div v-html="tooltipContent" class="ql-editor ql-snow text-sm leading-relaxed tooltip-content"></div>
+            </div>
       </div>
 
     </div>
@@ -226,6 +371,228 @@ onMounted(async () => {
   max-width: 100%;
 }
 
+.tooltip-container {
+  animation: fadeIn 0.2s ease-in-out;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for tooltip */
+.tooltip-container .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tooltip-container .overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tooltip-container .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.tooltip-container .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ensure tooltip content is properly formatted */
+.tooltip-container .ql-editor {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.tooltip-container .ql-editor p {
+  margin-bottom: 0.5rem;
+}
+
+.tooltip-container .ql-editor p:last-child {
+  margin-bottom: 0;
+}
+
+/* Fix Quill editor list styling in tooltip - Aggressive approach */
+.tooltip-content ol {
+  padding-left: 0 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.tooltip-content ol li {
+  margin-bottom: 0.25rem !important;
+  position: relative !important;
+  padding-left: 2rem !important;
+}
+
+.tooltip-content ol li:last-child {
+  margin-bottom: 0 !important;
+}
+
+
+.tooltip-content ol li[data-list="bullet"]::before {
+  content: "•" !important;
+  position: absolute !important;
+  left: 0 !important;
+  color: #6b7280 !important;
+  font-size: 0.75rem !important;
+}
+
+
+.tooltip-content ol li[data-list="ordered"]::before {
+  content: counter(list-counter) "." !important;
+  position: absolute !important;
+  left: 0 !important;
+  color: #6b7280 !important;
+  font-size: 0.75rem !important;
+  counter-increment: list-counter !important;
+}
+
+/* Handle Quill indent classes with !important */
+.tooltip-content ol li.ql-indent-1 {
+  padding-left: 3.5rem !important;
+}
+
+.tooltip-content ol li.ql-indent-1::before {
+  left: 1.5rem !important;
+}
+
+.tooltip-content ol li.ql-indent-2 {
+  padding-left: 5rem !important;
+}
+
+.tooltip-content ol li.ql-indent-2::before {
+  left: 3rem !important;
+}
+
+.tooltip-content ol li.ql-indent-3 {
+  padding-left: 6.5rem !important;
+}
+
+.tooltip-content ol li.ql-indent-3::before {
+  left: 4.5rem !important;
+}
+
+/* Reset counter for each list */
+.tooltip-content ol {
+  counter-reset: list-counter !important;
+}
+
+/* Handle Quill's ql-ui spans */
+.tooltip-content .ql-ui {
+  display: none !important;
+}
+
+/* Style raw HTML markup without Quill classes */
+.tooltip-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.tooltip-content ol {
+  padding-left: 0;
+  margin-bottom: 0.5rem;
+  list-style: none;
+}
+
+.tooltip-content ol li {
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 2rem;
+  list-style: none;
+}
+
+.tooltip-content ol li:last-child {
+  margin-bottom: 0;
+}
+
+/* Style bullet lists */
+.tooltip-content ol li[data-list="bullet"] {
+  list-style: none;
+}
+
+.tooltip-content ol li[data-list="bullet"]::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Style numbered lists */
+.tooltip-content ol li[data-list="ordered"] {
+  list-style: none;
+}
+
+.tooltip-content ol li[data-list="ordered"]::before {
+  content: counter(list-counter) ".";
+  position: absolute;
+  left: 0;
+  color: #6b7280;
+  font-size: 0.75rem;
+  counter-increment: list-counter;
+}
+
+/* Reset counter for each list */
+.tooltip-content ol {
+  counter-reset: list-counter;
+  padding-left: 10px !important;
+}
+
+/* Hide Quill UI elements */
+.tooltip-content .ql-ui {
+  display: none;
+}
+
+/* Handle indent classes */
+.tooltip-content ol li.ql-indent-1 {
+  padding-left: 3.5rem;
+}
+
+.tooltip-content ol li.ql-indent-1::before {
+  left: 1.5rem;
+}
+
+.tooltip-content ol li.ql-indent-2 {
+  padding-left: 5rem;
+}
+
+.tooltip-content ol li.ql-indent-2::before {
+  left: 3rem;
+}
+
+.tooltip-content ol li.ql-indent-3 {
+  padding-left: 6.5rem;
+}
+
+.tooltip-content ol li.ql-indent-3::before {
+  left: 4.5rem;
+}
+
+/* Ensure proper spacing for nested lists */
+.tooltip-content ol ol {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+span .ql-ui::before {
+    content: "•" !important;
+    display: inline-block;
+    font-size: 30px ;
+    font-weight: 700;
+    margin-left: -1.5em;
+    margin-right: .3em;
+    text-align: right;
+    white-space: nowrap;
+    width: 1.2em;
+}
 
 
 </style>

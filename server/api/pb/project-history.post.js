@@ -85,15 +85,21 @@ export default defineEventHandler(async (event) => {
     const backpackIds = Object.keys(historyByBackpack);
     const backpackRecords = {};
 
+    // Batch size (adjust as needed)
+    const BATCH_SIZE = 20;
+
     if (backpackIds.length > 0) {
-        const filter = backpackIds.map(id => `token="${id}"`).join(' || ');
+      for (let i = 0; i < backpackIds.length; i += BATCH_SIZE) {
+        const batch = backpackIds.slice(i, i + BATCH_SIZE);
+        const filter = batch.map(id => `token="${id}"`).join(' || ');
         const backpacks = await pb.collection('Backpacks').getFullList({
-            filter: filter
+          filter: filter
         });
 
         for (const backpack of backpacks) {
-            backpackRecords[backpack.token] = backpack;
+          backpackRecords[backpack.token] = backpack;
         }
+      }
     }
 
     // Sort history records by activity index

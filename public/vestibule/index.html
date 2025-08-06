@@ -23,6 +23,10 @@
 
     <script type="text/javascript" src="./xapiwrapper/lib/cryptojs_v3.1.2.js"></script>
     <script type="text/javascript" src="./xapiwrapper/dist/xapiwrapper.min.js"></script>
+
+    <!-- xapi-state-utils UMD bundle -->
+    <script src="./xapi-state-utils.umd.js"></script>
+
   </head>
 
   <body spellcheck="false">
@@ -38,6 +42,29 @@
   </body>
 
   <script defer>
+
+    // Access the functions from the global xapiStateUtils object
+    const { sendStatement } = xapiStateUtils;
+
+    // Example with custom options
+    async function sendCustomStatement() {
+        try {
+            const result = await sendStatement({
+                duration: "PT0.05S",
+                viewCount: 2,
+                activityName: "Réflexion personnelle",
+                activityDescription: "Activité de réflexion sur le contenu",
+            });
+            
+            console.log('Custom statement sent:', result);
+            
+        } catch (error) {
+            console.error('Error sending custom statement:', error);
+        }
+    }
+        
+    sendCustomStatement();
+
     // Function to get the LMS user and include registration and activity_id
     async function getLMSUser() {
       if (window.ADL && ADL.XAPIWrapper.lrs) {

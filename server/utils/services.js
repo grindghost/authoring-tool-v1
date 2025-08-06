@@ -99,6 +99,8 @@ export const validateOrCreateUser = async (pb, backpackId, req, name, mbox) => {
                   { isValidName, isValidEmail, name, mbox });
     }
 
+    console.log('🍪 (validateOrCreateUser) Checking received backpackId cookie:', backpackId);
+
     if (backpackId && backpackId !== 'defaultbackpackId') {
 
       console.log('backpackId received from the query:', backpackId);

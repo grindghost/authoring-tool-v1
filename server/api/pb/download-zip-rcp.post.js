@@ -138,9 +138,9 @@ export default defineEventHandler(async (event) => {
     activityZip.file('xapi-state-utils.umd.js', rcpFiles['xapi-state-utils.umd.js']);
 
     // Add PDF file if available
-    if (pdfBuffer) {
-      activityZip.file('document.pdf', pdfBuffer);
-    }
+    // if (pdfBuffer) {
+    //   activityZip.file('document.pdf', pdfBuffer);
+    // }
 
     // Generate the activity zip file
     const activityZipContent = await activityZip.generateAsync({ type: 'nodebuffer' });

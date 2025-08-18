@@ -164,6 +164,32 @@ export const useProjects = defineStore('projects', {
       }
     },
 
+    async downloadProjectZipRCP(activities, projectId, lang, indexTarget) {
+      this.startLoading();
+      try {
+        const response = await fetch(`/api/pb/download-zip-rcp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ projectId, activities, lang, indexTarget }),
+        });
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        // Trigger the download on the client
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectId}-rcp.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Failed to download RCP ZIP:', error);
+      } finally {
+        this.stopLoading();
+      }
+    },
+
     async createProject(projectName, projectDescription, pdfFile, pdfImage, courseId) {
               
       // this.startLoading();

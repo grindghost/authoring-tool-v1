@@ -119,6 +119,14 @@ export const useProjectModelStore = defineStore('projectModel', {
           "editable": true,
           "excluded": false
       },
+
+      "indexTarget": {
+        "label": "Index Target (JSON)",
+        "type": "textarea",
+        "value": "{\n  \"activityId\": \"fboxlto895-jpxhskc284\",\n  \"registration\": \"fboxlto895-jpxhskc284\",\n  \"idcontenubrio\": \"fboxlto895-jpxhskc284\"\n}",
+        "editable": true,
+        "excluded": false
+      },
   
       "author": {
         "label": "Auteur",

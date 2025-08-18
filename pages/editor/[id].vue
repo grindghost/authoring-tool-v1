@@ -250,6 +250,22 @@ async function downloadZip() {
   projectStore.downloadProjectZip(project.value.activities, route.params.id, project.value.lang);
 }
 
+async function downloadZipRCP() {
+  // Parse the indexTarget JSON from the project
+  let indexTarget = null;
+  try {
+    if (project.value.indexTarget) {
+      indexTarget = JSON.parse(project.value.indexTarget);
+    }
+  } catch (error) {
+    console.error('Invalid JSON in indexTarget:', error);
+    // You might want to show an alert to the user here
+    return;
+  }
+  
+  projectStore.downloadProjectZipRCP(project.value.activities, route.params.id, project.value.lang, indexTarget);
+}
+
 function closeSaveOverlay() {
   showSaveOverlay.value = false; // Close the save overlay
 }
@@ -711,6 +727,20 @@ if (status.value === "authenticated") {
                     />
                     <span v-if="isDateExpired" class="text-red-500 text-sm mt-1">Expiré</span>
                   </div>
+
+                  <!-- Index Target -->
+                  <div class="form-group">
+                    <label for="indexTarget" v-html="projectModelStore.projectParams.indexTarget.label"></label>
+                    <textarea
+                      id="indexTarget"
+                      v-model="project.indexTarget"
+                      class="form-control"
+                      :readonly="!projectModelStore.projectParams.indexTarget.editable"
+                      :disabled="!projectModelStore.projectParams.indexTarget.editable"
+                      rows="6"
+                      placeholder="Enter JSON object for indexTarget..."
+                    ></textarea>
+                  </div>
                 </form>          
                 <!-- ...  -->
 
@@ -873,6 +903,13 @@ if (status.value === "authenticated") {
           <span class="text-[var(--color-theme-button)] hover:underline bold">Télécharger le projet</span>
         </div>
 
+        <div class="downloadBlock flex items-center justify-start gap-2 cursor-pointer mt-2" @click="downloadZipRCP">
+          <div class="rounded-full w-7 h-7 bg-green-600 flex items-center justify-center px-2 box-size">
+            <OhVueIcon name="hi-download" class="" fill="#fff"  scale="0.9"/>
+          </div>
+          <span class="text-green-600 hover:underline font-semibold">Télécharger RCP</span>
+        </div>
+
       </div>
 
 
@@ -1010,7 +1047,7 @@ if (status.value === "authenticated") {
         <div class="overlay-content" @click.stop>
           <QuillEditor
            
-            v-model:content="editorContent"
+            :content="editorContent"
             @save="saveQuillContent"
             @cancel="cancelQuillOverlay"
           />
@@ -1273,7 +1310,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked {
-  background: theme(colors.primary); /* Works if you've defined `primary` in your Tailwind config */
+  background: var(--color-primary); /* Works if you've defined `primary` in your Tailwind config */
 }
 
 input[type="checkbox"]::before {
@@ -1303,7 +1340,7 @@ input[type="checkbox"]:disabled {
 
 .success-icon {
   font-size: 2rem;
-  color: theme(colors.primary);
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
 }
 

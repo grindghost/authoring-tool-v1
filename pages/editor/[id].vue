@@ -13,7 +13,9 @@ import { OhVueIcon, addIcons } from "oh-vue-icons";
 import { BiCheckCircle, HiDownload, FaRegularCopy, MdAddaphotoRound } from "oh-vue-icons/icons";
 
 import ProjectUpdateOverlay from '~/components/ProjectUpdateOverlay.vue';
+import ValidationSummary from '~/components/ValidationSummary.vue';
 import { useAppStateStore } from '/stores/appState';
+import { validateField, validateProject, sanitizeHtml, getCharacterCount } from '~/utils/validation';
 
 // Register the icons
 addIcons(BiCheckCircle, HiDownload, FaRegularCopy, MdAddaphotoRound);
@@ -44,6 +46,11 @@ const showQuillOverlay = ref(false);          // Overlay visibility
 const showAlert = ref(false);                 // Alert visibility 
 const editorContent = ref("");
 const editingField = ref(null);
+
+// Validation state
+const validationErrors = ref({});
+const isProjectValid = ref(true);
+const showValidationAlert = ref(false);
 
 // Getters ****************************************
 const project = computed(() => {
@@ -107,9 +114,9 @@ const isNotAPdfField = computed(() => {
 });
 
 const isLastActivity = computed(() => {
-  const activities = project.value.activities;
+  const activities = sortedActivities.value;
   const lastActivity = activities[activities.length - 1];
-  return selectedActivity.value === lastActivity || selectedActivity.value.isEndpoint;
+  return selectedActivity.value?.id === lastActivity?.id || selectedActivity.value?.isEndpoint;
 })
 
 // Compute a sorted version of activities, based on their index key
@@ -220,8 +227,22 @@ async function deleteProject() {
 }
 
 function saveProject() {
-
   showAlert.value = false;
+  showValidationAlert.value = false;
+
+  // Validate the entire project before saving
+  const validationResult = validateProject(project.value);
+  
+  if (!validationResult.isValid) {
+    validationErrors.value = validationResult.errors;
+    isProjectValid.value = false;
+    showValidationAlert.value = true;
+    return;
+  }
+
+  // Clear any previous validation errors
+  validationErrors.value = {};
+  isProjectValid.value = true;
 
   const projectId = route.params.id;
   const updatedProject = project.value;
@@ -283,10 +304,10 @@ async function showHistoryHandler() {
 function selectActivity(activityKey) {
 
   activeActivity.value = activityKey;
-  selectedActivity.value = project.value.activities[activityKey] || {};
   
-  // add the id in the selected activity
-  selectedActivity.value.id = activityKey;
+  // Create a proper reactive object by spreading the activity data
+  const activityData = project.value.activities[activityKey] || {};
+  selectedActivity.value = { ...activityData, id: activityKey };
 
   accordion.value.project = false;
   accordion.value.activity = true;
@@ -295,9 +316,18 @@ function selectActivity(activityKey) {
 
 function saveQuillContent(html) {
   if (editingField.value) {
-
     // Sanitize the html content
     const sanitizedHtml = DOMPurify.sanitize(html, {FORBID_TAGS: ['img']});
+
+    // Validate the content
+    const validationResult = validateActivityField(editingField.value, sanitizedHtml);
+    
+    if (!validationResult.isValid) {
+      // Show error message (you might want to add a toast or alert here)
+      console.error('Validation error:', validationResult.message);
+      // Don't close the overlay if there's an error
+      return;
+    }
 
     selectedActivity.value[editingField.value] = sanitizedHtml; // Save content to the correct field
   }
@@ -313,6 +343,16 @@ function openEditor(fieldName) {
   editingField.value = fieldName;
   editorContent.value = selectedActivity.value[fieldName]; // Load the field content into the editor
   showQuillOverlay.value = true;
+  
+  // Clear validation error for this field when opening editor
+  if (selectedActivity.value?.id) {
+    const activityKey = `activity_${selectedActivity.value.id}`;
+    if (validationErrors.value[activityKey]?.[fieldName]) {
+      delete validationErrors.value[activityKey][fieldName];
+      // Update project validity
+      isProjectValid.value = Object.keys(validationErrors.value).length === 0;
+    }
+  }
 }
 
 function convertQuillListsToStatic(containerDiv) {
@@ -384,6 +424,110 @@ function toRoman(num) {
     return roman;
 }
 
+// Validation functions
+function validateProjectField(fieldName, value) {
+  const result = validateField(fieldName, value);
+  
+  if (!result.isValid) {
+    validationErrors.value[fieldName] = result.message;
+  } else {
+    delete validationErrors.value[fieldName];
+  }
+  
+  // Update project validity
+  isProjectValid.value = !hasValidationErrors();
+  
+  return result;
+}
+
+function validateActivityField(fieldName, value) {
+  if (!selectedActivity.value?.id) return { isValid: true };
+  
+  const result = validateField(fieldName, value);
+  const activityKey = `activity_${selectedActivity.value.id}`;
+  
+  if (!validationErrors.value[activityKey]) {
+    validationErrors.value[activityKey] = {};
+  }
+  
+  if (!result.isValid) {
+    validationErrors.value[activityKey][fieldName] = result.message;
+  } else {
+    delete validationErrors.value[activityKey][fieldName];
+  }
+  
+  // Clean up empty activity error objects
+  if (Object.keys(validationErrors.value[activityKey]).length === 0) {
+    delete validationErrors.value[activityKey];
+  }
+  
+  // Update project validity
+  isProjectValid.value = !hasValidationErrors();
+  
+  return result;
+}
+
+function getFieldError(fieldName, isActivity = false) {
+  if (isActivity && selectedActivity.value?.id) {
+    const activityKey = `activity_${selectedActivity.value.id}`;
+    return validationErrors.value[activityKey]?.[fieldName] || '';
+  }
+  return validationErrors.value[fieldName] || '';
+}
+
+function getCharacterCountForField(fieldName) {
+  if (!selectedActivity.value?.[fieldName]) return 0;
+  return getCharacterCount(selectedActivity.value[fieldName]);
+}
+
+function getProjectFieldCharacterCount(fieldName) {
+  if (!project.value?.[fieldName]) return 0;
+  return project.value[fieldName].length;
+}
+
+function getActivityFieldCharacterCount(fieldName) {
+  if (!selectedActivity.value?.[fieldName]) return 0;
+  return selectedActivity.value[fieldName].length;
+}
+
+// Helper function to check if there are any validation errors
+function hasValidationErrors() {
+  return Object.keys(validationErrors.value).some(key => {
+    if (key.startsWith('activity_')) {
+      return Object.keys(validationErrors.value[key]).length > 0;
+    }
+    return true; // Project-level errors
+  });
+}
+
+// Handle PDF filename input with real-time filtering
+function handlePdfFilenameInput(event) {
+  const input = event.target;
+  let value = input.value;
+  
+  // Remove file extensions (anything after a dot)
+  value = value.replace(/\.[^.]*$/, '');
+  
+  // Convert to lowercase
+  value = value.toLowerCase();
+  
+  // Remove special characters except hyphens and underscores
+  value = value.replace(/[^a-z0-9\-_]/g, '');
+  
+  // Remove consecutive hyphens and underscores
+  value = value.replace(/[-_]{2,}/g, '-');
+  
+  // Remove leading/trailing hyphens and underscores
+  value = value.replace(/^[-_]+|[-_]+$/g, '');
+  
+  // Update the input value
+  input.value = value;
+  project.pdfFilename = value;
+  
+  // Validate the field
+  validateProjectField('pdfFilename', value);
+}
+
 
 // Helper Method for Taking Screenshot
 async function takeScreenshot() {
@@ -448,6 +592,27 @@ watch(project, (oldVal, newVal) => {
     if (!showProjectUpdateOverlay.value) {
       showAlert.value = true;      
     }
+    
+    // Validate the project when it changes
+    const validationResult = validateProject(newVal);
+    if (!validationResult.isValid) {
+      validationErrors.value = validationResult.errors;
+    }
+    isProjectValid.value = !hasValidationErrors();
+  }
+}, { deep: true });
+
+// Watch selected activity for validation
+watch(selectedActivity, (newVal) => {
+  if (newVal && newVal.id) {
+    // Validate activity fields when activity changes
+    const activityKey = `activity_${newVal.id}`;
+    if (validationErrors.value[activityKey]) {
+      const activityValidation = validateProject({ activities: { [newVal.id]: newVal } });
+      if (activityValidation.errors[`activity_${newVal.id}`]) {
+        validationErrors.value[activityKey] = activityValidation.errors[`activity_${newVal.id}`];
+      }
+    }
   }
 }, { deep: true });
 
@@ -493,6 +658,15 @@ if (status.value === "authenticated") {
     // Initialize the scaler for the specific container
     const container = ref.scalerContainer;
     initializeContainerScaler(scalableContainer.value);
+    
+    // Initial validation of the project
+    if (project.value) {
+      const validationResult = validateProject(project.value);
+      if (!validationResult.isValid) {
+        validationErrors.value = validationResult.errors;
+      }
+      isProjectValid.value = !hasValidationErrors();
+    }
   }
 
 })
@@ -526,6 +700,30 @@ if (status.value === "authenticated") {
     </div>
   </div>
 
+  <!-- Validation Alert -->
+  <div class="alert-container mt-20 px-4 fixed z-50 bottom-0 pb-4 pt-10 w-full" v-if="showValidationAlert">
+    <div role="alert" class="alert bg-red-50 border border-red-200 shadow-lg">
+      <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 shrink-0 stroke-current text-red-500"
+          fill="none"
+          viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div class="flex flex-col leading-5">
+          <span class="font-bold text-red-700">Erreurs de validation détectées</span>
+          <span class="text-red-600">Veuillez corriger les erreurs avant de sauvegarder.</span>
+        </div>
+      <div class="flex gap-1">
+        <button class="btn bg-red-500 rounded-md text-white" @click="showValidationAlert = false">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <div class="content mt-16">
       <!-- Left Sidebar with Accordion Sections -->
       <div class="left-sidebar shadow-md">
@@ -541,16 +739,24 @@ if (status.value === "authenticated") {
                     <label for="name" v-html="projectModelStore.projectParams.name.label">
                       
                     </label>
-                    <!-- <span class="tooltiptext">{{ tooltips[key] }}</span> -->
                     <input
                       type="text"
                       id="name"
                       v-model="project.name"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('name') }"
                       :readonly="!projectModelStore.projectParams.name.editable"
                       :disabled="!projectModelStore.projectParams.name.editable"
+                      @input="validateProjectField('name', $event.target.value)"
+                      @blur="validateProjectField('name', $event.target.value)"
                       required
                     />
+                    <div v-if="getFieldError('name')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('name') }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getProjectFieldCharacterCount('name') }}/100 caractères
+                    </div>
                   </div>
 
                   <!-- Course ID -->
@@ -561,21 +767,40 @@ if (status.value === "authenticated") {
                       id="courseId"
                       v-model="project.courseId"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('courseId') }"
                       :readonly="!projectModelStore.projectParams.courseId.editable"
                       :disabled="!projectModelStore.projectParams.courseId.editable"
+                      @input="validateProjectField('courseId', $event.target.value)"
+                      @blur="validateProjectField('courseId', $event.target.value)"
                     />
+                    <div v-if="getFieldError('courseId')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('courseId') }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getProjectFieldCharacterCount('courseId') }}/50 caractères
+                    </div>
                   </div>
 
-                  <!-- Course ID -->
+                  <!-- Description -->
                   <div class="form-group">
-                    <label for="courseId" v-html="projectModelStore.projectParams.description.label"></label>
+                    <label for="description" v-html="projectModelStore.projectParams.description.label"></label>
                     <textarea
                       id="description"
                       v-model="project.description"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('description') }"
                       :readonly="!projectModelStore.projectParams.description.editable"
                       :disabled="!projectModelStore.projectParams.description.editable"
-                    > </textarea>
+                      @input="validateProjectField('description', $event.target.value)"
+                      @blur="validateProjectField('description', $event.target.value)"
+                      rows="3"
+                    ></textarea>
+                    <div v-if="getFieldError('description')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('description') }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getProjectFieldCharacterCount('description') }}/500 caractères
+                    </div>
                   </div>
 
                   <!-- Language Dropdown -->
@@ -637,26 +862,49 @@ if (status.value === "authenticated") {
                         id="customTheme"
                         v-model="project.customTheme"
                         class="form-control"
+                        :class="{ 'border-red-500': getFieldError('customTheme') }"
                         :placeholder="'Exemple: #ff0000'"
+                        @input="validateProjectField('customTheme', $event.target.value)"
+                        @blur="validateProjectField('customTheme', $event.target.value)"
                       />
                       <input
                         type="color"
                         v-model="project.customTheme"
                         class="color-input"
-                        
+                        @input="validateProjectField('customTheme', $event.target.value)"
                       />
+                    </div>
+                    <div v-if="getFieldError('customTheme')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('customTheme') }}
                     </div>
                   </div>
 
-                  <!-- PDF Filename (Read-only) -->
+                  <!-- PDF Filename -->
                   <div class="form-group">
                     <label for="pdfFilename" v-html="projectModelStore.projectParams.pdfFilename.label"></label>
-                    <input
-                      type="text"
-                      id="pdfFilename"
-                      v-model="project.pdfFilename"
-                      class="form-control"
-                    />
+                    <div class="relative">
+                      <input
+                        type="text"
+                        id="pdfFilename"
+                        v-model="project.pdfFilename"
+                        class="form-control pr-12"
+                        :class="{ 'border-red-500': getFieldError('pdfFilename') }"
+                        :readonly="!projectModelStore.projectParams.pdfFilename.editable"
+                        :disabled="!projectModelStore.projectParams.pdfFilename.editable"
+                        @input="handlePdfFilenameInput"
+                        @blur="validateProjectField('pdfFilename', $event.target.value)"
+                        placeholder="ex: mon-projet-2024"
+                      />
+                      <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                        .pdf
+                      </span>
+                    </div>
+                    <div v-if="getFieldError('pdfFilename')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('pdfFilename') }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getProjectFieldCharacterCount('pdfFilename') }}/100 caractères
+                    </div>
                   </div>
 
                   <div class="form-group">
@@ -724,8 +972,14 @@ if (status.value === "authenticated") {
                       id="expirationDate"
                       v-model="project.expirationDate"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('expirationDate') }"
+                      @input="validateProjectField('expirationDate', $event.target.value)"
+                      @blur="validateProjectField('expirationDate', $event.target.value)"
                     />
-                    <span v-if="isDateExpired" class="text-red-500 text-sm mt-1">Expiré</span>
+                    <div v-if="getFieldError('expirationDate')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('expirationDate') }}
+                    </div>
+                    <span v-if="isDateExpired && !getFieldError('expirationDate')" class="text-red-500 text-sm mt-1">Expiré</span>
                   </div>
 
                   <!-- Index Target -->
@@ -735,11 +989,17 @@ if (status.value === "authenticated") {
                       id="indexTarget"
                       v-model="project.indexTarget"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('indexTarget') }"
                       :readonly="!projectModelStore.projectParams.indexTarget.editable"
                       :disabled="!projectModelStore.projectParams.indexTarget.editable"
+                      @input="validateProjectField('indexTarget', $event.target.value)"
+                      @blur="validateProjectField('indexTarget', $event.target.value)"
                       rows="6"
                       placeholder="Enter JSON object for indexTarget..."
                     ></textarea>
+                    <div v-if="getFieldError('indexTarget')" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('indexTarget') }}
+                    </div>
                   </div>
                 </form>          
                 <!-- ...  -->
@@ -775,12 +1035,21 @@ if (status.value === "authenticated") {
                     <input
                       type="text"
                       id="activityTitle"
-                      v-model.lazy="selectedActivity.activityTitle"
+                      v-model="selectedActivity.activityTitle"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('activityTitle', true) }"
                       :readonly="!projectModelStore.activitiesParams.activityTitle.editable"
                       :disabled="!projectModelStore.activitiesParams.activityTitle.editable"
+                      @input="validateActivityField('activityTitle', $event.target.value)"
+                      @blur="validateActivityField('activityTitle', $event.target.value)"
                       required
                     />
+                    <div v-if="getFieldError('activityTitle', true)" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('activityTitle', true) }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getActivityFieldCharacterCount('activityTitle') }}/100 caractères
+                    </div>
                   </div>
 
                   <!-- Default text -->
@@ -792,10 +1061,17 @@ if (status.value === "authenticated") {
                       id="defaultText"
                       v-model="selectedActivity.defaultText"                
                       class="form-control input-disabled"
+                      :class="{ 'border-red-500': getFieldError('defaultText', true) }"
                       @click="openEditor('defaultText')"
                       readonly
                       required
-                    />                
+                    />
+                    <div v-if="getFieldError('defaultText', true)" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('defaultText', true) }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getCharacterCountForField('defaultText') }}/2000 caractères
+                    </div>
                   </div>
 
                   <!-- Context/content text -->
@@ -807,10 +1083,17 @@ if (status.value === "authenticated") {
                       id="contextText"
                       v-model="selectedActivity.contextText"                
                       class="form-control input-disabled"
+                      :class="{ 'border-red-500': getFieldError('contextText', true) }"
                       @click="openEditor('contextText')"
                       readonly
                       required
-                    />                
+                    />
+                    <div v-if="getFieldError('contextText', true)" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('contextText', true) }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getCharacterCountForField('contextText') }}/2000 caractères
+                    </div>
                   </div>
                   
                   <!-- Is Endpoint Toggle -->                
@@ -849,16 +1132,24 @@ if (status.value === "authenticated") {
                     />
                   </div>
                   
+
+
                   <!-- Number field to set limit -->
-                  <div class="form-group" v-if="selectedActivity.useCharactersLimit && !isLastActivity && !selectedActivity.fieldName.includes('endpoint')">
+                  <div class="form-group" v-if="selectedActivity.useCharactersLimit && !isLastActivity && !selectedActivity.fieldName?.includes('endpoint')">
                     <label for="maxCharactersAllowed" v-html="projectModelStore.activitiesParams.maxCharactersAllowed.label"></label>
                     <input
                       type="number"
                       id="maxCharactersAllowed"
-                      v-model.lazy="selectedActivity.maxCharactersAllowed"
+                      v-model="selectedActivity.maxCharactersAllowed"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('maxCharactersAllowed', true) }"
                       :disabled="!projectModelStore.activitiesParams.maxCharactersAllowed.editable"
+                      @input="validateActivityField('maxCharactersAllowed', $event.target.value)"
+                      @blur="validateActivityField('maxCharactersAllowed', $event.target.value)"
                     />
+                    <div v-if="getFieldError('maxCharactersAllowed', true)" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('maxCharactersAllowed', true) }}
+                    </div>
                   </div>
 
                   <!-- Use custom placeholder text toggle -->                
@@ -880,10 +1171,19 @@ if (status.value === "authenticated") {
                     <input
                       type="text"
                       id="customPlaceholder"
-                      v-model.lazy="selectedActivity.customPlaceholder"
+                      v-model="selectedActivity.customPlaceholder"
                       class="form-control"
+                      :class="{ 'border-red-500': getFieldError('customPlaceholder', true) }"
                       :disabled="!projectModelStore.activitiesParams.customPlaceholder.editable"
+                      @input="validateActivityField('customPlaceholder', $event.target.value)"
+                      @blur="validateActivityField('customPlaceholder', $event.target.value)"
                     />
+                    <div v-if="getFieldError('customPlaceholder', true)" class="text-red-500 text-sm mt-1">
+                      {{ getFieldError('customPlaceholder', true) }}
+                    </div>
+                    <div class="text-gray-500 text-xs mt-1">
+                      {{ getActivityFieldCharacterCount('customPlaceholder') }}/200 caractères
+                    </div>
                   </div>
 
                 </form>
@@ -891,10 +1191,23 @@ if (status.value === "authenticated") {
             </div>
           </div>
           <div class="left-sidebar-buttons">
-            <button class="btn bg-primary rounded-md text-white" @click="saveProject">Sauvegarder</button>
+            <button 
+              class="btn rounded-md text-white" 
+              :class="isProjectValid ? 'bg-primary' : 'bg-gray-400 cursor-not-allowed'"
+              @click="saveProject"
+              :disabled="!isProjectValid"
+            >
+              Sauvegarder
+            </button>
 
             <button class="btn bg-white rounded-md" @click="handleDeleteProject">Supprimer</button>
         </div>
+
+        <!-- Validation Summary -->
+        <ValidationSummary 
+          :validation-errors="validationErrors" 
+          :sorted-activities="sortedActivities"
+        />
 
         <div class="downloadBlock flex items-center justify-start gap-2 cursor-pointer" @click="downloadZip">
           <div class="rounded-full w-7 h-7 bg-primary flex items-center justify-center px-2 box-size">
@@ -1270,6 +1583,17 @@ input:disabled {
   cursor: pointer !important;
 }
 
+/* Validation styles */
+.form-control.border-red-500 {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+.form-control.border-red-500:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
 input {
  font-size: 0.9rem;
  text-overflow: ellipsis;
@@ -1476,6 +1800,16 @@ input[type="checkbox"]:disabled {
   height: 100%;
   transform-origin: top left; /* Scale from the center */
   padding: 2px;
+}
+
+#pdfFilename {
+  padding-right: 48px;
+}
+
+/* Validation error message styles */
+.text-red-500.text-sm.mt-1 {
+  line-height: 118%;
+  margin-bottom: 0.5rem;
 }
 
 </style>

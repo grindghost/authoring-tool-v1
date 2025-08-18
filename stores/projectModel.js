@@ -9,14 +9,26 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "string",
         "value": "Nom du projet",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": true,
+          "minLength": 3,
+          "maxLength": 100,
+          "pattern": "^[a-zA-Z0-9\\s\\-_\\.]+$"
+        }
       },
       "courseId": {
         "label": "Identificant du cours",
         "type": "string",
         "value": "L'apprentissage du savoir faire...",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": true,
+          "minLength": 2,
+          "maxLength": 50,
+          "pattern": "^[a-zA-Z0-9\\-_]+$"
+        }
       },
 
       "description": {
@@ -24,7 +36,11 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "string",
         "value": "...",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "maxLength": 500
+        }
       },
   
       "lang": {
@@ -64,15 +80,25 @@ export const useProjectModelStore = defineStore('projectModel', {
           "type": "string",
           "value": "#00ff33",
           "editable": true,
-          "excluded": false
+          "excluded": false,
+          "validation": {
+            "required": false,
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          }
       },
   
       "pdfFilename": {
         "label": "Nom du fichier PDF",
         "type": "string",
         "value": "Journal_de_bord-M2.pdf",
-        "editable": false,
-        "excluded": false
+        "editable": true,
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-z0-9\\-_]+$"
+        }
       },
       "pdfFileSize": {
         "label": "Poids du PDF",
@@ -109,7 +135,11 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "date",
         "value": "",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "custom": "futureDate"
+        }
       },
 
       "published": {
@@ -125,7 +155,11 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "textarea",
         "value": "{\n  \"activityId\": \"fboxlto895-jpxhskc284\",\n  \"registration\": \"fboxlto895-jpxhskc284\",\n  \"idcontenubrio\": \"fboxlto895-jpxhskc284\"\n}",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "custom": "json"
+        }
       },
   
       "author": {
@@ -142,21 +176,34 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "string",
         "value": "Exercise 1",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": true,
+          "minLength": 2,
+          "maxLength": 100
+        }
       },
       "defaultText": {
         "label": "Texte par défaut",
         "type": "html",
         "value": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua…</p>",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "maxLength": 2000
+        }
       },
       "contextText": {
         "label": "Contexte de l'activité",
         "type": "html",
         "value": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua…</p>",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "maxLength": 2000
+        }
       },
       "isEndpoint": {
         "label": "Point de terminaison",
@@ -177,7 +224,12 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "number",
         "value": 500,
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "min": 1,
+          "max": 10000
+        }
       },
       "useCustomPlaceholder": {
         "label": "Utiliser un placeholder personnalisé",
@@ -191,7 +243,11 @@ export const useProjectModelStore = defineStore('projectModel', {
         "type": "string",
         "value": "Entrez votre réflexion ici...",
         "editable": true,
-        "excluded": false
+        "excluded": false,
+        "validation": {
+          "required": false,
+          "maxLength": 200
+        }
       }
     },
   }),

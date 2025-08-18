@@ -274,8 +274,8 @@ function cancelCourseIdChanges() {
     </div>
 
     <!-- Filter Section -->
-    <div class="flex items-center space-x-4 mb-6 bg-base-100">
-      <div class="border rounded px-3 py-2 text-gray-600">
+    <div class="flex items-center space-x-4 mb-6">
+      <div class="border rounded px-3 py-2 text-gray-600 bg-white">
         <select v-model="filterKey" class="">
           <option value="courseId">Identifiant (répertoire)</option>
            <option value="name">Nom du projet</option>

@@ -48,13 +48,79 @@ function editProject() {
   router.push(`/editor/${props.project.id}`);
 }
 
-const projectName = computed(() => {
-const maxLength = 30; // Define the max length for the truncated text
-const text = props.project.profile.name || '';
+const titleRef = ref(null);
+const truncatedTitle = ref('');
 
-return text.length > maxLength 
-? text.substring(0, maxLength) + '...' 
-: text;
+const projectName = computed(() => {
+  return props.project.profile.name || '';
+});
+
+// Function to truncate text based on container width
+const truncateText = () => {
+  if (!titleRef.value) return;
+  
+  const container = titleRef.value;
+  const fullText = projectName.value;
+  
+  // Reset to full text first
+  container.textContent = fullText;
+  
+  // Get the parent container width (the div wrapper)
+  const parentContainer = container.parentElement;
+  const maxWidth = parentContainer ? parentContainer.clientWidth : container.clientWidth;
+  
+  // If text fits, no need to truncate
+  if (container.scrollWidth <= maxWidth) {
+    truncatedTitle.value = fullText;
+    return;
+  }
+  
+  // Binary search to find the right truncation point
+  let start = 0;
+  let end = fullText.length;
+  let mid;
+  
+  while (start < end) {
+    mid = Math.floor((start + end) / 2);
+    const testText = fullText.substring(0, mid) + '...';
+    container.textContent = testText;
+    
+    if (container.scrollWidth <= maxWidth) {
+      start = mid + 1;
+    } else {
+      end = mid;
+    }
+  }
+  
+  // Use the last valid length
+  const finalLength = Math.max(0, start - 1);
+  truncatedTitle.value = fullText.substring(0, finalLength) + '...';
+};
+
+// Watch for changes and resize events
+watch(projectName, () => {
+  nextTick(() => {
+    truncateText();
+  });
+});
+
+onMounted(() => {
+  nextTick(() => {
+    truncateText();
+  });
+  
+  // Add resize observer
+  const resizeObserver = new ResizeObserver(() => {
+    truncateText();
+  });
+  
+  if (titleRef.value) {
+    resizeObserver.observe(titleRef.value);
+  }
+  
+  onUnmounted(() => {
+    resizeObserver.disconnect();
+  });
 });
 
 const historyCount = computed(() => {
@@ -134,9 +200,13 @@ return date.toLocaleDateString('fr-FR', options);
    
       </figure>
       <div class="card-body p-4 gap-0">
-        <h2 class="card-title text-lg font-semibold mb-2 leading-tight">
-          {{ projectName }}
-        </h2>
+        <div class="w-full">
+          <div class="tooltip tooltip-bottom w-full" :data-tip="projectName">
+            <h2 ref="titleRef" class="text-lg font-semibold mb-2 leading-tight overflow-hidden whitespace-nowrap w-full cursor-help">
+              {{ truncatedTitle || projectName }}
+            </h2>
+          </div>
+        </div>
         <!-- <div class="text-sm  text-gray-300 leading-3 font-semibold flex gap-1 items-center">
           <OhVueIcon name="bi-person-circle" />
           <span>{{ author }}</span>
@@ -201,6 +271,22 @@ return date.toLocaleDateString('fr-FR', options);
     border: 1px solid #e4e4e4;
     /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); */
 
+  }
+
+  .tooltip {
+    text-align: left;
+  }
+
+  .card-title {
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure the title container has proper width constraints */
+  .card-body {
+    width: 100%;
+    overflow: hidden;
   }
 
   </style>

@@ -20,13 +20,13 @@ export const validationRules = {
     required: true,
     minLength: 2,
     maxLength: 50,
-    pattern: /^[a-zA-Z0-9\-_]+$/,
+    pattern: /^[\p{L}\p{N}\s\-_]+$/u,
     sanitize: (value) => value.trim(),
     messages: {
       required: 'L\'identifiant du cours est requis',
       minLength: 'L\'identifiant doit contenir au moins 2 caractères',
       maxLength: 'L\'identifiant ne peut pas dépasser 50 caractères',
-      pattern: 'L\'identifiant ne peut contenir que des lettres, chiffres, tirets et underscores'
+      pattern: 'L\'identifiant peut contenir des lettres (avec accents), chiffres, espaces, tirets et underscores'
     }
   },
   description: {
@@ -172,7 +172,7 @@ export function validateField(fieldName, value, rules = null) {
   }
 
   // Check required
-  if (rule.required && (!sanitizedValue || sanitizedValue.trim() === '')) {
+  if (rule.required && (!sanitizedValue || (typeof sanitizedValue === 'string' && sanitizedValue.trim() === ''))) {
     return {
       isValid: false,
       message: rule.messages?.required || 'Ce champ est requis',
@@ -181,12 +181,12 @@ export function validateField(fieldName, value, rules = null) {
   }
 
   // Skip other validations if not required and empty
-  if (!rule.required && (!sanitizedValue || sanitizedValue.trim() === '')) {
+  if (!rule.required && (!sanitizedValue || (typeof sanitizedValue === 'string' && sanitizedValue.trim() === ''))) {
     return { isValid: true, message: '', sanitizedValue };
   }
 
   // Check minLength
-  if (rule.minLength && sanitizedValue.length < rule.minLength) {
+  if (rule.minLength && typeof sanitizedValue === 'string' && sanitizedValue.length < rule.minLength) {
     return {
       isValid: false,
       message: rule.messages?.minLength || `Minimum ${rule.minLength} caractères requis`,
@@ -195,7 +195,7 @@ export function validateField(fieldName, value, rules = null) {
   }
 
   // Check maxLength
-  if (rule.maxLength && sanitizedValue.length > rule.maxLength) {
+  if (rule.maxLength && typeof sanitizedValue === 'string' && sanitizedValue.length > rule.maxLength) {
     return {
       isValid: false,
       message: rule.messages?.maxLength || `Maximum ${rule.maxLength} caractères autorisés`,
@@ -204,7 +204,7 @@ export function validateField(fieldName, value, rules = null) {
   }
 
   // Check min/max for numbers
-  if (rule.min !== undefined && parseInt(sanitizedValue) < rule.min) {
+  if (rule.min !== undefined && !isNaN(sanitizedValue) && parseInt(sanitizedValue) < rule.min) {
     return {
       isValid: false,
       message: rule.messages?.min || `La valeur minimum est ${rule.min}`,
@@ -212,7 +212,7 @@ export function validateField(fieldName, value, rules = null) {
     };
   }
 
-  if (rule.max !== undefined && parseInt(sanitizedValue) > rule.max) {
+  if (rule.max !== undefined && !isNaN(sanitizedValue) && parseInt(sanitizedValue) > rule.max) {
     return {
       isValid: false,
       message: rule.messages?.max || `La valeur maximum est ${rule.max}`,
@@ -221,7 +221,7 @@ export function validateField(fieldName, value, rules = null) {
   }
 
   // Check pattern
-  if (rule.pattern && !rule.pattern.test(sanitizedValue)) {
+  if (rule.pattern && typeof sanitizedValue === 'string' && !rule.pattern.test(sanitizedValue)) {
     return {
       isValid: false,
       message: rule.messages?.pattern || 'Format invalide',

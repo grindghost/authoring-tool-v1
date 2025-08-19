@@ -7,13 +7,13 @@ export const validationRules = {
     required: true,
     minLength: 3,
     maxLength: 100,
-    pattern: /^[a-zA-Z0-9\s\-_\.]+$/,
+    pattern: /^[\p{L}\p{N}\s\-_\.&@#$%*+()[\]{}|\\/:;?!]+$/u,
     sanitize: (value) => value.trim().replace(/\s+/g, ' '),
     messages: {
       required: 'Le nom du projet est requis',
       minLength: 'Le nom doit contenir au moins 3 caractères',
       maxLength: 'Le nom ne peut pas dépasser 100 caractères',
-      pattern: 'Le nom ne peut contenir que des lettres, chiffres, espaces, tirets, underscores et points'
+      pattern: 'Le nom peut contenir des lettres (avec accents), chiffres, espaces, tirets, underscores, points et caractères spéciaux courants'
     }
   },
   courseId: {

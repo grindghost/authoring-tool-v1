@@ -6,6 +6,10 @@
 
 /* Custom styles */
 
+:root {
+  --color-primary: #0e67d6; /* Default primary color fallback */
+}
+
 * {
     font-family: 'Bricolage Grotesque', sans-serif;
     box-sizing: border-box;

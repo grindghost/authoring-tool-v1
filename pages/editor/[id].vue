@@ -119,6 +119,10 @@ const isLastActivity = computed(() => {
   return selectedActivity.value?.id === lastActivity?.id || selectedActivity.value?.isEndpoint;
 })
 
+const activityTitleCharacterCount = computed(() => {
+  return selectedActivity.value?.activityTitle?.length || 0;
+})
+
 // Compute a sorted version of activities, based on their index key
 const sortedActivities = computed(() => {
   return Object.entries(project.value.activities) // Convert object to array
@@ -500,6 +504,17 @@ function hasValidationErrors() {
   });
 }
 
+// Force focus on input to prevent focus loss
+function forceFocus(inputElement) {
+  // Use nextTick to ensure the DOM has updated
+  nextTick(() => {
+    inputElement.focus();
+    // Restore cursor position to end of input
+    const length = inputElement.value.length;
+    inputElement.setSelectionRange(length, length);
+  });
+}
+
 // Handle PDF filename input with real-time filtering
 function handlePdfFilenameInput(event) {
   const input = event.target;
@@ -603,18 +618,18 @@ watch(project, (oldVal, newVal) => {
 }, { deep: true });
 
 // Watch selected activity for validation
-watch(selectedActivity, (newVal) => {
-  if (newVal && newVal.id) {
-    // Validate activity fields when activity changes
-    const activityKey = `activity_${newVal.id}`;
+watch(() => selectedActivity.value?.id, (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    // Only validate when the activity ID changes, not on every field update
+    const activityKey = `activity_${newId}`;
     if (validationErrors.value[activityKey]) {
-      const activityValidation = validateProject({ activities: { [newVal.id]: newVal } });
-      if (activityValidation.errors[`activity_${newVal.id}`]) {
-        validationErrors.value[activityKey] = activityValidation.errors[`activity_${newVal.id}`];
+      const activityValidation = validateProject({ activities: { [newId]: selectedActivity.value } });
+      if (activityValidation.errors[`activity_${newId}`]) {
+        validationErrors.value[activityKey] = activityValidation.errors[`activity_${newId}`];
       }
     }
   }
-}, { deep: true });
+});
 
 // Hooks ****************************************
 
@@ -747,7 +762,6 @@ if (status.value === "authenticated") {
                       :class="{ 'border-red-500': getFieldError('name') }"
                       :readonly="!projectModelStore.projectParams.name.editable"
                       :disabled="!projectModelStore.projectParams.name.editable"
-                      @input="validateProjectField('name', $event.target.value)"
                       @blur="validateProjectField('name', $event.target.value)"
                       required
                     />
@@ -770,7 +784,6 @@ if (status.value === "authenticated") {
                       :class="{ 'border-red-500': getFieldError('courseId') }"
                       :readonly="!projectModelStore.projectParams.courseId.editable"
                       :disabled="!projectModelStore.projectParams.courseId.editable"
-                      @input="validateProjectField('courseId', $event.target.value)"
                       @blur="validateProjectField('courseId', $event.target.value)"
                     />
                     <div v-if="getFieldError('courseId')" class="text-red-500 text-sm mt-1">
@@ -791,7 +804,6 @@ if (status.value === "authenticated") {
                       :class="{ 'border-red-500': getFieldError('description') }"
                       :readonly="!projectModelStore.projectParams.description.editable"
                       :disabled="!projectModelStore.projectParams.description.editable"
-                      @input="validateProjectField('description', $event.target.value)"
                       @blur="validateProjectField('description', $event.target.value)"
                       rows="3"
                     ></textarea>
@@ -864,14 +876,13 @@ if (status.value === "authenticated") {
                         class="form-control"
                         :class="{ 'border-red-500': getFieldError('customTheme') }"
                         :placeholder="'Exemple: #ff0000'"
-                        @input="validateProjectField('customTheme', $event.target.value)"
-                        @blur="validateProjectField('customTheme', $event.target.value)"
+                                              @blur="validateProjectField('customTheme', $event.target.value)"
                       />
                       <input
                         type="color"
                         v-model="project.customTheme"
                         class="color-input"
-                        @input="validateProjectField('customTheme', $event.target.value)"
+  
                       />
                     </div>
                     <div v-if="getFieldError('customTheme')" class="text-red-500 text-sm mt-1">
@@ -973,7 +984,6 @@ if (status.value === "authenticated") {
                       v-model="project.expirationDate"
                       class="form-control"
                       :class="{ 'border-red-500': getFieldError('expirationDate') }"
-                      @input="validateProjectField('expirationDate', $event.target.value)"
                       @blur="validateProjectField('expirationDate', $event.target.value)"
                     />
                     <div v-if="getFieldError('expirationDate')" class="text-red-500 text-sm mt-1">
@@ -992,7 +1002,6 @@ if (status.value === "authenticated") {
                       :class="{ 'border-red-500': getFieldError('indexTarget') }"
                       :readonly="!projectModelStore.projectParams.indexTarget.editable"
                       :disabled="!projectModelStore.projectParams.indexTarget.editable"
-                      @input="validateProjectField('indexTarget', $event.target.value)"
                       @blur="validateProjectField('indexTarget', $event.target.value)"
                       rows="6"
                       placeholder="Enter JSON object for indexTarget..."
@@ -1040,7 +1049,7 @@ if (status.value === "authenticated") {
                       :class="{ 'border-red-500': getFieldError('activityTitle', true) }"
                       :readonly="!projectModelStore.activitiesParams.activityTitle.editable"
                       :disabled="!projectModelStore.activitiesParams.activityTitle.editable"
-                      @input="validateActivityField('activityTitle', $event.target.value)"
+                      @input="forceFocus($event.target)"
                       @blur="validateActivityField('activityTitle', $event.target.value)"
                       required
                     />
@@ -1048,7 +1057,7 @@ if (status.value === "authenticated") {
                       {{ getFieldError('activityTitle', true) }}
                     </div>
                     <div class="text-gray-500 text-xs mt-1">
-                      {{ getActivityFieldCharacterCount('activityTitle') }}/100 caractères
+                      {{ activityTitleCharacterCount }}/100 caractères
                     </div>
                   </div>
 
@@ -1144,7 +1153,6 @@ if (status.value === "authenticated") {
                       class="form-control"
                       :class="{ 'border-red-500': getFieldError('maxCharactersAllowed', true) }"
                       :disabled="!projectModelStore.activitiesParams.maxCharactersAllowed.editable"
-                      @input="validateActivityField('maxCharactersAllowed', $event.target.value)"
                       @blur="validateActivityField('maxCharactersAllowed', $event.target.value)"
                     />
                     <div v-if="getFieldError('maxCharactersAllowed', true)" class="text-red-500 text-sm mt-1">
@@ -1175,7 +1183,6 @@ if (status.value === "authenticated") {
                       class="form-control"
                       :class="{ 'border-red-500': getFieldError('customPlaceholder', true) }"
                       :disabled="!projectModelStore.activitiesParams.customPlaceholder.editable"
-                      @input="validateActivityField('customPlaceholder', $event.target.value)"
                       @blur="validateActivityField('customPlaceholder', $event.target.value)"
                     />
                     <div v-if="getFieldError('customPlaceholder', true)" class="text-red-500 text-sm mt-1">

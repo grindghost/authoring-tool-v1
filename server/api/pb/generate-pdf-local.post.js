@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFBool, PDFName } from 'pdf-lib';
 import emojiStrip from 'emoji-strip';
 import { pb, ensureAuthenticated } from '~/server/plugins/pocketbase-unit'; // Import Pocketbase instance
 import { getCookie, setCookie, createError, readBody, getMethod, setResponseHeaders } from 'h3';
@@ -89,10 +89,22 @@ export default defineEventHandler(async (event) => {
       // Check if the field is a PDFTextField, to avoid errors when filling it: This tool is only to fill text fields...
       if (formData[fieldName] && fieldType == 'PDFTextField') {
         field.setText(formData[fieldName]); // Fill field if answer exists
+        field.disableRichFormatting();
+
+        // Fix the blink issue (with the black + sign and invisible text)
+        field.acroField.dict.set(
+          PDFName.of('NeedAppearances'),
+          PDFBool.True
+        );
+
       } else {
         console.warn(`No answer found for field: ${fieldName}`); // Skip if no answer
       }
     });
+
+    // Important: regenerate appearance streams so text is visible immediately
+    form.acroForm.dict.set(PDFName.of('NeedAppearances'), PDFBool.True);
+    form.updateFieldAppearances();
 
     // Save the filled PDF
     const filledPdfBytes = await pdfDoc.save();

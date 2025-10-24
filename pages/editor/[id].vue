@@ -4,6 +4,7 @@ import { isBefore, set, startOfDay } from "date-fns";
 
 import  DOMPurify from 'dompurify';
 import domtoimage from 'dom-to-image';
+import draggable from 'vuedraggable';
 
 import { useRouter, useRoute } from 'vue-router'
 import { useProjects } from '~/stores/projects'
@@ -46,6 +47,10 @@ const showQuillOverlay = ref(false);          // Overlay visibility
 const showAlert = ref(false);                 // Alert visibility 
 const editorContent = ref("");
 const editingField = ref(null);
+
+// Drag & Drop state
+const isDragging = ref(false);
+const activitiesList = ref([]);
 
 // Validation state
 const validationErrors = ref({});
@@ -129,6 +134,49 @@ const sortedActivities = computed(() => {
     .map(([id, activity]) => ({ id, ...activity })) // Keep ID reference
     .sort((a, b) => a.index - b.index); // Sort by index
 });
+
+// Watch sortedActivities to update activitiesList
+watch(sortedActivities, (newActivities) => {
+  activitiesList.value = [...newActivities];
+}, { immediate: true });
+
+// Function to handle drag end and update indexes
+function onDragEnd() {
+  isDragging.value = false;
+  
+  // Update the indexes based on the new order
+  const updatedActivities = { ...project.value.activities };
+  
+  activitiesList.value.forEach((activity, newIndex) => {
+    if (updatedActivities[activity.id]) {
+      updatedActivities[activity.id].index = newIndex;
+    }
+  });
+  
+  // Update the project with new activities
+  project.value.activities = updatedActivities;
+  
+  // Auto-save the project with new order
+  autoSaveProject();
+  
+  // Trigger save alert
+  showAlert.value = true;
+}
+
+// Function to auto-save project after reordering
+async function autoSaveProject() {
+  try {
+    const projectId = route.params.id;
+    const updatedProject = project.value;
+    
+    await projectStore.saveProject(projectId, updatedProject);
+    console.log('Project order saved successfully');
+  } catch (error) {
+    console.error('Error auto-saving project order:', error);
+    // Show error alert if needed
+    showAlert.value = true;
+  }
+}
 
 const profile = computed(() => {    
 
@@ -1279,21 +1327,43 @@ if (status.value === "authenticated") {
   
       <!-- Scrollable content -->
       <div class="overflow-y-auto max-h-[calc(100vh-100px)] relative top-[-10px] flex flex-col gap-3">
-        <div
-          v-for="(activity, index) in sortedActivities"
-          :key="activity.id"
-          class="first:mt-2 thumbnail"
-          :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-md', 
-                  { 'border-2 border-primary bg-blue-50 shadow-md': activity.id === activeActivity,
-                    'border-gray-200 opacity-70': activity.id !== activeActivity }]"
-          @click="selectActivity(activity.id)"
+        <draggable
+          v-model="activitiesList"
+          :disabled="false"
+          :animation="200"
+          ghost-class="ghost"
+          chosen-class="chosen"
+          drag-class="drag"
+          @start="isDragging = true"
+          @end="onDragEnd"
+          class="flex flex-col gap-3"
+          item-key="id"
         >
+          <template #item="{ element: activity, index }">
+            <div
+              :key="activity.id"
+              class="first:mt-2 thumbnail"
+              :class="['relative cursor-pointer flex p-3 border rounded-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-md', 
+                      { 'border-2 border-primary bg-blue-50 shadow-md': activity.id === activeActivity,
+                        'border-gray-200 opacity-70': activity.id !== activeActivity,
+                        'cursor-grab': !isDragging,
+                        'cursor-grabbing': isDragging }]"
+              @click="!isDragging && selectActivity(activity.id)"
+            >
           <div class="flex flex-col justify-start w-full">
             <div class="flex justify-between items-center mb-1">
-              <span :class="{ 'border-2 border-primary bg-primary text-white': activity.id === activeActivity,
-                    'border-gray-200 opacity-70': activity.id !== activeActivity }" class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                Activité {{ index + 1 }}
-              </span>
+              <div class="flex items-center gap-2">
+                <span :class="{ 'border-2 border-primary bg-primary text-white': activity.id === activeActivity,
+                      'border-gray-200 opacity-70': activity.id !== activeActivity }" class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                  Activité {{ index + 1 }}
+                </span>
+                <!-- Drag handle -->
+                <div class="drag-handle text-gray-400 hover:text-gray-600 cursor-grab">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 6h8v2H8V6zm0 4h8v2H8v-2zm0 4h8v2H8v-2z"/>
+                  </svg>
+                </div>
+              </div>
               <span v-if="activity.fieldName.includes('endpoint')" class="text-xs font-medium text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">
                 Endpoint
               </span>
@@ -1317,6 +1387,8 @@ if (status.value === "authenticated") {
             </div>
           </div>
         </div>
+          </template>
+        </draggable>
       </div>
     </div>
 
@@ -1817,6 +1889,36 @@ input[type="checkbox"]:disabled {
 .text-red-500.text-sm.mt-1 {
   line-height: 118%;
   margin-bottom: 0.5rem;
+}
+
+/* Drag & Drop styles */
+.ghost {
+  opacity: 0.5;
+  background: #f3f4f6;
+  border: 2px dashed #9ca3af;
+}
+
+.chosen {
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.drag {
+  transform: rotate(5deg);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.drag-handle {
+  transition: color 0.2s ease;
+}
+
+.drag-handle:hover {
+  color: #6b7280;
+}
+
+/* Disable text selection during drag */
+.sortable-ghost {
+  user-select: none;
 }
 
 </style>

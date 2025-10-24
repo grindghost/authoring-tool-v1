@@ -43,7 +43,8 @@
     "sanitize-html": "^2.13.1",
     "stripe": "^17.4.0",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "daisyui": "^4.12.21",

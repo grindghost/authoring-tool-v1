@@ -294,6 +294,7 @@ onMounted(async () => {
                   <th>Date</th>
                   <th>Activité</th>
                   <th>Réponse</th>
+                  <th>Inscription</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -314,6 +315,9 @@ onMounted(async () => {
                     <span class="truncate max-w-[200px] block transparent">
                       {{ trimAnswer(record.answer) }}
                     </span>
+                  </td>
+                  <td>
+                    <span class="txt-md">{{ record.registration || 'N/A' }}</span>
                   </td>
                   <td>
                     <button class="btn btn-ghost btn-sm" @click="deleteRecord(record.id)">

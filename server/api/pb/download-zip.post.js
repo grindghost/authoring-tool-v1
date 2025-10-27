@@ -353,8 +353,9 @@ export default defineEventHandler(async (event) => {
 
             <script>
 
-                // Global variable to store lmsActor
+                // Global variables to store lmsActor and registration
                 window.lmsActor = null;
+                window.lmsRegistration = null;
 
                 const container = document.querySelector('.container');
                 const messageEl = document.getElementById('message');
@@ -374,7 +375,8 @@ export default defineEventHandler(async (event) => {
 
                 function openInNewWindow() {
                     const actor = window.lmsActor;
-                    window.parent.postMessage({ action: 'openNewWindow', url: '${tokenizedUrlPortal}' + '&actor=' + actor }, '*');
+                    const registration = window.lmsRegistration;
+                    window.parent.postMessage({ action: 'openNewWindow', url: '${tokenizedUrlPortal}' + '&actor=' + actor + '&registration=' + registration }, '*');
                 }
 
                 async function checkPocketBaseStatus() {
@@ -397,28 +399,25 @@ export default defineEventHandler(async (event) => {
                             document.getElementById('pdfSize').textContent = \`\$\{pdfSize\} KB\`;
                             return;
                         }
-
                         
                         setTimeout(() => {
+                            // Get LMS data from the URL params
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const actorToken = urlParams.get("actor");
+                            // Extract registration
+                            const registrationToken = urlParams.get("registration");
+                            
+                            window.lmsActor = actorToken;
+                            window.lmsRegistration = registrationToken;
+
                             if (openInNewWindowValue) {
                                 container.style.display = 'none'; 
                                 newWindowContainer.style.display = 'flex';
-
-                                // Get user data from the URL params
-                                const urlParams = new URLSearchParams(window.location.search);
-                                const actorToken = urlParams.get("actor");
-                                window.lmsActor = encodeURIComponent(actorToken);
-
+                                
                                 openInNewWindow();
                                 
                             } else {
-                                // Get user data from the URL params
-                                const urlParams = new URLSearchParams(window.location.search);
-                                                    
-                                const actorToken = urlParams.get("actor");
-                                const lmsActor = encodeURIComponent(actorToken);
-                                
-                                window.location.href = targetUrl + '&actor=' + lmsActor;
+                                window.location.href = targetUrl + '&actor=' + window.lmsActor + '&registration=' + window.lmsRegistration;
                             }
                         }, 1000);
 

@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { isBefore, set, startOfDay } from "date-fns";
 
-import  DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify';
 import domtoimage from 'dom-to-image';
 import draggable from 'vuedraggable';
 
@@ -170,7 +170,6 @@ async function autoSaveProject() {
     const updatedProject = project.value;
     
     await projectStore.saveProject(projectId, updatedProject);
-    console.log('Project order saved successfully');
   } catch (error) {
     console.error('Error auto-saving project order:', error);
     // Show error alert if needed
@@ -359,6 +358,7 @@ function selectActivity(activityKey) {
   
   // Create a proper reactive object by spreading the activity data
   const activityData = project.value.activities[activityKey] || {};
+  
   selectedActivity.value = { ...activityData, id: activityKey };
 
   accordion.value.project = false;
@@ -678,6 +678,20 @@ watch(() => selectedActivity.value?.id, (newId, oldId) => {
     }
   }
 });
+
+// Watch selectedActivity changes and sync back to project activities
+watch(selectedActivity, (newActivity) => {
+  if (newActivity?.id && project.value?.activities) {
+    // Update the project's activities object with the latest selectedActivity data
+    project.value.activities[newActivity.id] = { 
+      ...project.value.activities[newActivity.id],
+      ...newActivity 
+    };
+    
+    // Remove the id field as it's not part of the activity data
+    delete project.value.activities[newActivity.id].id;
+  }
+}, { deep: true });
 
 // Hooks ****************************************
 
@@ -1110,7 +1124,7 @@ if (status.value === "authenticated") {
                   </div>
 
                   <!-- Default text -->
-                  <div class="form-group">
+                  <div class="form-group" v-if="selectedActivity.useDefaultText !== false">
                     <label for="defaultText" v-html="projectModelStore.activitiesParams.defaultText.label"></label>
 
                     <input
@@ -1239,6 +1253,16 @@ if (status.value === "authenticated") {
                     <div class="text-gray-500 text-xs mt-1">
                       {{ getActivityFieldCharacterCount('customPlaceholder') }}/200 caractères
                     </div>
+                  </div>
+
+                  <!-- Use default text toggle -->
+                  <div class="form-group">
+                    <label for="useDefaultText">Utiliser un texte par défaut</label>
+                    <input
+                      type="checkbox"
+                      id="useDefaultText"
+                      v-model="selectedActivity.useDefaultText"
+                    />
                   </div>
 
                 </form>

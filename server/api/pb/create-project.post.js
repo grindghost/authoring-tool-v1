@@ -146,6 +146,7 @@ export default defineEventHandler(async (event) => {
         maxCharactersAllowed: 1000,
         useCharactersLimit: false,
         useCustomPlaceholder : false,
+        useDefaultText: true,
         token: '_',
         fieldName: fieldName,
         index: index,

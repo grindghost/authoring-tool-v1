@@ -175,7 +175,12 @@ export const useAppStateStore = defineStore('app', () => {
 
     // Logic to assing a value to the editor content
     if (historyContent.value === null) {
-      editorContent.value = unitProfile.value.activity.defaultText;
+      if (unitProfile.value.activity.useDefaultText) {
+        editorContent.value = unitProfile.value.activity.defaultText;
+      } else {
+        // If the useDefaultText is false, set the editor content to an empty string to trigger the quill editor to show the placeholder text
+        editorContent.value = "";
+      }
     } else {
       editorContent.value = historyContent.value;
     }

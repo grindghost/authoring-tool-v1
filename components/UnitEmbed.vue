@@ -207,7 +207,7 @@ const handleRestoreDefaultText = () => {
             {{ allowedChar }} -->
             </div>
 
-            <div class="options-container">
+            <div class="options-container" v-if="store.unitProfile?.activity?.useDefaultText">
                 <span class="options" @click="handleRestoreDefaultText">
                 {{ store.unitProfile?.locale?.editorView?.restoreDefaultText || "" }}
                 </span>

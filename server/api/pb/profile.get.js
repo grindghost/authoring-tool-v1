@@ -101,6 +101,11 @@ export default defineEventHandler(async (event) => {
       // Get the activity details
       UnitProfile['activity'] = currentProject.profile.activities[exercice];
 
+      // If the activity doesn't have the useDefaultText field, set it to true
+      if (!UnitProfile['activity'].useDefaultText) {
+        UnitProfile['activity'].useDefaultText = true;
+      }
+
       // Initialize the history
       UnitProfile['history'] = null;
 

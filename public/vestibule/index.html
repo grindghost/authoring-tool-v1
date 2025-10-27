@@ -66,7 +66,7 @@
     sendCustomStatement();
 
     // Function to get the LMS user and include registration and activity_id
-    async function getLMSUser() {
+    async function getLMSData() {
       if (window.ADL && ADL.XAPIWrapper.lrs) {
         const lrsConfig = ADL.XAPIWrapper.lrs;
 
@@ -102,15 +102,27 @@
     }
 
     // Function to send the actor to API and get the encrypted token
-    async function sendActorToAPI(actor) {
+    async function sendLMSDataToAPI(lmsData) {
       
-      // Base64 encode actor before sending
-      const encodedActor = btoa(JSON.stringify(actor));
+      // Create a new actor object with the mbox and the name
+      const extractedActor = {
+        mbox: lmsData.mbox,
+        name: lmsData.name,
+      };
+
+      // Base64 encode the extracted actor before sending
+      const encodedActor = btoa(JSON.stringify(extractedActor));
+
+      // Extract registration from actor
+      const registration = lmsData.registration;
+
+      // Base64 encode the registration before sending
+      const encodedRegistration = btoa(registration);
 
       try {
           // Update the iframe src with the encrypted token as a query parameter
           const iframe = document.getElementById("dynamicIframe");
-          iframe.src = `provider.html?actor=${encodeURIComponent(encodedActor)}`;
+          iframe.src = `provider.html?actor=${encodeURIComponent(encodedActor)}&registration=${encodeURIComponent(encodedRegistration)}`;
 
       } catch (error) {
         console.error("Failed to send actor:", error);
@@ -155,10 +167,10 @@
 
     // Wait for the DOM to load
     window.addEventListener("DOMContentLoaded", async () => {
-      const user = await getLMSUser();
+      const lmsData = await getLMSData();
 
-      // Send actor data to the API for encryption and update the iframe src with the token
-      sendActorToAPI(user);
+      // Send the extracted LMS data to the API for encryption and update the iframe src with the token
+      sendLMSDataToAPI(lmsData);
     });
 
     window.addEventListener("DOMContentLoaded", Scaler, false);

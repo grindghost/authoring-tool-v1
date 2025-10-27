@@ -358,9 +358,18 @@ function selectActivity(activityKey) {
   
   // Create a proper reactive object by spreading the activity data
   const activityData = project.value.activities[activityKey] || {};
+
+  // If the activity doesn't have the useDefaultText field, set it to true
+  if (!activityData.useDefaultText) {
+    activityData.useDefaultText = true;
+  }
+
+  // If the activity is an endpoint, set useDefaultText to false
+  if (activityData.isEndpoint) {
+    activityData.useDefaultText = false;
+  }
   
   selectedActivity.value = { ...activityData, id: activityKey };
-
   accordion.value.project = false;
   accordion.value.activity = true;
 
@@ -692,6 +701,13 @@ watch(selectedActivity, (newActivity) => {
     delete project.value.activities[newActivity.id].id;
   }
 }, { deep: true });
+
+// Watch isEndpoint and set useDefaultText to false when endpoint is enabled
+watch(() => selectedActivity.value?.isEndpoint, (newValue) => {
+  if (newValue === true) {
+    selectedActivity.value.useDefaultText = false;
+  }
+});
 
 // Hooks ****************************************
 
@@ -1256,7 +1272,7 @@ if (status.value === "authenticated") {
                   </div>
 
                   <!-- Use default text toggle -->
-                  <div class="form-group">
+                  <div class="form-group" v-if="!selectedActivity.isEndpoint">
                     <label for="useDefaultText">Utiliser un texte par défaut</label>
                     <input
                       type="checkbox"

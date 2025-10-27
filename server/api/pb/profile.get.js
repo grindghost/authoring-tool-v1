@@ -103,7 +103,11 @@ export default defineEventHandler(async (event) => {
 
       // If the activity doesn't have the useDefaultText field, set it to true
       if (!UnitProfile['activity'].useDefaultText) {
-        UnitProfile['activity'].useDefaultText = true;
+        if (UnitProfile['activity'].isEndpoint) {
+          UnitProfile['activity']['useDefaultText'] = false;
+        } else {
+          UnitProfile['activity']['useDefaultText'] = true;
+        }
       }
 
       // Initialize the history

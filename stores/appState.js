@@ -12,6 +12,7 @@ export const useAppStateStore = defineStore('app', () => {
   const unitToken = ref('');
   const unitProfile = ref(null);
   const lang = ref('fr');
+  const registration = ref('');
 
   const mode = ref('');
   const editorContent = ref('');
@@ -47,7 +48,6 @@ export const useAppStateStore = defineStore('app', () => {
       return false;
     });
 
-
     unitToken.value = '';
     unitProfile.value = null;
 
@@ -66,13 +66,16 @@ export const useAppStateStore = defineStore('app', () => {
     currentOverlay.value = 'loading';
   };
   
-  const GetUnitProfile = async (token, language, actor) => {
+  const GetUnitProfile = async (token, language, actor, registrationParam) => {
 
     // Assign the token
     unitToken.value = token;
 
     // Assign the local lang (for the status message) from the token
     lang.value = language;
+
+    // Assign the registration
+    registration.value = registrationParam;
 
     // Start the loading status
     isLoading.value = true;
@@ -267,6 +270,7 @@ export const useAppStateStore = defineStore('app', () => {
       data: sanitizedContent,
       date: timestamp,
       timeElapsed: timeElapsed.value,
+      registration: registration.value,
     });
   
     if (response && response.message === 'Data saved successfully') {

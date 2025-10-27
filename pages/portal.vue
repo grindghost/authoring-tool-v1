@@ -1,18 +1,14 @@
 <template>
-    <!-- This is the embed unit component -->
+    <!-- Portal unit component -->
     <UnitPortal
         :profile=profile 
     />
-  
 </template>
 
 <script setup>
-    import { initializeScaler } from '~/utils/scaler';
     import { useAppStateStore } from '/stores/appState';
 
     const store = useAppStateStore();
-    const config = useRuntimeConfig();
-
     const profile = ref({});
 
     definePageMeta({
@@ -30,45 +26,63 @@
         
         const lang = queryParams.get('lang') || 'fr';
 
-                // Get the actor from the query parameters (from xAPI)
-                let actor = queryParams.get('actor');
-        let decryptedActor = null;
+        // Get the actor and registration from the query parameters
+        let actorParam = queryParams.get('actor');
+        let registrationParam = queryParams.get('registration');
+        
+        // Values to be used in the store
+        let actor = null;
+        let registration = null;
 
-        // Check if the actor query parameter exists
-        if (actor) {
+        // Default registration string
+        const defaultRegistration = 'unknown-registration';
+        
+        // Default actor object
+        const defaultActor = {
+            mbox: 'mailto:unknown@example.com',
+            name: 'Unknown User',
+        };
+
+        // Check if the registrationParam exists, and is valid
+        if (registrationParam) {
             try {
-                // Console log the actor
-                const decodedActor = decodeURIComponent(actor);
-                decryptedActor = atob(decodedActor);
-                console.log("xAPIActor:", decryptedActor);
+                const decodedRegistration = decodeURIComponent(registrationParam);
+                const decryptedRegistration = atob(decodedRegistration);
+                console.log("Registration:", decryptedRegistration);
+                
+                // Assume the registration is valid, and assign it to the registration variable as a plain string
+                registration = decryptedRegistration;
             } catch (error) {
-                console.warn("Malformed actor query parameter, using default values.");
-                actor = null; // Reset actor to null to use default values
+                registration = defaultRegistration;
+                console.warn("Malformed registration parameter, using default value.");
             }
         } else {
+            // Use the default registration string to be used in the store
+            registration = defaultRegistration;
+            console.warn("Registration query parameter is missing, using default values.");
+        }
+
+        // Check if the actorParam exists, and is valid
+        if (actorParam) {
+            try {
+                const decodedActor = decodeURIComponent(actorParam);
+                const decryptedActor = atob(decodedActor);
+                console.log("Actor:", decryptedActor);
+                
+                // Assume the actor is valid, and assign it to the actor variable
+                actor = actorParam;
+            } catch (error) {
+                actor = btoa(JSON.stringify(defaultActor));
+                console.warn("Malformed actor query parameter, using default values.");
+            }
+        } else {
+            // Encrypt the default actor object to be used in the store
+            actor = btoa(JSON.stringify(defaultActor));
             console.warn("Actor query parameter is missing, using default values.");
         }
-
-        // If actor is null or undefined, set default values in the store
-        if (!actor) {
-            // Create a default actor object
-            const defaultActor = {
-                mbox: 'mailto:unknown@example.com',
-                name: 'Unknown User',
-                objectType: 'Agent',
-                activity_id: 'unknown-activity',
-                registration: 'unknown-registration'
-            };
-
-            console.log("Unknown Actor:", defaultActor);
-
-            // Encode the default actor object to be used in the store
-            actor = btoa(JSON.stringify(defaultActor));
-        }
         
-        // Logic to assign, of remotly retrieve the unit profile (from db)
-        profile.value = await store.GetUnitProfile(token, lang, actor); 
-        
+        // Logic to assign, or remotely retrieve the unit profile (from db)
+        profile.value = await store.GetUnitProfile(token, lang, actor, registration); 
         await store.SetUnitStateOnArrival(profile.value);
     });
 

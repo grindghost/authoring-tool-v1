@@ -86,7 +86,7 @@ const project = computed(() => {
 
 const unitUrl = computed(() => {
   const token = selectedActivity.value.token;
-  const langParam = project.value.lang;
+  const langParam = project.value.lang;  
   return `${config.public.NEXTAUTH_URL}/portal/?token=${encodeURIComponent(token)}&lang=${langParam}`;
 });
 

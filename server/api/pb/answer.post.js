@@ -6,7 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 export default defineEventHandler(async (event) => {
   const backpackId = getCookie(event, 'backpackId');
   console.log('🍪 Cookie backpackId for that user:', backpackId);
-  const { token, data, date, timeElapsed } = await readBody(event);
+  const { token, data, date, timeElapsed, registration } = await readBody(event);
 
   console.log('Token received from the query:', token);
 
@@ -75,6 +75,7 @@ export default defineEventHandler(async (event) => {
       date: timestamp,
       timeElapsed: timeElapsed || 0,
       project: [relatedProject.id],
+      registration: registration,
     };
 
     if (existingRecords.items.length > 0) {

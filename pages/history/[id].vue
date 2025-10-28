@@ -13,6 +13,9 @@ definePageMeta({
   middleware: ['auth'],
 });
 
+// Toggle to display decoded actor name (true) or raw actor value (false)
+const DECODE_ACTOR_NAME = true;
+
 const route = useRoute();
 const router = useRouter();
 const projectStore = useProjects();
@@ -98,6 +101,11 @@ function cancelDelete() {
 function extractActorName(actorField) {
   if (!actorField || actorField === 'N/A') {
     return 'N/A';
+  }
+
+  // If DECODE_ACTOR_NAME is false, return the raw value (trimmed to 30 chars)
+  if (!DECODE_ACTOR_NAME) {
+    return actorField.length > 30 ? actorField.substring(0, 30) + '...' : actorField;
   }
 
   try {
@@ -334,7 +342,7 @@ onMounted(async () => {
                   <td class="text-center">
                     <span class="txt-md">{{ record.index || 0 }}</span>
                   </td>
-                  <td>{{ formatDate(record.created) }}</td>
+                  <td>{{ formatDate(record.updated) }}</td>
                   <td>{{ record.activityTitle }}</td>
                   <td>
                     <span class="truncate max-w-[200px] block transparent">

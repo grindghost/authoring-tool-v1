@@ -57,6 +57,10 @@ export default defineEventHandler(async (event) => {
       }
     });
     
+    // Debug - 0ctober 28th 2025 :
+    console.log('⚙️ Actor:', actor);
+    console.log('🧹 Sanitized data:', sanitizedData);
+
     // Encrypt the answer
     const encryptedAnswer = await encryptContent(sanitizedData);
 

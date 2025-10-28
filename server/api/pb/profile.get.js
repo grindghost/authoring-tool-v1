@@ -41,6 +41,29 @@ export default defineEventHandler(async (event) => {
     console.warn('Invalid actor encoding, using default values.');
   }
 
+  // Hotfix: Create or retrieve Backpacks2 record
+  let Backpack2;
+  try {
+    // First, check if a record with this actor already exists
+    try {
+      Backpack2 = await pb.collection('Backpacks2').getFirstListItem(`actor = '${actor}'`);
+      console.log('Found existing Backpacks2 record:', Backpack2.id);
+    } catch (notFoundError) {
+      // Record doesn't exist, create it
+      console.log('Creating new Backpacks2 record for actor');
+      Backpack2 = await pb.collection('Backpacks2').create({
+        actor: actor,           // Save the original URI-encoded actor string
+        name: name,             // Save the decoded name
+        mbox: mbox,             // Save the decoded mbox
+        exception: 0            // Default value for exception field
+      });
+      console.log('Created new Backpacks2 record:', Backpack2.id);
+    }
+  } catch (error) {
+    console.error('Error handling Backpacks2 record:', error);
+    // Continue execution even if this fails - it's a hotfix, don't break the main flow
+  }
+
   // Initialize the unit profile
   const UnitProfile = { message: null };
 

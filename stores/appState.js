@@ -12,6 +12,7 @@ export const useAppStateStore = defineStore('app', () => {
   const unitToken = ref('');
   const unitProfile = ref(null);
   const lang = ref('fr');
+  const actor = ref('');
   const registration = ref('');
 
   const mode = ref('');
@@ -66,13 +67,16 @@ export const useAppStateStore = defineStore('app', () => {
     currentOverlay.value = 'loading';
   };
   
-  const GetUnitProfile = async (token, language, actor, registrationParam) => {
+  const GetUnitProfile = async (token, language, actorParam, registrationParam) => {
 
     // Assign the token
     unitToken.value = token;
 
     // Assign the local lang (for the status message) from the token
     lang.value = language;
+
+    // Assign the actor
+    actor.value = actorParam;
 
     // Assign the registration
     registration.value = registrationParam;
@@ -84,7 +88,7 @@ export const useAppStateStore = defineStore('app', () => {
     statusMessage.value = statusStore.status[lang.value].loading;
 
     // Fetch the unit profile
-    unitProfile.value = await fetchFromApi(`/pb/profile?token=${encodeURIComponent(token)}&lang=${lang.value}&actor=${actor}`);
+    unitProfile.value = await fetchFromApi(`/pb/profile?token=${encodeURIComponent(token)}&lang=${lang.value}&actor=${actorParam}`);
 
     // Start the loading status
     isLoading.value = false;
@@ -279,6 +283,7 @@ export const useAppStateStore = defineStore('app', () => {
       date: timestamp,
       timeElapsed: timeElapsed.value,
       registration: registration.value,
+      actor: actor.value,
     });
   
     if (response && response.message === 'Data saved successfully') {

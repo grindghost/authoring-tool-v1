@@ -94,6 +94,30 @@ function cancelDelete() {
   recordToDelete.value = null;
 }
 
+// Function to extract actor name from URI-encoded base64 JSON
+function extractActorName(actorField) {
+  if (!actorField || actorField === 'N/A') {
+    return 'N/A';
+  }
+
+  try {
+    // First, decode the URI encoding
+    const uriDecoded = decodeURIComponent(actorField);
+    
+    // Then decode the base64 string
+    const base64Decoded = atob(uriDecoded);
+    
+    // Parse the JSON
+    const actorData = JSON.parse(base64Decoded);
+    
+    // Extract the name field
+    return actorData.name || 'N/A';
+  } catch (error) {
+    console.error('Error decoding actor field:', error);
+    return 'N/A';
+  }
+}
+
 // Function to trim and clean the answer
 function trimAnswer(answer) {
   if (!answer) return '';
@@ -294,6 +318,7 @@ onMounted(async () => {
                   <th>Date</th>
                   <th>Activité</th>
                   <th>Réponse</th>
+                  <th>Acteur</th>
                   <th>Inscription</th>
                   <th>Actions</th>
                 </tr>
@@ -315,6 +340,9 @@ onMounted(async () => {
                     <span class="truncate max-w-[200px] block transparent">
                       {{ trimAnswer(record.answer) }}
                     </span>
+                  </td>
+                  <td>
+                    <span class="txt-md">{{ extractActorName(record.actor) }}</span>
                   </td>
                   <td>
                     <span class="txt-md">{{ record.registration || 'N/A' }}</span>

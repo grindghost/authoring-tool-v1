@@ -227,6 +227,9 @@ export const useAppStateStore = defineStore('app', () => {
 
     try {
       await saveToDatabase();
+      // Save to localStorage as well
+      saveAnswerToLocalStorage(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
+    
       currentOverlay.value = 'completed';
 
       // If the save was successful, set the mode to edition

@@ -228,9 +228,6 @@ export const useAppStateStore = defineStore('app', () => {
     try {
       await saveToDatabase();
       // Save to localStorage as well
-      console.log('Fallback history saved to LS.');
-      console.log(unitProfile.value.project.id, unitProfile.value.activity.id,)
-      
       saveAnswerToLocalStorage(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
     
       currentOverlay.value = 'completed';

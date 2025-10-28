@@ -110,6 +110,9 @@ export default defineEventHandler(async (event) => {
         }
       }
 
+      // Add the activityId to the activity object
+      UnitProfile['activity'].id = exercice;
+
       // Initialize the history
       UnitProfile['history'] = null;
 

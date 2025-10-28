@@ -228,6 +228,9 @@ export const useAppStateStore = defineStore('app', () => {
     try {
       await saveToDatabase();
       // Save to localStorage as well
+      console.log('Fallback history saved to LS.');
+      console.log(unitProfile.value.project.id, unitProfile.value.activity.id,)
+      
       saveAnswerToLocalStorage(unitProfile.value.project.id, unitProfile.value.activity.id, editorContent.value);
     
       currentOverlay.value = 'completed';
@@ -290,12 +293,12 @@ export const useAppStateStore = defineStore('app', () => {
 
   const getAnswerFromLocalStorage = (projectId, activityId) => {
     // Check if local storage contains a answers object, if not create one
-    if (!localStorage.getItem('virtualHistory')) {
-      localStorage.setItem('virtualHistory', JSON.stringify([]));
+    if (!localStorage.getItem('fallbackHistory')) {
+      localStorage.setItem('fallbackHistory', JSON.stringify([]));
     }
 
     // Get the answers object from local storage
-    const answers = JSON.parse(localStorage.getItem('virtualHistory'));
+    const answers = JSON.parse(localStorage.getItem('fallbackHistory'));
 
     // Find the answer for the given projectId and activityId
     const answer = answers.find((a) => a.projectId === projectId && a.activityId === activityId);
@@ -325,8 +328,8 @@ export const useAppStateStore = defineStore('app', () => {
 
   const saveAnswerToLocalStorage = (projectId, activityId, answer) => {
     // Check if local storage contains a answers object, if not create one
-    if (!localStorage.getItem('virtualHistory')) {
-      localStorage.setItem('virtualHistory', JSON.stringify([]));
+    if (!localStorage.getItem('fallbackHistory')) {
+      localStorage.setItem('fallbackHistory', JSON.stringify([]));
     }
 
     const sanitizedAnswer = DOMPurify.sanitize(answer, {
@@ -342,7 +345,7 @@ export const useAppStateStore = defineStore('app', () => {
     });  
 
     // Get the answers object from local storage
-    const answers = JSON.parse(localStorage.getItem('virtualHistory'));
+    const answers = JSON.parse(localStorage.getItem('fallbackHistory'));
 
     // Find the answer for the given projectId and activityId
     const existingAnswer = answers.find((a) => a.projectId === projectId && a.activityId === activityId);
@@ -358,7 +361,7 @@ export const useAppStateStore = defineStore('app', () => {
     }
 
     // Update the answers object in local storage
-    localStorage.setItem('virtualHistory', JSON.stringify(answers));
+    localStorage.setItem('fallbackHistory', JSON.stringify(answers));
   }
 
   const handleDownloadFilledPdf = async() => {
@@ -366,18 +369,18 @@ export const useAppStateStore = defineStore('app', () => {
     if (unitProfile.value.mockup) {
 
       // Check the virtual history array in the local storage, and check if it exists, if not initialize it to an empty array
-      if (!localStorage.getItem('virtualHistory')) {
-        localStorage.setItem('virtualHistory', JSON.stringify([]));
+      if (!localStorage.getItem('fallbackHistory')) {
+        localStorage.setItem('fallbackHistory', JSON.stringify([]));
       }
 
       // Decrypt the virtual history array from the local storage
       // ...
 
       // Get the virtual history array from the local storage
-      const virtualHistory = JSON.parse(localStorage.getItem('virtualHistory'));
+      const fallbackHistory = JSON.parse(localStorage.getItem('fallbackHistory'));
 
       // Filter the answers and create an array of the answers objects where the projectId matches the current project
-      const answers = virtualHistory.filter((a) => a.projectId === unitProfile.value.project.id);
+      const answers = fallbackHistory.filter((a) => a.projectId === unitProfile.value.project.id);
 
       const answersString = JSON.stringify(answers);
 

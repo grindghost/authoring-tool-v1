@@ -5,10 +5,7 @@ import sanitizeHtml from 'sanitize-html';
 
 export default defineEventHandler(async (event) => {
   const backpackId = getCookie(event, 'backpackId');
-  console.log('🍪 Cookie backpackId for that user:', backpackId);
   const { token, data, date, timeElapsed, registration, actor } = await readBody(event);
-
-  console.log('Token received from the query:', token);
 
   await ensureAuthenticated("Save answer");
 
@@ -28,6 +25,18 @@ export default defineEventHandler(async (event) => {
         sameSite: process.env.SAME_SITE,
         maxAge: 60 * 60 * 24 * 365 * 10, // 10 years in seconds (permanent)
       });
+    }
+
+    // Hotfix: Get reference to Backpacks2 record if it exists
+    let Backpack2;
+    if (actor) {
+      try {
+        Backpack2 = await pb.collection('Backpacks2').getFirstListItem(`actor = '${actor}'`);
+        console.log('Found Backpacks2 record:', Backpack2.id, 'with exception:', Backpack2.exception);
+      } catch (error) {
+        // Record doesn't exist yet, that's okay - profile endpoint will create it
+        console.log('No Backpacks2 record found for this actor yet');
+      }
     }
 
     // Decrypt the token
@@ -65,30 +74,71 @@ export default defineEventHandler(async (event) => {
     const encryptedAnswer = await encryptContent(sanitizedData);
 
     // Step 4: Get the latest record or create a new one
-    const existingRecords = await pb.collection('history').getList(1, 1, {
-      filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}' && activityId = '${activityId}'`,
-      sort: '-date', // Sort by date (newest first)
-    });
+    let existingRecords;
+    
+    // Check if we should use actor-based lookup
+    if (Backpack2 && Backpack2.exception === 2) {
+      console.log('Using actor-based history save/update (exception === 2)');
+      existingRecords = await pb.collection('history').getList(1, 1, {
+        filter: `actor = '${actor}' && courseId = '${projectId}' && activityId = '${activityId}'`,
+        sort: '-date', // Sort by date (newest first)
+      });
+    } else {
+      // Use the original backpackId-based lookup
+      existingRecords = await pb.collection('history').getList(1, 1, {
+        filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}' && activityId = '${activityId}'`,
+        sort: '-date', // Sort by date (newest first)
+      });
+    }
 
     const timestamp = new Date().toISOString();
-    const historicEvent = {
-      backpackId: decryptedbackpackId,
-      courseId: projectId,  
-      activityId: activityId, 
-      answer: encryptedAnswer,
-      date: timestamp,
-      timeElapsed: timeElapsed || 0,
-      project: [relatedProject.id],
-      registration: registration,
-      actor: actor,
-    };
 
     if (existingRecords.items.length > 0) {
       // Update the latest record
       const latestRecord = existingRecords.items[0];
-      await pb.collection('history').update(latestRecord.id, historicEvent);
+      
+      // For exception === 2, preserve the existing backpackId
+      if (Backpack2 && Backpack2.exception === 2) {
+        const historicEventUpdate = {
+          // Do NOT update backpackId - keep the existing one
+          courseId: projectId,  
+          activityId: activityId, 
+          answer: encryptedAnswer,
+          date: timestamp,
+          timeElapsed: timeElapsed || 0,
+          project: [relatedProject.id],
+          registration: registration,
+          actor: actor,
+        };
+        await pb.collection('history').update(latestRecord.id, historicEventUpdate);
+      } else {
+        // Normal update with backpackId
+        const historicEvent = {
+          backpackId: decryptedbackpackId,
+          courseId: projectId,  
+          activityId: activityId, 
+          answer: encryptedAnswer,
+          date: timestamp,
+          timeElapsed: timeElapsed || 0,
+          project: [relatedProject.id],
+          registration: registration,
+          actor: actor,
+        };
+        await pb.collection('history').update(latestRecord.id, historicEvent);
+      }
     } else {
       // Create a new record if none exists
+      const historicEvent = {
+        backpackId: decryptedbackpackId,
+        courseId: projectId,  
+        activityId: activityId, 
+        answer: encryptedAnswer,
+        date: timestamp,
+        timeElapsed: timeElapsed || 0,
+        project: [relatedProject.id],
+        registration: registration,
+        actor: actor,
+      };
       await pb.collection('history').create(historicEvent);
     }
 

@@ -463,6 +463,7 @@ export const useAppStateStore = defineStore('app', () => {
       // Send the request without the userId, as it's handled by the server
       const response = await fetchFromApi('/pb/generate-pdf', 'POST', {
         token: unitToken.value,
+        actor: actor.value,
       }, true);  // Pass true to indicate a binary response (PDF)
   
       if (response) {

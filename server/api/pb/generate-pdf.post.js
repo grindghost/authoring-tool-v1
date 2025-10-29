@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const backpackId = getCookie(event, 'backpackId'); // Get backpackId from the cookie
-  const { token } = await readBody(event); // Read POST body
+  const { token, actor } = await readBody(event); // Read POST body
 
   await ensureAuthenticated("Generate PDF"); // Ensure authentication before each request
 
@@ -39,6 +39,18 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Hotfix: Get reference to Backpacks2 record if it exists
+    let Backpack2;
+    if (actor) {
+      try {
+        Backpack2 = await pb.collection('Backpacks2').getFirstListItem(`actor = '${actor}'`);
+        console.log('Found Backpacks2 record for PDF generation:', Backpack2.id, 'with exception:', Backpack2.exception);
+      } catch (error) {
+        // Record doesn't exist yet, that's okay
+        console.log('No Backpacks2 record found for this actor in PDF generation');
+      }
+    }
+
     // Decrypt the token
     const decryptedPayload = await decryptContent(token);
     console.log('Decrypted payload:', decryptedPayload);
@@ -54,10 +66,20 @@ export default defineEventHandler(async (event) => {
     // Query the history collection for all events related to the project
     let allEvents = [];
     try {
-      allEvents = await pb.collection('history').getFullList(200, {
-        filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}'`,
-        sort: '-date', // Get the most recent events first
-      });
+      // Check if we should use actor-based lookup
+      if (Backpack2 && Backpack2.exception === 2) {
+        console.log('Using actor-based history lookup for PDF generation (exception === 2)');
+        allEvents = await pb.collection('history').getFullList(200, {
+          filter: `actor = '${actor}' && courseId = '${projectId}'`,
+          sort: '-date', // Get the most recent events first
+        });
+      } else {
+        // Use the original backpackId-based lookup
+        allEvents = await pb.collection('history').getFullList(200, {
+          filter: `backpackId = '${decryptedbackpackId}' && courseId = '${projectId}'`,
+          sort: '-date', // Get the most recent events first
+        });
+      }
     } catch (error) {
       // No matching events found, proceed with empty form data
       console.warn('No matching historic events found:', error.message);

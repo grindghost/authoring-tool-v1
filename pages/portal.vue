@@ -48,7 +48,7 @@
             try {
                 const decodedRegistration = decodeURIComponent(registrationParam);
                 const decryptedRegistration = atob(decodedRegistration);
-                console.log("Registration:", decryptedRegistration);
+                // console.log("Registration:", decryptedRegistration);
                 
                 // Assume the registration is valid, and assign it to the registration variable as a plain string
                 registration = decryptedRegistration;
@@ -67,7 +67,7 @@
             try {
                 const decodedActor = decodeURIComponent(actorParam);
                 const decryptedActor = atob(decodedActor);
-                console.log("Actor:", decryptedActor);
+                // console.log("Actor:", decryptedActor);
                 
                 // Assume the actor is valid, and assign it to the actor variable
                 actor = actorParam;

@@ -347,6 +347,50 @@ export const useProjects = defineStore('projects', {
       }
     },
 
+    // Helper function to extract actor name from encoded actor field
+    extractActorName(actorField) {
+      if (!actorField || actorField === 'N/A') {
+        return 'Unknown';
+      }
+
+      try {
+        // First, decode the URI encoding
+        const uriDecoded = decodeURIComponent(actorField);
+        
+        // Then decode the base64 string
+        const base64Decoded = atob(uriDecoded);
+        
+        // Parse the JSON
+        const actorData = JSON.parse(base64Decoded);
+        
+        // Extract the name field
+        return actorData.name || 'Unknown';
+      } catch (error) {
+        console.error('Error decoding actor field:', error);
+        return 'Unknown';
+      }
+    },
+
+    // Helper function to sanitize filename (remove accents and special characters)
+    sanitizeFilename(filename) {
+      // Normalize accented characters
+      let sanitized = filename.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      
+      // Replace spaces with underscores
+      sanitized = sanitized.replace(/\s+/g, '_');
+      
+      // Remove any characters that aren't alphanumeric, underscore, or hyphen
+      sanitized = sanitized.replace(/[^a-zA-Z0-9_-]/g, '');
+      
+      // Remove consecutive underscores or hyphens
+      sanitized = sanitized.replace(/[_-]+/g, '_');
+      
+      // Remove leading/trailing underscores or hyphens
+      sanitized = sanitized.replace(/^[_-]+|[_-]+$/g, '');
+      
+      return sanitized || 'user';
+    },
+
     // Method to download PDF for specific user
     async downloadUserPdf(projectId, backpackId, actor) {
       this.startLoading();
@@ -368,11 +412,16 @@ export const useProjects = defineStore('projects', {
         // Get the blob from the response
         const blob = await response.blob();
         
+        // Extract and sanitize actor name for filename
+        const actorName = this.extractActorName(actor);
+        const sanitizedName = actorName === 'Unknown' ? backpackId : this.sanitizeFilename(actorName);
+        
         // Create download link
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `user-${backpackId}-project-${projectId}.pdf`;
+        // a.download = `user-${backpackId}-project-${projectId}.pdf`;
+        a.download = `${projectId}-${sanitizedName}.pdf`;
         a.click();
         
         // Clean up

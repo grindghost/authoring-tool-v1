@@ -200,8 +200,6 @@ export const useAppStateStore = defineStore('app', () => {
     // Reset the timer, when the editor is shown
     startTime.value = performance.now();
     endTime.value = 0;
-    console.log('Timer reset for this session.');
-
   };
 
   const showCompletedOverlay = () => {

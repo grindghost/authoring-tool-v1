@@ -30,6 +30,9 @@ const hoveredAnswerId = ref(null);
 const tooltipPosition = ref({ top: 0, left: 0 });
 const tooltipContent = ref('');
 const tooltipVisible = ref(false);
+const contextMenuVisible = ref(false);
+const contextMenuPosition = ref({ top: 0, left: 0 });
+const selectedRecord = ref(null);
 
 // Fetch project history
 async function fetchProjectHistory() {
@@ -274,8 +277,73 @@ function hideTooltip() {
   tooltipVisible.value = false;
 }
 
+// Show context menu on right-click
+function showContextMenu(event, record) {
+  // Only show context menu if actor is not N/A
+  if (!record.actor || record.actor === 'N/A') {
+    return;
+  }
+  
+  event.preventDefault();
+  selectedRecord.value = record;
+  contextMenuPosition.value = {
+    top: event.clientY,
+    left: event.clientX
+  };
+  contextMenuVisible.value = true;
+}
+
+// Close context menu
+function closeContextMenu() {
+  contextMenuVisible.value = false;
+  selectedRecord.value = null;
+}
+
+// Create/update Backpack2 record
+async function createBackpack2Record(exceptionValue = 2) {
+  if (!selectedRecord.value || !selectedRecord.value.actor) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/pb/backpack2-update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        actor: selectedRecord.value.actor,
+        exceptionValue: exceptionValue
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create/update Backpack2 record');
+    }
+
+    const result = await response.json();
+    console.log('Backpack2 operation result:', result);
+    
+    // Show success feedback
+    alert(`${result.message} with exception value: ${exceptionValue}`);
+  } catch (err) {
+    console.error('Error creating Backpack2 record:', err);
+    error.value = err.message || 'Failed to create/update Backpack2 record';
+  } finally {
+    closeContextMenu();
+  }
+}
+
 onMounted(async () => {
   await fetchProjectHistory();
+  
+  // Close context menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (contextMenuVisible.value && !e.target.closest('.context-menu')) {
+      closeContextMenu();
+    }
+  });
 });
 </script>
 
@@ -338,6 +406,7 @@ onMounted(async () => {
                   class="cursor-pointer border-b border-gray-200 bg-white hover:bg-gray-100"
                   @mouseover="showTooltip($event, record.answer, $event.currentTarget.closest('.table'))"
                   @mouseleave="hideTooltip"
+                  @contextmenu="showContextMenu($event, record)"
                 >
                   <td class="text-center">
                     <span class="txt-md">{{ record.index || 0 }}</span>
@@ -403,6 +472,34 @@ onMounted(async () => {
         </div>
       </div>
     </dialog>
+
+    <!-- Context Menu for Backpack2 -->
+    <div 
+      v-if="contextMenuVisible"
+      class="context-menu fixed z-50 bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden"
+      :style="{
+        top: `${contextMenuPosition.top}px`,
+        left: `${contextMenuPosition.left}px`,
+      }"
+    >
+      <div class="py-1">
+        <div class="px-4 py-2 text-xs text-gray-500 border-b border-gray-200">
+          Actor: {{ selectedRecord ? extractActorName(selectedRecord.actor) : '' }}
+        </div>
+        <button 
+          class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors"
+          @click="createBackpack2Record(2)"
+        >
+          Set Exception = 2
+        </button>
+        <button 
+          class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors"
+          @click="createBackpack2Record(0)"
+        >
+          Set Exception = 0
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -414,6 +511,11 @@ onMounted(async () => {
 .tooltip-container {
   animation: fadeIn 0.2s ease-in-out;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.context-menu {
+  min-width: 200px;
+  animation: fadeIn 0.15s ease-in-out;
 }
 
 @keyframes fadeIn {

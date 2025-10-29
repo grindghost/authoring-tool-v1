@@ -230,6 +230,7 @@ export default defineEventHandler(async (event) => {
     if (matchingEvents.length === 0) {
       UnitProfile['history'] = null;
       UnitProfile['registration'] = null;
+      console.log('0 matching events found.');
     } else {
 
     // Step 5: Get the most recent event (first in the sorted list)
@@ -253,6 +254,9 @@ export default defineEventHandler(async (event) => {
     });
     UnitProfile['history'] = sanitizedContent;
     UnitProfile['registration'] = latestEvent.registration || 'unknown-registration';
+    
+    console.log('Record found:', latestEvent);
+    console.log('Sanitized content:', sanitizedContent);
     }
 
     // Return the unit profile

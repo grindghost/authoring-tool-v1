@@ -60,9 +60,9 @@ async function deleteRecord(recordId) {
 }
 
 // Download PDF for specific user
-async function downloadUserPdf(backpackId) {
+async function downloadUserPdf(backpackId, actor) {
   try {
-    await projectStore.downloadUserPdf(projectId.value, backpackId);
+    await projectStore.downloadUserPdf(projectId.value, backpackId, actor);
   } catch (err) {
     error.value = err.message || 'Failed to download PDF';
   }
@@ -376,7 +376,7 @@ onMounted(async () => {
             </div>
             <button 
               class="btn btn-primary btn-sm"
-              @click="downloadUserPdf(backpackId)"
+              @click="downloadUserPdf(backpackId, historyRecords[0]?.actor)"
               :disabled="isLoading"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

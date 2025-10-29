@@ -348,7 +348,7 @@ export const useProjects = defineStore('projects', {
     },
 
     // Method to download PDF for specific user
-    async downloadUserPdf(projectId, backpackId) {
+    async downloadUserPdf(projectId, backpackId, actor) {
       this.startLoading();
       this.statusMessage = 'Génération du PDF pour l\'utilisateur';
       try {
@@ -357,7 +357,7 @@ export const useProjects = defineStore('projects', {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ projectId, backpackId }),
+          body: JSON.stringify({ projectId, backpackId, actor }),
         });
 
         if (!response.ok) {

@@ -23,11 +23,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Access the current user's ID
-  const userId = authSession?.user?.userId;
-
   try {
-    const { projectId, backpackId } = await readBody(event);
+    const { projectId, backpackId, actor } = await readBody(event);
 
     if (!projectId || !backpackId) {
       throw createError({
@@ -36,16 +33,37 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // Hotfix: Check Backpacks2 if actor is provided
+    let Backpack2;
+    if (actor && actor !== 'N/A') {
+      try {
+        Backpack2 = await pb.collection('Backpacks2').getFirstListItem(`actor = '${actor}'`);
+        console.log('Found Backpacks2 record for user PDF download:', Backpack2.id, 'with exception:', Backpack2.exception);
+      } catch (error) {
+        console.log('No Backpacks2 record found for this actor in user PDF download');
+      }
+    }
+
     // Get the project from the `Projects` collection
     const currentProject = await pb.collection('Projects').getFirstListItem(`id = '${projectId}'`);
 
     // Query the history collection for all events related to the project and backpack
     let allEvents = [];
     try {
-      allEvents = await pb.collection('history').getFullList(200, {
-        filter: `backpackId = '${backpackId}' && courseId = '${projectId}'`,
-        sort: '-date', // Get the most recent events first
-      });
+      // Check if we should use actor-based lookup
+      if (Backpack2 && Backpack2.exception === 2 && actor) {
+        console.log('Using actor-based history lookup for user PDF download (exception === 2)');
+        allEvents = await pb.collection('history').getFullList(200, {
+          filter: `actor = '${actor}' && courseId = '${projectId}'`,
+          sort: '-date', // Get the most recent events first
+        });
+      } else {
+        // Use the original backpackId-based lookup
+        allEvents = await pb.collection('history').getFullList(200, {
+          filter: `backpackId = '${backpackId}' && courseId = '${projectId}'`,
+          sort: '-date', // Get the most recent events first
+        });
+      }
     } catch (error) {
       // No matching events found, proceed with empty form data
       console.warn('No matching historic events found:', error.message);

@@ -191,9 +191,9 @@ export default defineEventHandler(async (event) => {
 
         
     // Validate history record count (for the whole project)
+    /*
     const historyRecords = await pb.collection('History').getFullList(200, { filter: `courseId = '${project}'` });
     
-    /*
     if (historyRecords.length > 150) {
       UnitProfile.message = 'Too many history records';
       return UnitProfile;
@@ -206,10 +206,20 @@ export default defineEventHandler(async (event) => {
     // Retrieve latest historic event
     let matchingEvents = [];
     try {
-      matchingEvents = await pb.collection('History').getFullList(200, {
-        filter: `backpackId = '${decryptedbackpackId}' && courseId = '${project}' && activityId = '${exercice}'`,
-        sort: '-date', // Sort by creationDate in descending order
-      });
+      // Check if we should use the alternative actor-based lookup
+      if (Backpack2 && Backpack2.exception === 2) {
+        console.log('Using actor-based history lookup (exception === 2)');
+        matchingEvents = await pb.collection('History').getFullList(200, {
+          filter: `actor = '${actor}' && courseId = '${project}' && activityId = '${exercice}'`,
+          sort: '-date', // Sort by date in descending order
+        });
+      } else {
+        // Use the original backpackId-based lookup
+        matchingEvents = await pb.collection('History').getFullList(200, {
+          filter: `backpackId = '${decryptedbackpackId}' && courseId = '${project}' && activityId = '${exercice}'`,
+          sort: '-date', // Sort by creationDate in descending order
+        });
+      }
     } catch (error) {
       // console.warn('No matching records found or query failed:', error.message);
       UnitProfile['history'] = null; // Gracefully handle no matches

@@ -99,6 +99,7 @@ export default defineEventHandler(async (event) => {
       },
       "activity": {
         ...activityConfig,
+        "id": key
       },
       "locales": projectLocales,
       "unitConfig": {

@@ -7,9 +7,9 @@ import { getServerSession } from '#auth';
 
 async function fetchRCPFiles() {
   const files = {
-    'index.html': 'https://raw.githubusercontent.com/grindghost/xapi-state-utils/refs/heads/features/xsu-3_rcp-protocol/xapi-state-utils/dist/index.html',
-    'tincan.xml': 'https://raw.githubusercontent.com/grindghost/xapi-state-utils/refs/heads/features/xsu-3_rcp-protocol/xapi-state-utils/dist/tincan.xml',
-    'xapi-state-utils.umd.js': 'https://raw.githubusercontent.com/grindghost/xapi-state-utils/refs/heads/features/xsu-3_rcp-protocol/xapi-state-utils/dist/xapi-state-utils.umd.js'
+    'index.html': 'https://raw.githubusercontent.com/grindghost/xapi-state-utils/refs/heads/features/xsu-4_remote-configs-and-locales/xapi-state-utils/dist/index.html',
+    'tincan.xml': 'https://raw.githubusercontent.com/grindghost/xapi-state-utils/refs/heads/features/xsu-4_remote-configs-and-locales/xapi-state-utils/dist/tincan.xml',
+    'xapi-state-utils.umd.js': 'https://raw.githubusercontent.com/grindghost/xapi-state-utils/refs/heads/features/xsu-4_remote-configs-and-locales/xapi-state-utils/dist/xapi-state-utils.umd.js'
   };
 
   const fileContents = {};
@@ -48,9 +48,26 @@ export default defineEventHandler(async (event) => {
   // Create the main zip file
   const mainZip = new JSZip();
   
-  // Fetch project data from PocketBase to get the PDF URL
-  const project = await pb.collection('Projects').getOne(projectId);
+  // Fetch project data from PocketBase to get the PDF URL and expand locales relation
+  const project = await pb.collection('Projects').getOne(projectId, {
+    expand: 'locales'
+  });
   const pdfUrl = project.profile?.pdfURL;
+  
+  // Get expanded locales from the project and transform them into an object indexed by language
+  let projectLocales = {};
+  if (project.expand?.locales && Array.isArray(project.expand.locales)) {
+    // Transform array of locale objects into an object indexed by language code
+    projectLocales = project.expand.locales.reduce((acc, locale) => {
+      if (locale.dict && locale.dict.lang) {
+        acc[locale.dict.lang] = locale.dict;
+      }
+      return acc;
+    }, {});
+  } else if (project.locales && Array.isArray(project.locales) && project.locales.length > 0) {
+    // If locales are not expanded, use empty object (we can't access dict without expansion)
+    projectLocales = {};
+  }
   
   // Fetch the PDF file
   let pdfBuffer = null;
@@ -62,41 +79,33 @@ export default defineEventHandler(async (event) => {
   // Fetch RCP files from GitHub
   const rcpFiles = await fetchRCPFiles();
 
-  // Get sorted activities to determine which is the last one
-  const sortedActivities = Object.entries(activities)
-    .map(([id, activity]) => ({ id, ...activity }))
-    .sort((a, b) => a.index - b.index);
-
   for (const [key, activity] of Object.entries(activities)) {
-    // Determine if this is the last activity
-    const isLastActivity = sortedActivities[sortedActivities.length - 1].id === key;
+    // Get the activity from the project to use its configs
+    const activity = project.profile?.activities?.[key] || {};
 
-    // Create activity-specific config.json
+    // Exclude "author", "locales", and "expand" from project object
+    const projectProfile = project.profile;
+    const { author, locales, activities, ...projectConfig } = projectProfile;
+    
+    // Exclude "token" from activity object
+    const { token, ...activityConfig } = activity;
+
     const configJson = {
-      "indexKey": "notes-index",
-      "indexTarget": indexTarget || {
-        "activityId": "default-activity-id",
-        "registration": "default-registration",
-        "idcontenubrio": "default-idcontenubrio"
+      "project": {
+        ...projectConfig,
+        "endPointOnDemand": false,
+        "allowedOrigin": "https://xapi-state-utils.vercel.app",
+        "projectId": projectId,
+        "unitConfig": {
+          "useRemoteConfig": true,
+          "pocketbaseUrl": "https://jdb.pockethost.io"
+        }
       },
-      "description": "Configuration for xAPI State Utils",
-      "version": "1.0.0",
-      "placeholder": activity.useCustomPlaceholder ? activity.customPlaceholder : "Entrez votre réponse ici...",
-      "defaultText": activity.defaultText || "",
-      "fieldName": activity.fieldName || "field_1",
-      "isEndpoint": isLastActivity || activity.isEndpoint || false,
-      "endPointOnDemand": false,
-      "documentImageUrl": project.profile?.pdfCoverImgUrl || "cover_image.png",
-      "pdfUrl": project.profile?.pdfURL || "document.pdf",
-      "activityTitle": activity.activityTitle || "Activité",
-      "activityDescription": activity.contextText || "Exercice de réflexion personnelle",
-      "allowedOrigin": "https://xapi-state-utils.vercel.app",
-      "pdfConfig": {
-        "filename": project.name || "Document",
-        "extension": "pdf",
-        "estimatedSize": project.pdfFileSize || "~1.48 MB"
-      }
-    };
+      "activity": {
+        ...activityConfig,
+      },
+      "locales": projectLocales,
+    }
 
     const activityZip = new JSZip();
 

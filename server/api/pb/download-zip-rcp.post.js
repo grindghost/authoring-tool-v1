@@ -95,16 +95,16 @@ export default defineEventHandler(async (event) => {
         ...projectConfig,
         "endPointOnDemand": false,
         "allowedOrigin": "https://xapi-state-utils.vercel.app",
-        "projectId": projectId,
-        "unitConfig": {
-          "useRemoteConfig": true,
-          "pocketbaseUrl": "https://jdb.pockethost.io"
-        }
+        "projectId": projectId
       },
       "activity": {
         ...activityConfig,
       },
       "locales": projectLocales,
+      "unitConfig": {
+        "useRemoteConfig": true,
+        "pocketbaseUrl": "https://jdb.pockethost.io"
+      }
     }
 
     const activityZip = new JSZip();

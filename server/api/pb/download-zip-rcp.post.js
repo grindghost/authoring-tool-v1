@@ -103,7 +103,8 @@ export default defineEventHandler(async (event) => {
       "locales": projectLocales,
       "unitConfig": {
         "useRemoteConfig": true,
-        "pocketbaseUrl": "https://jdb.pockethost.io"
+        "pocketbaseUrl": "https://jdb.pockethost.io",
+        "collectionName": "Projects"
       }
     }
 
